@@ -17,3 +17,6 @@ dist/
 # misc
 .DS_Store
 *.tsbuildinfo
+
+# wrangler
+.wrangler/
