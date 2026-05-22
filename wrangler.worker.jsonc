@@ -1,0 +1,17 @@
+{
+  "main": ".open-next/worker.js",
+  "name": "solar-next",
+  "compatibility_date": "2026-04-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "c7eca8e68f01f34299409215949b269b",
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "solar-next"
+    }
+  ],
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://solar-next.dohoangnamvn.workers.dev",
+    "NEXT_PUBLIC_SITE_NAME": "SOLIQ ENERGY"
+  }
+}

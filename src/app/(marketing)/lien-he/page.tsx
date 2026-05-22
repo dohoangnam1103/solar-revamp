@@ -1,0 +1,90 @@
+import type { Metadata } from 'next'
+import { buildPageMetadata, localBusinessSchema } from '@/lib/seo/metadata'
+import { MapPin, Phone, Mail, MessageCircle } from 'lucide-react'
+import ContactForm from '@/components/marketing/ContactForm'
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Liên Hệ SOLIQ ENERGY - Tư Vấn Lắp Điện Mặt Trời Miễn Phí',
+  description: 'Liên hệ SOLIQ ENERGY để được tư vấn lắp điện mặt trời miễn phí. Hotline: 090.22.11.893. Địa chỉ: 125 Hoàng Ngân, Thanh Xuân, Hà Nội.',
+  alternates: { canonical: '/lien-he' },
+})
+
+export default function LienHePage() {
+  const jsonLd = localBusinessSchema()
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <section className="bg-solar-hero py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">Liên hệ với chúng tôi</h1>
+          <p className="text-green-100 text-lg max-w-2xl mx-auto">Tư vấn miễn phí, phản hồi trong vòng 5 phút</p>
+        </div>
+      </section>
+
+      <section className="py-16 bg-solar-light">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* Contact info */}
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông tin liên hệ</h2>
+                <div className="space-y-4">
+                  {[
+                    { icon: MapPin, label: 'Địa chỉ', value: '125 Hoàng Ngân, P.Thanh Xuân, TP Hà Nội', href: undefined },
+                    { icon: Phone, label: 'Hotline', value: '090.22.11.893 — 0902.262.101', href: 'tel:0902211893' },
+                    { icon: Mail, label: 'Email', value: 'lienhe@soliq.com.vn', href: 'mailto:lienhe@soliq.com.vn' },
+                  ].map((item) => (
+                    <div key={item.label} className="flex gap-4 glass rounded-xl p-4 border border-white/50">
+                      <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
+                        <item.icon className="w-5 h-5 text-green-700" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-900 uppercase tracking-wider mb-0.5">{item.label}</p>
+                        {item.href ? (
+                          <a href={item.href} className="font-semibold text-gray-800 hover:text-green-700 transition-colors">{item.value}</a>
+                        ) : (
+                          <p className="font-semibold text-gray-800">{item.value}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-gray-900 mb-4">Kết nối mạng xã hội</h3>
+                <div className="flex gap-3">
+                  <a href="https://www.facebook.com/soliqvn" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    Facebook
+                  </a>
+                  <a href="https://zalo.me/0902211893" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-colors">
+                    <MessageCircle className="w-4 h-4" />Zalo
+                  </a>
+                  <a href="https://m.me/829928056870811" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors">
+                    <MessageCircle className="w-4 h-4" />Messenger
+                  </a>
+                </div>
+              </div>
+
+              <div className="glass rounded-2xl p-6 border border-white/50">
+                <h3 className="font-bold text-gray-900 mb-3">Giờ làm việc</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between"><span className="text-gray-500">Thứ 2 - Thứ 6</span><span className="font-medium">08:00 - 17:30</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500">Thứ 7</span><span className="font-medium">08:00 - 12:00</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500">Chủ nhật</span><span className="text-gray-900">Nghỉ</span></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Form */}
+            <ContactForm />
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
