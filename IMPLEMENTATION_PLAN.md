@@ -460,46 +460,11 @@ Glassmorphism rules:
 - On mobile, use a step-by-step quote flow instead of a dense desktop form.
 - Treat admin as internal MVP, not a polished public dashboard initially.
 
-## Company Info (from soliq.com.vn)
-
-Address:
-- `125 Hoàng Ngân, P.Thanh Xuân, TP Hà Nội`
-
-## Price Tables (from soliq.com.vn — seed into settings table)
-
-### Hòa lưới (Grid-tied)
-
-| Công suất | Số tấm pin | Inverter | Giá (VNĐ) |
-|-----------|-----------|----------|-----------|
-| 5kWp | 10 tấm | 5kW | 47.300.000 |
-| 8kWp | 14 tấm | 6kW | 56.000.000 |
-| 10kWp | 18 tấm | 10kW | 78.000.000 |
-| 12kWp | 20 tấm | 10kW | 84.300.000 |
-| 15kWp | 26 tấm | 15kW | 106.500.000 |
-| 18kWp | 30 tấm | 18kW | 119.000.000 |
-| 20kWp | 34 tấm | 20kW | 130.800.000 |
-| 25kWp | 38 tấm | 20kW | 143.000.000 |
-
-### Hybrid (with battery storage)
-
-| Công suất | Số tấm | Inverter | Pin lưu | Giá (VNĐ) |
-|-----------|--------|----------|---------|-----------|
-| 5kWp | 9 tấm | 5kW | 51.2V/100AH | 51.000.000 |
-| 8kWp | 14 tấm | 8kW | 51.2V/100AH | 85.000.000 |
-| 8kWp 3 pha | 14 tấm | 8kW 3P | 51.2V/100AH | 100.500.000 |
-| 10kWp 3 pha | 18 tấm | 10kW 3P | 51.2V/100AH | 132.000.000 |
-| 15kWp 3 pha | 28 tấm | 15kW 3P | 51.2V/100AH | 156.000.000 |
-| 20kWp 3 pha | 36 tấm | 20kW 3P | 51.2V/100AH | 197.000.000 |
-
-Note: Giá trên chỉ mang tính tham khảo. Cần khảo sát thực tế để có báo giá chính xác.
-
-Derived price-per-kWp estimates (for calculator assumptions):
-- Grid-tied: ~7.000.000 – 9.400.000 VNĐ/kWp (avg ~8.000.000)
-- Hybrid: ~9.500.000 – 10.200.000 VNĐ/kWp (avg ~9.800.000)
-
 ## Open Questions For Implementation
 
+- Official SOLIQ company address for schema/contact page.
 - Whether SOLIQ wants "trả góp", "trả chậm", "thuê hệ thống", or all three as product lines.
+- Whether current price table from `soliq.com.vn` should be copied into DB settings.
 - Whether to integrate Zalo/Messenger as direct links only or also send lead notifications.
 - Whether admin login should be simple password auth for MVP or proper auth provider.
 
