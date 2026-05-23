@@ -82,7 +82,7 @@ export default function QuoteCalculator() {
             <select
               value={province}
               onChange={(e) => setProvince(e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+              className="w-full cursor-pointer px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
             >
               {PROVINCES.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -101,7 +101,7 @@ export default function QuoteCalculator() {
                   key={opt.value}
                   type="button"
                   onClick={() => setMonthlyBill(opt.value)}
-                  className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
+                  className={`cursor-pointer px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
                     monthlyBill === opt.value
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
@@ -126,7 +126,7 @@ export default function QuoteCalculator() {
               step="0.1"
               value={daytimeRate}
               onChange={(e) => setDaytimeRate(parseFloat(e.target.value))}
-              className="w-full accent-green-700"
+              className="w-full cursor-pointer accent-green-700"
             />
             <div className="flex justify-between text-xs text-gray-900 mt-1">
               <span>Chủ yếu tối</span>
@@ -149,7 +149,7 @@ export default function QuoteCalculator() {
                   key={value}
                   type="button"
                   onClick={() => setCustomerType(value as typeof customerType)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border text-xs font-medium transition-all ${
+                  className={`flex cursor-pointer flex-col items-center gap-1.5 p-3 rounded-lg border text-xs font-medium transition-all ${
                     customerType === value
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
@@ -167,7 +167,7 @@ export default function QuoteCalculator() {
             <label className="flex items-center gap-3 cursor-pointer">
               <div
                 onClick={() => setBatteryOption(!batteryOption)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${
+                className={`relative h-6 w-11 cursor-pointer rounded-full transition-colors ${
                   batteryOption ? 'bg-green-600' : 'bg-gray-300'
                 }`}
               >
@@ -201,7 +201,7 @@ export default function QuoteCalculator() {
                   key={value}
                   type="button"
                   onClick={() => setPaymentMode(value as typeof paymentMode)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                  className={`flex cursor-pointer items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
                     paymentMode === value
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
@@ -243,7 +243,7 @@ export default function QuoteCalculator() {
           <button
             type="button"
             onClick={() => setStep(2)}
-            className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors shadow-md"
+            className="cta-shine w-full flex items-center justify-center gap-2 py-3 px-6 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors shadow-md"
           >
             Xem báo giá chi tiết
             <ChevronRight className="w-4 h-4" />
@@ -340,7 +340,7 @@ export default function QuoteCalculator() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white font-semibold rounded-xl transition-colors shadow-md"
+            className="cta-shine w-full flex items-center justify-center gap-2 py-3 px-6 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white font-semibold rounded-xl transition-colors shadow-md"
           >
             {pending ? (
               <>

@@ -29,16 +29,19 @@ export default function Header() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/30">
+    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/50 [--glass-bg:rgba(255,255,255,0.9)] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <img
-              src="/brand/logo-transparent.png"
-              alt="SOLIQ ENERGY"
-              className="h-9 w-auto object-contain brightness-0"
-            />
+          <Link href="/" className="flex h-16 shrink-0 items-center">
+            <span className="leading-none">
+              <span className="block text-[1.08rem] font-black tracking-normal text-green-800">
+                SOLIQ ENERGY
+              </span>
+              <span className="mt-1 block text-[0.37rem] font-semibold uppercase tracking-[0.42em] text-green-700/70">
+                Smart Power From Sun
+              </span>
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -51,21 +54,25 @@ export default function Header() {
                   onMouseEnter={() => setOpenDropdown(link.label)}
                   onMouseLeave={() => setOpenDropdown(null)}
                 >
-                  <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-green-700 rounded-lg hover:bg-green-50 transition-colors">
+                  <button
+                    className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:text-green-700 hover:bg-green-50"
+                  >
                     {link.label}
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   {openDropdown === link.label && (
-                    <div className="absolute top-full left-0 mt-1 w-56 glass rounded-xl shadow-lg py-1 border border-white/50">
-                      {link.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className="block px-4 py-2.5 text-sm text-gray-700 hover:text-green-700 hover:bg-green-50/80 transition-colors"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
+                    <div className="absolute top-full left-0 w-64 pt-2">
+                      <div className="rounded-xl border border-white/80 bg-white/95 py-1 shadow-lg backdrop-blur-md">
+                        {link.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className="block px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -73,7 +80,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-green-700 rounded-lg hover:bg-green-50 transition-colors"
+                  className="px-3 py-2 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:text-green-700 hover:bg-green-50"
                 >
                   {link.label}
                 </Link>
@@ -85,20 +92,20 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <a
               href="tel:0902211893"
-              className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-green-700 hover:text-green-800 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-green-700 transition-colors hover:text-green-800"
             >
               <Phone className="w-4 h-4" />
               090.22.11.893
             </a>
             <Link
               href="/bao-gia-dien-mat-troi"
-              className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-green-700 hover:bg-green-800 rounded-lg transition-colors shadow-sm"
+              className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-green-700 rounded-lg transition-colors shadow-sm hover:bg-green-800"
             >
               Báo giá miễn phí
             </Link>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg text-gray-700 transition-colors hover:bg-gray-100"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

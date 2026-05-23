@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Phone, Mail, MapPin, MessageCircle } from 'lucide-react'
+import { Phone, Mail, MapPin } from 'lucide-react'
+import { FacebookIcon, MessengerIcon, ZaloIcon } from './SocialIcons'
 
 export default function Footer() {
   return (
@@ -9,43 +10,43 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <img
-              src="/brand/logo.png"
+              src="/brand/soliq-logo-dark.svg"
               alt="SOLIQ ENERGY"
-              className="h-9 w-auto object-contain mb-4"
+              className="mb-6 h-16 w-auto object-contain"
             />
-            <p className="text-sm text-gray-900 leading-relaxed mb-4">
-              SMART POWER FROM SUN — Đơn vị lắp đặt điện mặt trời uy tín,
-              chuyên nghiệp tại Hà Nội và toàn quốc.
-            </p>
-            <div className="flex gap-3">
+            <div className="mb-4 flex gap-3">
               <a
                 href="https://www.facebook.com/soliqvn"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-gray-800 hover:bg-blue-600 rounded-lg transition-colors"
+                className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
                 aria-label="Facebook SOLIQ"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                <FacebookIcon className="h-5 w-5" />
               </a>
               <a
                 href="https://zalo.me/0902211893"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-gray-800 hover:bg-blue-500 rounded-lg transition-colors"
+                className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
                 aria-label="Zalo SOLIQ"
               >
-                <MessageCircle className="w-4 h-4" />
+                <ZaloIcon className="h-5 w-5" />
               </a>
               <a
                 href="https://m.me/829928056870811"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-gray-800 hover:bg-blue-700 rounded-lg transition-colors"
+                className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
                 aria-label="Messenger SOLIQ"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessengerIcon className="h-5 w-5" />
               </a>
             </div>
+            <p className="text-sm text-gray-900 leading-relaxed">
+              SMART POWER FROM SUN — Đơn vị lắp đặt điện mặt trời uy tín,
+              chuyên nghiệp tại Hà Nội và toàn quốc.
+            </p>
           </div>
 
           {/* Services */}

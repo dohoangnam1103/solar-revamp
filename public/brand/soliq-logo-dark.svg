@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="130 0 640 282" role="img" aria-labelledby="title desc">
+  <title id="title">SOLIQ ENERGY</title>
+  <desc id="desc">Solar panel and sun logo for dark backgrounds</desc>
+  <defs>
+    <clipPath id="panelClip">
+      <path d="M316 57H684L570 151H199L316 57Z" />
+    </clipPath>
+  </defs>
+  <g transform="translate(0 -24)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g fill="#ff8a00" stroke="none">
+      <path d="M219 76 164 49l43 42-62-7 58 26-62 19 65 2-48 42 62-25-20 60 38-52 17 63 7-67 44 46-29-58 64 14-57-31 58-22-66-1 35-54-51 38-5-70-17 66Z" opacity=".98" />
+      <circle cx="250" cy="117" r="50" />
+    </g>
+    <path d="M316 57H684L570 151H199L316 57Z" fill="transparent" stroke="#ffffff" stroke-width="15" />
+    <path d="M327 75H643L562 133H248L327 75Z" fill="#255d2b" stroke="#255d2b" stroke-width="4" />
+    <g clip-path="url(#panelClip)" stroke="#ffffff" stroke-width="3">
+      <path d="M283 75H654" />
+      <path d="M255 96H626" />
+      <path d="M228 118H599" />
+      <path d="M201 139H572" />
+      <path d="M362 57 247 151" />
+      <path d="M421 57 307 151" />
+      <path d="M480 57 366 151" />
+      <path d="M539 57 425 151" />
+      <path d="M598 57 484 151" />
+    </g>
+    <path d="M199 151H570" stroke="#ffffff" stroke-width="16" />
+    <path d="M311 153v32" stroke="#ffffff" stroke-width="16" />
+    <path d="M646 132v53" stroke="#ffffff" stroke-width="16" />
+    <path d="M570 151 646 132" stroke="#ffffff" stroke-width="16" />
+  </g>
+  <text x="450" y="224" text-anchor="middle" fill="#ffffff" font-family="Inter, Arial, Helvetica, sans-serif" font-size="72" font-weight="800" letter-spacing="-2">SOLIQ ENERGY</text>
+  <text x="450" y="274" text-anchor="middle" fill="#a8bd78" font-family="Inter, Arial, Helvetica, sans-serif" font-size="22" font-weight="500" letter-spacing="13">SMART POWER FROM SUN</text>
+</svg>

@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { buildPageMetadata, faqSchema, localBusinessSchema } from '@/lib/seo/metadata'
+import { buildPageMetadata, faqSchema } from '@/lib/seo/metadata'
+import PageMotionController from '@/components/marketing/PageMotionController'
+import ProjectCarousel from '@/components/marketing/ProjectCarousel'
+import SolarSystemExperience from '@/components/marketing/SolarSystemExperience'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
 import {
-  Sun, Zap, Shield, TrendingUp, Phone, CheckCircle,
-  Star, ArrowRight, Home, Building2, Factory, Battery,
-  Clock, Award, Users, Wrench
+  Shield, TrendingUp, Phone, CheckCircle,
+  ArrowRight, Home, Building2, Factory, Battery,
+  Award, Users, Wrench, MapPin
 } from 'lucide-react'
 
 export const metadata: Metadata = buildPageMetadata({
@@ -51,6 +54,17 @@ const FAQS = [
   },
 ]
 
+const SOLIQ_MAP_URL =
+  'https://www.google.com/maps/place/125+P.+Ho%C3%A0ng+Ng%C3%A2n,+Thanh+Xu%C3%A2n,+H%C3%A0+N%E1%BB%99i,+Vietnam/@21.0075669,105.8064545,16.1z/data=!4m5!3m4!1s0x3135ac9c248e336b:0xcd4ee9cfca9e2e05!8m2!3d21.0071503!4d105.8119902?entry=ttu&g_ep=EgoyMDI2MDUyMC4wIKXMDSoASAFQAw%3D%3D'
+
+const SOLIQ_MAP_IMAGE =
+  'https://maps.google.com/maps/api/staticmap?center=21.0071503,105.8119902&zoom=16&size=900x520&language=vi&markers=color:green%7Clabel:S%7C21.0071503,105.8119902&key=AIzaSyBoYjeRtfVI0Jd8Q_9mnflo9i4sOYpShB0'
+
+const PROJECT_IMAGES = Array.from({ length: 14 }, (_, index) => ({
+  src: `/projects/soliq/project-${String(index + 1).padStart(2, '0')}.jpg`,
+  alt: `Công trình điện mặt trời SOLIQ đã lắp đặt ${index + 1}`,
+}))
+
 export default function HomePage() {
   return (
     <>
@@ -61,71 +75,68 @@ export default function HomePage() {
           __html: JSON.stringify(faqSchema(FAQS)).replace(/</g, '\\u003c'),
         }}
       />
+      <PageMotionController />
 
-      {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen bg-solar-hero overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-10 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-10 w-80 h-80 bg-orange-400/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-green-400/5 rounded-full blur-3xl" />
-        </div>
+      {/* ── INTERACTIVE SYSTEM PREVIEW ───────────────────────────────────── */}
+      <SolarSystemExperience />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10 lg:pb-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-start lg:items-center">
-            {/* Left: copy */}
-            <div className="text-white px-4 sm:px-0 py-8 lg:py-0">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur rounded-full text-sm text-cyan-300 font-medium mb-6 border border-white/20">
-                <Sun className="w-4 h-4" />
-                Smart Power From Sun
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-                Lắp điện mặt trời{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-yellow-300">
-                  tiết kiệm thật sự
-                </span>
-              </h1>
-              <p className="text-lg text-green-100 leading-relaxed mb-8 max-w-lg">
-                SOLIQ ENERGY — đơn vị thi công điện mặt trời uy tín tại Hà Nội.
-                Tư vấn miễn phí, báo giá minh bạch, bảo hành dài hạn.
-              </p>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                {[
-                  { value: '500+', label: 'Công trình' },
-                  { value: '25 năm', label: 'Bảo hành pin' },
-                  { value: '5★', label: 'Đánh giá' },
-                ].map((stat) => (
-                  <div key={stat.label} className="text-center">
-                    <p className="text-2xl font-bold text-cyan-300">{stat.value}</p>
-                    <p className="text-xs text-green-200">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href="tel:0902211893"
-                  className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors shadow-lg"
-                >
-                  <Phone className="w-4 h-4" />
-                  Gọi ngay tư vấn
-                </a>
-                <Link
-                  href="/du-an"
-                  className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-colors border border-white/30"
-                >
-                  Xem dự án
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
+      {/* ── QUICK QUOTE ──────────────────────────────────────────────────── */}
+      <section data-reveal className="relative -mt-10 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-[2rem] border border-emerald-100/80 bg-[radial-gradient(circle_at_18%_18%,rgba(255,184,75,0.24),transparent_28%),radial-gradient(circle_at_78%_78%,rgba(14,165,233,0.18),transparent_34%),linear-gradient(135deg,#f9fffb_0%,#ecfff7_42%,#e8f7ff_100%)] p-5 shadow-2xl backdrop-blur sm:gap-y-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
+            <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(37,93,43,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.055)_1px,transparent_1px)] bg-[size:44px_44px]" />
+            <div className="pointer-events-none absolute -left-20 top-12 z-0 h-80 w-80 rounded-full bg-orange-300/25 blur-3xl" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-52 bg-[radial-gradient(ellipse_at_18%_100%,rgba(251,146,60,0.24),transparent_38%),radial-gradient(ellipse_at_72%_100%,rgba(16,185,129,0.22),transparent_42%),linear-gradient(180deg,transparent,rgba(14,165,233,0.12))]" />
+            <div className="pointer-events-none absolute bottom-0 left-0 z-0 hidden h-[25rem] w-[48rem] translate-x-[-9rem] translate-y-[3rem] lg:block">
+              <Image
+                src="/hero/hybrid-system-3d-transparent-grid-clean.png"
+                alt=""
+                fill
+                sizes="760px"
+                className="object-contain object-bottom opacity-40 [mask-image:linear-gradient(90deg,black_0%,black_58%,transparent_100%)]"
+              />
             </div>
-
-            {/* Right: calculator */}
-            <div className="lg:max-w-md w-full mx-auto lg:mx-0 py-4 lg:py-0">
+            <div className="relative z-10 flex flex-col justify-center">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-green-700">
+                Ước tính đầu tư
+              </p>
+              <h2 data-text-motion className="motion-title motion-title-soft mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Biến mức tiêu thụ điện thành cấu hình hệ thống phù hợp.
+              </h2>
+              <p className="mt-4 max-w-xl text-gray-600 leading-relaxed">
+                Chọn hóa đơn, tỷ lệ dùng điện ban ngày và nhu cầu lưu trữ để nhận
+                đề xuất công suất, chi phí và thời gian hoàn vốn ban đầu.
+              </p>
+            </div>
+            <div className="relative z-10 lg:max-w-xl lg:justify-self-end">
               <QuoteCalculator />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── INSTALLED PROJECTS ───────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f8fffe_0%,#effdf8_48%,#f3fbff_100%)] py-20">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(37,93,43,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.05)_1px,transparent_1px)] bg-[size:48px_48px]" />
+        <div className="pointer-events-none absolute -left-24 top-20 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-10 h-96 w-96 rounded-full bg-cyan-300/18 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div data-reveal className="mx-auto mb-10 max-w-3xl text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-green-700">
+              Công trình thực tế
+            </p>
+            <h2 data-text-motion className="motion-title motion-title-soft mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Những hệ thống điện mặt trời đã được SOLIQ lắp đặt.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-gray-600 leading-relaxed">
+              Hình ảnh thi công thực tế từ các công trình dân dụng và thương mại,
+              được trình bày trong carousel tự động để dễ xem nhanh.
+            </p>
+          </div>
+
+          <div data-reveal className="[--reveal-delay:120ms]">
+            <ProjectCarousel images={PROJECT_IMAGES} />
           </div>
         </div>
       </section>
@@ -133,8 +144,8 @@ export default function HomePage() {
       {/* ── SOLUTIONS ────────────────────────────────────────────────────── */}
       <section className="py-20 bg-solar-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div data-reveal className="text-center mb-12">
+            <h2 data-text-motion className="motion-title motion-title-soft text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Giải pháp điện mặt trời toàn diện
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
@@ -180,10 +191,11 @@ export default function HomePage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="group glass rounded-2xl p-6 hover:shadow-lg transition-all hover:-translate-y-1 border border-white/60"
+                data-reveal
+                className="motion-card group glass rounded-2xl p-6 border border-white/60"
               >
                 <div className={`w-12 h-12 ${item.bg} rounded-xl flex items-center justify-center mb-4`}>
-                  <item.icon className={`w-6 h-6 ${item.color}`} />
+                  <item.icon className={`motion-icon w-6 h-6 ${item.color}`} />
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed mb-3">{item.desc}</p>
@@ -200,8 +212,8 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+            <div data-reveal>
+              <h2 data-text-motion className="motion-title motion-title-soft text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
                 Tại sao chọn{' '}
                 <span className="text-green-700">SOLIQ ENERGY?</span>
               </h2>
@@ -228,9 +240,9 @@ export default function HomePage() {
                     desc: 'Đội ngũ kỹ thuật hỗ trợ 24/7, bảo trì định kỳ theo hợp đồng',
                   },
                 ].map((item) => (
-                  <div key={item.title} className="flex gap-4">
+                  <div key={item.title} data-reveal className="flex gap-4">
                     <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
-                      <item.icon className="w-5 h-5 text-green-700" />
+                      <item.icon className="motion-icon w-5 h-5 text-green-700" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
@@ -241,46 +253,44 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Metrics dashboard preview */}
-            <div className="relative">
-              <div className="glass rounded-2xl p-6 border border-white/60 shadow-xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-gray-800">Dashboard năng lượng</h3>
-                  <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full font-medium">
-                    Live
-                  </span>
+            <div data-reveal className="relative [--reveal-delay:140ms]">
+              <div className="glass overflow-hidden rounded-2xl border border-white/60 shadow-xl">
+                <div className="flex items-start justify-between gap-4 bg-white/85 p-5">
+                  <div>
+                    <h3 className="font-bold text-gray-900">Cửa hàng SOLIQ</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-gray-500">
+                      125 Hoàng Ngân, P.Thanh Xuân, TP Hà Nội
+                    </p>
+                  </div>
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700">
+                    <MapPin className="h-5 w-5" />
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  {[
-                    { label: 'Sản lượng hôm nay', value: '18.4 kWh', color: 'text-orange-500', icon: Sun },
-                    { label: 'Tiết kiệm tháng này', value: '1.2 triệu', color: 'text-green-600', icon: TrendingUp },
-                    { label: 'CO₂ giảm thiểu', value: '8.2 kg', color: 'text-cyan-600', icon: Zap },
-                    { label: 'Hiệu suất hệ thống', value: '97.3%', color: 'text-purple-600', icon: CheckCircle },
-                  ].map((metric) => (
-                    <div key={metric.label} className="bg-gray-50 rounded-xl p-4">
-                      <metric.icon className={`w-5 h-5 ${metric.color} mb-2`} />
-                      <p className={`text-xl font-bold ${metric.color}`}>{metric.value}</p>
-                      <p className="text-xs text-gray-900 mt-0.5">{metric.label}</p>
+                <div className="relative h-[22rem] bg-green-50">
+                  <img
+                    src={SOLIQ_MAP_IMAGE}
+                    alt="Bản đồ Google Maps tại 125 Hoàng Ngân, Thanh Xuân, Hà Nội"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center">
+                    <div className="rounded-full bg-white/95 p-2 shadow-[0_14px_35px_rgba(15,23,42,0.28)]">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-700 text-white shadow-[inset_0_-6px_14px_rgba(0,0,0,0.18)]">
+                        <MapPin className="h-10 w-10" />
+                      </div>
                     </div>
-                  ))}
-                </div>
-                {/* Fake chart bar */}
-                <div>
-                  <p className="text-xs text-gray-900 mb-2">Sản lượng 7 ngày qua (kWh)</p>
-                  <div className="flex items-end gap-1.5 h-16">
-                    {[12, 15, 18, 14, 19, 17, 18].map((val, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 bg-gradient-to-t from-green-600 to-cyan-400 rounded-t-sm opacity-80"
-                        style={{ height: `${(val / 20) * 100}%` }}
-                      />
-                    ))}
+                    <div className="mt-2 rounded-xl bg-white/95 px-3 py-1 text-xs font-bold text-green-800 shadow-lg">
+                      Cửa hàng SOLIQ
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-300 mt-1">
-                    {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((d) => (
-                      <span key={d}>{d}</span>
-                    ))}
-                  </div>
+                  <a
+                    href={SOLIQ_MAP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cta-shine absolute bottom-10 left-5 z-20 inline-flex items-center gap-2 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-green-800"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Mở Google Maps
+                  </a>
                 </div>
               </div>
             </div>
@@ -291,8 +301,8 @@ export default function HomePage() {
       {/* ── PROCESS ──────────────────────────────────────────────────────── */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div data-reveal className="text-center mb-12">
+            <h2 data-text-motion className="motion-title motion-title-soft text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Quy trình lắp đặt đơn giản
             </h2>
             <p className="text-gray-500">Từ tư vấn đến vận hành chỉ trong vài ngày</p>
@@ -305,12 +315,12 @@ export default function HomePage() {
               { step: '03', icon: Wrench, title: 'Thi công chuyên nghiệp', desc: 'Đội ngũ lắp đặt 1-3 ngày, đảm bảo an toàn và thẩm mỹ' },
               { step: '04', icon: CheckCircle, title: 'Bàn giao & vận hành', desc: 'Kiểm tra hệ thống, hướng dẫn sử dụng, bảo hành đầy đủ' },
             ].map((item, i) => (
-              <div key={item.step} className="relative">
+              <div key={item.step} data-reveal className="relative">
                 {i < 3 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-green-300 to-transparent z-0" />
+                  <div className="hidden lg:block absolute top-8 left-[calc(50%+2rem)] w-[calc(100%+1.5rem-4rem)] h-0.5 bg-gradient-to-r from-green-300 to-transparent z-0" />
                 )}
                 <div className="relative z-10 text-center">
-                  <div className="w-16 h-16 bg-green-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="motion-icon-box w-16 h-16 bg-green-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <item.icon className="w-7 h-7 text-white" />
                   </div>
                   <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
@@ -328,8 +338,8 @@ export default function HomePage() {
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div data-reveal className="text-center mb-12">
+            <h2 data-text-motion className="motion-title motion-title-soft text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Câu hỏi thường gặp
             </h2>
           </div>
@@ -337,7 +347,8 @@ export default function HomePage() {
             {FAQS.map((faq) => (
               <details
                 key={faq.question}
-                className="group glass rounded-xl border border-white/60 overflow-hidden"
+                data-reveal
+                className="motion-card group glass rounded-xl border border-white/60 overflow-hidden"
               >
                 <summary className="flex items-center justify-between p-5 cursor-pointer font-medium text-gray-800 hover:text-green-700 transition-colors list-none">
                   {faq.question}
@@ -363,25 +374,25 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA STRIP ────────────────────────────────────────────────────── */}
-      <section className="py-16 bg-solar-hero">
+      <section data-reveal className="py-16 bg-solar-hero">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <h2 data-text-motion className="motion-title text-3xl sm:text-4xl font-bold text-white mb-4">
             Sẵn sàng tiết kiệm điện?
           </h2>
           <p className="text-green-100 mb-8 text-lg">
             Liên hệ ngay để được tư vấn miễn phí và nhận báo giá chính xác
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-4 sm:max-w-none sm:flex-row sm:flex-wrap">
             <a
               href="tel:0902211893"
-              className="flex items-center gap-2 px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors shadow-lg text-lg"
+              className="cta-shine flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-lg font-bold text-white shadow-lg transition-colors hover:bg-orange-600 sm:w-auto"
             >
               <Phone className="w-5 h-5" />
               090.22.11.893
             </a>
             <Link
               href="/bao-gia-dien-mat-troi"
-              className="flex items-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-colors border border-white/30 text-lg"
+              className="motion-glass-button flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-white/20 sm:w-auto"
             >
               Tính báo giá online
               <ArrowRight className="w-5 h-5" />
