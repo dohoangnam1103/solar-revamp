@@ -95,23 +95,11 @@ const SYSTEM_NODES = [
 
 export default function SolarSystemExperience() {
   const [mode, setMode] = useState<Mode>('solar')
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const active = MODES[mode]
   const ActiveIcon = active.icon
 
   return (
-    <section
-      className="relative isolate min-h-[calc(100vh-4rem)] overflow-hidden bg-[#f4fffb] text-slate-950"
-      onPointerMove={(event) => {
-        if (event.pointerType !== 'mouse') return
-        const rect = event.currentTarget.getBoundingClientRect()
-        setTilt({
-          x: ((event.clientX - rect.left) / rect.width - 0.5) * 2,
-          y: ((event.clientY - rect.top) / rect.height - 0.5) * 2,
-        })
-      }}
-      onPointerLeave={() => setTilt({ x: 0, y: 0 })}
-    >
+    <section className="relative isolate min-h-[calc(100vh-4rem)] overflow-hidden bg-[#f4fffb] text-slate-950">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_24%_18%,rgba(255,184,77,0.24),transparent_28%),radial-gradient(circle_at_78%_25%,rgba(53,199,232,0.18),transparent_30%),radial-gradient(circle_at_56%_76%,rgba(52,211,153,0.18),transparent_32%),linear-gradient(135deg,#ffffff_0%,#f2fff8_42%,#e9f8ff_100%)]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(37,93,43,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.055)_1px,transparent_1px)] bg-[size:56px_56px] opacity-70" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-white to-transparent" />
@@ -167,17 +155,9 @@ export default function SolarSystemExperience() {
         </div>
 
         <div className="relative order-2 mx-auto min-h-[390px] w-full max-w-4xl sm:min-h-[520px] lg:min-h-[610px] xl:order-none xl:min-h-[690px] xl:max-w-none">
-          <div
-            className="absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/28 blur-3xl"
-            style={{ transform: `translate(calc(-50% + ${tilt.x * 12}px), calc(-50% + ${tilt.y * 10}px))` }}
-          />
+          <div className="absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/28 blur-3xl" />
 
-          <div
-            className="solar-float absolute inset-x-0 -bottom-10 z-20 mx-auto aspect-[1000/640] w-full max-w-[900px] origin-center xl:bottom-8 xl:w-[112%]"
-            style={{
-              transform: `perspective(1100px) rotateY(${tilt.x * 4}deg) rotateX(${-tilt.y * 3}deg) translate3d(${tilt.x * 12}px, ${tilt.y * 8}px, 0)`,
-            }}
-          >
+          <div className="absolute inset-x-0 -bottom-10 z-20 mx-auto aspect-[1000/640] w-full max-w-[900px] origin-center xl:bottom-8 xl:w-[112%]">
             <div className="absolute inset-0 rounded-[2rem] border border-emerald-900/10 bg-white/48 shadow-[0_35px_110px_rgba(37,93,43,0.14)] backdrop-blur-[2px]" />
             {mode !== 'storage' ? (
               <div

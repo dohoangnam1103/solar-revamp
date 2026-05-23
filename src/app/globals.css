@@ -138,15 +138,6 @@ body {
   }
 }
 
-@keyframes solar-float {
-  0%, 100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -10px;
-  }
-}
-
 @keyframes energy-spark {
   0%, 100% {
     opacity: 0.58;
@@ -191,10 +182,6 @@ body {
 .energy-stream {
   stroke-dasharray: 12 18;
   animation: energy-stream 2.4s linear infinite;
-}
-
-.solar-float {
-  animation: solar-float 5.8s ease-in-out infinite;
 }
 
 .energy-spark {
@@ -290,7 +277,6 @@ body {
   .animate-pulse-glow,
   .energy-flow-path,
   .energy-stream,
-  .solar-float,
   .energy-spark,
   .project-carousel-scroll {
     animation: none;

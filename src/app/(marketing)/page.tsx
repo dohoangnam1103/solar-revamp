@@ -5,6 +5,7 @@ import { buildPageMetadata, faqSchema } from '@/lib/seo/metadata'
 import PageMotionController from '@/components/marketing/PageMotionController'
 import ProjectCarousel from '@/components/marketing/ProjectCarousel'
 import SolarSystemExperience from '@/components/marketing/SolarSystemExperience'
+import AnimatedFAQItem from '@/components/marketing/AnimatedFAQItem'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
 import {
   Shield, TrendingUp, Phone, CheckCircle,
@@ -345,21 +346,12 @@ export default function HomePage() {
           </div>
           <div className="space-y-4">
             {FAQS.map((faq) => (
-              <details
+              <div
                 key={faq.question}
                 data-reveal
-                className="motion-card group glass rounded-xl border border-white/60 overflow-hidden"
               >
-                <summary className="flex items-center justify-between p-5 cursor-pointer font-medium text-gray-800 hover:text-green-700 transition-colors list-none">
-                  {faq.question}
-                  <span className="ml-4 shrink-0 text-gray-900 group-open:rotate-180 transition-transform">
-                    ▾
-                  </span>
-                </summary>
-                <div className="px-5 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100">
-                  <p className="pt-4">{faq.answer}</p>
-                </div>
-              </details>
+                <AnimatedFAQItem question={faq.question} answer={faq.answer} />
+              </div>
             ))}
           </div>
           <div className="text-center mt-8">

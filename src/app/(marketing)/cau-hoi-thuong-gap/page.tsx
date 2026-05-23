@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { buildPageMetadata, faqSchema } from '@/lib/seo/metadata'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import AnimatedFAQItem from '@/components/marketing/AnimatedFAQItem'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Câu Hỏi Thường Gặp Về Điện Mặt Trời - SOLIQ ENERGY',
@@ -40,15 +41,7 @@ export default function FAQPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-3">
             {FAQS.map((faq) => (
-              <details key={faq.q} className="group glass rounded-xl border border-white/60 overflow-hidden">
-                <summary className="flex items-center justify-between p-5 cursor-pointer font-medium text-gray-800 hover:text-green-700 transition-colors list-none">
-                  {faq.q}
-                  <span className="ml-4 shrink-0 text-gray-900 group-open:rotate-180 transition-transform">▾</span>
-                </summary>
-                <div className="px-5 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100">
-                  <p className="pt-4">{faq.a}</p>
-                </div>
-              </details>
+              <AnimatedFAQItem key={faq.q} question={faq.q} answer={faq.a} />
             ))}
           </div>
           <div className="mt-12 text-center glass rounded-2xl p-8 border border-white/50">
