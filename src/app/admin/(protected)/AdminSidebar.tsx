@@ -15,7 +15,6 @@ import {
   Newspaper,
   PanelLeftClose,
   PanelLeftOpen,
-  Settings,
   ShieldCheck,
   Tag,
   UserRoundSearch,
@@ -50,7 +49,6 @@ export default function AdminSidebar({ email, isSuper }: AdminSidebarProps) {
       { href: '/admin/partners', label: 'Đối tác', icon: Briefcase },
       { href: '/admin/faqs', label: 'FAQ', icon: HelpCircle },
       { href: '/admin/pricing', label: 'Giá cả', icon: Tag },
-      { href: '/admin/settings', label: 'Báo Giá', icon: Settings },
       ...(isSuper ? [{ href: '/admin/admins', label: 'Quản trị viên', icon: ShieldCheck }] : []),
     ],
     [isSuper]

@@ -398,6 +398,5 @@ export default function AdminQuoteSettingsForm({ assumptions }: { assumptions: Q
 
         <AdminQuotePreview assumptions={previewAssumptions} />
       </div>
-    </div>
   )
 }

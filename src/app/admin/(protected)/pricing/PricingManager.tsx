@@ -318,19 +318,22 @@ function PackageTable({ tab, initialRows }: { tab: Tab; initialRows: PricingPack
 }
 
 export default function PricingManager({
+  assumptions,
   giaDinh,
   doanhNghiep,
   hybrid,
   vatTu,
 }: {
+  assumptions: QuoteAssumptions
   giaDinh: PricingPackage[]
   doanhNghiep: PricingPackage[]
   hybrid: PricingPackage[]
   vatTu: PricingPackage[]
 }) {
-  const [activeTab, setActiveTab] = useState<Tab>('gia-dinh')
+  const [activeTab, setActiveTab] = useState<Tab>('bao-gia-uoc-tinh')
 
-  const dataMap: Record<Tab, PricingPackage[]> = {
+  const packageTabs: Exclude<Tab, 'bao-gia-uoc-tinh'>[] = ['gia-dinh', 'doanh-nghiep', 'hybrid', 'vat-tu']
+  const dataMap: Record<Exclude<Tab, 'bao-gia-uoc-tinh'>, PricingPackage[]> = {
     'gia-dinh': giaDinh,
     'doanh-nghiep': doanhNghiep,
     hybrid,
@@ -339,24 +342,30 @@ export default function PricingManager({
 
   return (
     <div>
-      <div className="flex gap-1 mb-6 border-b border-gray-200">
+      <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className={`px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors -mb-px border-b-2 ${
+            className={`cursor-pointer whitespace-nowrap px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors -mb-px border-b-2 ${
               activeTab === t.id
                 ? 'text-green-700 border-green-600 bg-green-50'
                 : 'text-gray-500 border-transparent hover:text-gray-900'
             }`}
           >
             {t.label}
-            <span className="ml-1.5 text-xs text-gray-400">({dataMap[t.id].length})</span>
+            {t.id !== 'bao-gia-uoc-tinh' && (
+              <span className="ml-1.5 text-xs text-gray-400">({dataMap[t.id as Exclude<Tab, 'bao-gia-uoc-tinh'>].length})</span>
+            )}
           </button>
         ))}
       </div>
 
-      <PackageTable key={activeTab} tab={activeTab} initialRows={dataMap[activeTab]} />
+      {activeTab === 'bao-gia-uoc-tinh' ? (
+        <AdminQuoteSettingsForm assumptions={assumptions} />
+      ) : (
+        <PackageTable key={activeTab} tab={activeTab} initialRows={dataMap[activeTab as Exclude<Tab, 'bao-gia-uoc-tinh'>]} />
+      )}
     </div>
   )
 }

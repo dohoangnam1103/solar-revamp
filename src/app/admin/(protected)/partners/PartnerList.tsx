@@ -11,8 +11,8 @@ type Partner = {
   logo: string | null
   type: string | null
   url: string | null
-  sortOrder: number
-  active: boolean
+  sortOrder: number | null
+  active: boolean | null
 }
 
 type Props = {
