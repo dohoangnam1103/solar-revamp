@@ -1,6 +1,7 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Phone, Mail, MapPin } from 'lucide-react'
-import { FacebookIcon, MessengerIcon, ZaloIcon } from './SocialIcons'
+import { FacebookIcon, MessengerIcon, TiktokIcon, YoutubeIcon, ZaloIcon } from './SocialIcons'
 
 export default function Footer() {
   return (
@@ -9,10 +10,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <img
-              src="/brand/soliq-logo-dark.svg"
-              alt="SOLIQ ENERGY"
-              className="mb-6 h-16 w-auto object-contain"
+            <Image
+              src="/brand/symbol-10.png"
+              alt="SMART POWER FROM SUN"
+              width={215}
+              height={125}
+              className="mb-6 h-28 w-auto object-contain"
             />
             <div className="mb-4 flex gap-3">
               <a
@@ -41,6 +44,24 @@ export default function Footer() {
                 aria-label="Messenger SOLIQ"
               >
                 <MessengerIcon className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@soliq.energy?_r=1&_t=ZS-96eFcVZPQjo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
+                aria-label="TikTok SOLIQ"
+              >
+                <TiktokIcon className="h-5 w-5" />
+              </a>
+              <a
+                href="https://www.youtube.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
+                aria-label="YouTube SOLIQ"
+              >
+                <YoutubeIcon className="h-5 w-5" />
               </a>
             </div>
             <p className="text-sm text-gray-900 leading-relaxed">

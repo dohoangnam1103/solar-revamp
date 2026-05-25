@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://soliq.com.vn'
 const SITE_NAME = 'SOLIQ ENERGY'
 const LOGO_URL = '/brand/logo.png'
-const OG_IMAGE = '/brand/icon.png'
+const OG_IMAGE = '/brand/og-image.png'
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -144,6 +144,47 @@ export function websiteSchema() {
       },
       'query-input': 'required name=search_term_string',
     },
+  }
+}
+
+export function organizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#brand`,
+    name: SITE_NAME,
+    alternateName: 'SOLIQ',
+    url: SITE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}${LOGO_URL}`,
+    },
+    sameAs: [
+      'https://www.facebook.com/soliqvn',
+      'https://zalo.me/0902211893',
+    ],
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        telephone: '+84902211893',
+        contactType: 'customer service',
+        areaServed: 'VN',
+        availableLanguage: ['Vietnamese'],
+      },
+    ],
+  }
+}
+
+export function breadcrumbSchema(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url}`,
+    })),
   }
 }
 

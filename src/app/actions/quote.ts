@@ -4,6 +4,9 @@ import { db } from '@/lib/db'
 import { leads, quoteRequests, quoteResults } from '@/lib/db/schema'
 import { calculateQuote, type QuoteInput } from '@/lib/quote/calculator'
 import { revalidatePath } from 'next/cache'
+import { randomBytes } from 'crypto'
+import { checkRateLimit } from '@/lib/security/rate-limit'
+import { getSolarAssumptions } from '@/lib/quote/settings'
 
 export interface SubmitQuoteInput extends QuoteInput {
   // Lead info
@@ -18,6 +21,7 @@ export interface SubmitQuoteInput extends QuoteInput {
 export interface SubmitQuoteResult {
   success: boolean
   quoteId?: number
+  quoteToken?: string
   result?: ReturnType<typeof calculateQuote>
   error?: string
 }
@@ -27,6 +31,10 @@ export async function submitQuote(
   formData: FormData
 ): Promise<SubmitQuoteResult> {
   try {
+    if (!(await checkRateLimit('quote-form', 8, 60 * 60 * 1000))) {
+      return { success: false, error: 'Bạn đã gửi quá nhiều lần. Vui lòng thử lại sau.' }
+    }
+
     // Parse form data
     const name = formData.get('name') as string
     const phone = formData.get('phone') as string
@@ -48,6 +56,9 @@ export async function submitQuote(
     if (!name || !phone) {
       return { success: false, error: 'Vui lòng nhập họ tên và số điện thoại.' }
     }
+    if (name.length > 120 || phone.length > 40 || (email && email.length > 180) || (address && address.length > 500)) {
+      return { success: false, error: 'Thông tin gửi lên quá dài. Vui lòng kiểm tra lại.' }
+    }
     if (!monthlyBillVnd || monthlyBillVnd < 50_000) {
       return { success: false, error: 'Hóa đơn điện không hợp lệ (tối thiểu 50.000đ).' }
     }
@@ -66,7 +77,8 @@ export async function submitQuote(
     }
 
     // Calculate quote
-    const result = calculateQuote(quoteInput)
+    const assumptions = await getSolarAssumptions()
+    const result = calculateQuote(quoteInput, assumptions)
 
     // Save lead
     const [lead] = await db
@@ -85,9 +97,11 @@ export async function submitQuote(
       .returning({ id: leads.id })
 
     // Save quote request
+    const publicToken = randomBytes(18).toString('base64url')
     const [quoteReq] = await db
       .insert(quoteRequests)
       .values({
+        publicToken,
         leadId: lead.id,
         paymentMode: quoteInput.paymentMode,
         customerType: quoteInput.customerType,
@@ -122,6 +136,7 @@ export async function submitQuote(
     return {
       success: true,
       quoteId: quoteRes.id,
+      quoteToken: publicToken,
       result,
     }
   } catch (err) {
@@ -136,5 +151,6 @@ export async function submitQuote(
 // Quick calculate without saving (for live preview)
 export async function previewQuote(input: QuoteInput) {
   'use server'
-  return calculateQuote(input)
+  const assumptions = await getSolarAssumptions()
+  return calculateQuote(input, assumptions)
 }

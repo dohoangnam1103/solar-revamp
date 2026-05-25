@@ -4,9 +4,14 @@ import Link from 'next/link'
 import { buildPageMetadata, faqSchema } from '@/lib/seo/metadata'
 import PageMotionController from '@/components/marketing/PageMotionController'
 import ProjectCarousel from '@/components/marketing/ProjectCarousel'
+import PartnerLogoCarousel from '@/components/marketing/PartnerLogoCarousel'
 import SolarSystemExperience from '@/components/marketing/SolarSystemExperience'
+import HeroSpline3D from '@/components/marketing/HeroSpline3D'
 import AnimatedFAQItem from '@/components/marketing/AnimatedFAQItem'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
+import { getSolarAssumptions } from '@/lib/quote/settings'
+import { getCachedCarouselImages, getCachedPartners } from '@/lib/db/public-queries'
+import { getFeaturedFaqs } from '@/app/actions/admin-crud'
 import {
   Shield, TrendingUp, Phone, CheckCircle,
   ArrowRight, Home, Building2, Factory, Battery,
@@ -22,38 +27,7 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/' },
 })
 
-const FAQS = [
-  {
-    question: 'Chi phí lắp điện mặt trời gia đình là bao nhiêu?',
-    answer:
-      'Chi phí phụ thuộc vào công suất hệ thống. Với hệ thống hòa lưới, giá dao động từ 47 triệu (5kWp) đến 143 triệu (25kWp). Hệ thống hybrid có pin lưu trữ từ 51 triệu (5kWp). Bạn có thể dùng công cụ tính báo giá trên trang để ước tính chi phí phù hợp.',
-  },
-  {
-    question: 'Thời gian hoàn vốn khi lắp điện mặt trời là bao lâu?',
-    answer:
-      'Thông thường từ 5-8 năm tùy theo mức tiêu thụ điện và tỷ lệ dùng điện ban ngày. Với hóa đơn điện 2-3 triệu/tháng và dùng điện nhiều ban ngày, thời gian hoàn vốn thường khoảng 5-6 năm. Hệ thống có tuổi thọ 25-30 năm.',
-  },
-  {
-    question: 'SOLIQ ENERGY có bảo hành không?',
-    answer:
-      'Có. Tấm pin mặt trời được bảo hành hiệu suất 25 năm, bảo hành sản phẩm 10-12 năm. Biến tần (inverter) bảo hành 5-10 năm tùy hãng. SOLIQ bảo hành thi công 2 năm và hỗ trợ bảo trì định kỳ.',
-  },
-  {
-    question: 'Có thể lắp điện mặt trời trả góp không?',
-    answer:
-      'Có. SOLIQ hỗ trợ trả góp 12, 24, 36 và 60 tháng với lãi suất cạnh tranh. Bạn có thể xem các gói trả góp cụ thể trong kết quả báo giá sau khi điền thông tin.',
-  },
-  {
-    question: 'Mái nhà cần điều kiện gì để lắp điện mặt trời?',
-    answer:
-      'Mái cần đủ diện tích (tối thiểu 10-15m² cho hệ 3-5kWp), hướng Nam hoặc Đông-Tây, không bị che khuất nhiều. Kết cấu mái cần đủ chắc chắn. SOLIQ sẽ khảo sát miễn phí để đánh giá phù hợp.',
-  },
-  {
-    question: 'Quy trình lắp đặt mất bao lâu?',
-    answer:
-      'Sau khi ký hợp đồng, thời gian thi công thường 1-3 ngày cho hệ gia đình, 3-7 ngày cho hệ doanh nghiệp. Bao gồm lắp khung, tấm pin, biến tần, đấu nối điện và kiểm tra vận hành.',
-  },
-]
+export const revalidate = 300
 
 const SOLIQ_MAP_URL =
   'https://www.google.com/maps/place/125+P.+Ho%C3%A0ng+Ng%C3%A2n,+Thanh+Xu%C3%A2n,+H%C3%A0+N%E1%BB%99i,+Vietnam/@21.0075669,105.8064545,16.1z/data=!4m5!3m4!1s0x3135ac9c248e336b:0xcd4ee9cfca9e2e05!8m2!3d21.0071503!4d105.8119902?entry=ttu&g_ep=EgoyMDI2MDUyMC4wIKXMDSoASAFQAw%3D%3D'
@@ -61,43 +35,53 @@ const SOLIQ_MAP_URL =
 const SOLIQ_MAP_IMAGE =
   'https://maps.google.com/maps/api/staticmap?center=21.0071503,105.8119902&zoom=16&size=900x520&language=vi&markers=color:green%7Clabel:S%7C21.0071503,105.8119902&key=AIzaSyBoYjeRtfVI0Jd8Q_9mnflo9i4sOYpShB0'
 
-const PROJECT_IMAGES = Array.from({ length: 14 }, (_, index) => ({
-  src: `/projects/soliq/project-${String(index + 1).padStart(2, '0')}.jpg`,
+const STATIC_PROJECT_IMAGES = Array.from({ length: 14 }, (_, index) => ({
+  src: `/projects/soliq/project-${String(index + 1).padStart(2, '0')}.webp`,
   alt: `Công trình điện mặt trời SOLIQ đã lắp đặt ${index + 1}`,
 }))
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [quoteAssumptions, featuredFaqs, partners, carouselImages] = await Promise.all([
+    getSolarAssumptions(),
+    getFeaturedFaqs(),
+    getCachedPartners().catch(() => []),
+    getCachedCarouselImages().catch(() => []),
+  ])
+  const activePartners = partners.filter((partner) => partner.active)
+  const projectImages = carouselImages.length > 0 ? carouselImages : STATIC_PROJECT_IMAGES
+
   return (
     <>
       {/* JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(faqSchema(FAQS)).replace(/</g, '\\u003c'),
+          __html: JSON.stringify(
+            faqSchema(featuredFaqs.map((f) => ({ question: f.question, answer: f.answer })))
+          ).replace(/</g, '\\u003c'),
         }}
       />
       <PageMotionController />
+
+      {/* ── HERO 3D SCENE ─────────────────────────────────────────────────── */}
+      <HeroSpline3D />
 
       {/* ── INTERACTIVE SYSTEM PREVIEW ───────────────────────────────────── */}
       <SolarSystemExperience />
 
       {/* ── QUICK QUOTE ──────────────────────────────────────────────────── */}
-      <section data-reveal className="relative -mt-10 pb-20">
+      <section data-reveal className="relative mt-8 pb-20 sm:mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-[2rem] border border-emerald-100/80 bg-[radial-gradient(circle_at_18%_18%,rgba(255,184,75,0.24),transparent_28%),radial-gradient(circle_at_78%_78%,rgba(14,165,233,0.18),transparent_34%),linear-gradient(135deg,#f9fffb_0%,#ecfff7_42%,#e8f7ff_100%)] p-5 shadow-2xl backdrop-blur sm:gap-y-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
             <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(37,93,43,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.055)_1px,transparent_1px)] bg-[size:44px_44px]" />
             <div className="pointer-events-none absolute -left-20 top-12 z-0 h-80 w-80 rounded-full bg-orange-300/25 blur-3xl" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-52 bg-[radial-gradient(ellipse_at_18%_100%,rgba(251,146,60,0.24),transparent_38%),radial-gradient(ellipse_at_72%_100%,rgba(16,185,129,0.22),transparent_42%),linear-gradient(180deg,transparent,rgba(14,165,233,0.12))]" />
-            <div className="pointer-events-none absolute bottom-0 left-0 z-0 hidden h-[25rem] w-[48rem] translate-x-[-9rem] translate-y-[3rem] lg:block">
-              <Image
-                src="/hero/hybrid-system-3d-transparent-grid-clean.png"
-                alt=""
-                fill
-                sizes="760px"
-                className="object-contain object-bottom opacity-40 [mask-image:linear-gradient(90deg,black_0%,black_58%,transparent_100%)]"
-              />
-            </div>
-            <div className="relative z-10 flex flex-col justify-center">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -left-4 bottom-0 z-0 hidden h-[82%] w-[52%] bg-contain bg-left-bottom bg-no-repeat opacity-[0.16] mix-blend-multiply lg:block"
+              style={{ backgroundImage: "url('/illustrations/solar-ev-charging.webp')" }}
+            />
+            <div className="relative z-10 flex flex-col justify-start lg:pt-8">
               <p className="text-sm font-bold uppercase tracking-[0.16em] text-green-700">
                 Ước tính đầu tư
               </p>
@@ -108,9 +92,21 @@ export default function HomePage() {
                 Chọn hóa đơn, tỷ lệ dùng điện ban ngày và nhu cầu lưu trữ để nhận
                 đề xuất công suất, chi phí và thời gian hoàn vốn ban đầu.
               </p>
+              <div className="mt-7 grid max-w-xl gap-3 text-base font-extrabold leading-snug text-slate-900 sm:text-lg">
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-600/15 bg-white/55 px-4 py-3 shadow-sm backdrop-blur">
+                  <CheckCircle className="h-6 w-6 shrink-0 text-emerald-700" />
+                  <span>Lắp đặt trọn gói từ khảo sát đến vận hành</span>
+                </div>
+                <div className="flex items-center gap-3 rounded-2xl border border-orange-500/20 bg-white/55 px-4 py-3 shadow-sm backdrop-blur">
+                  <CheckCircle className="h-6 w-6 shrink-0 text-orange-500" />
+                  <span>
+                    Vay ngân hàng tới <span className="text-orange-600">500tr</span>, không thế chấp
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="relative z-10 lg:max-w-xl lg:justify-self-end">
-              <QuoteCalculator />
+              <QuoteCalculator assumptions={quoteAssumptions} />
             </div>
           </div>
         </div>
@@ -137,7 +133,7 @@ export default function HomePage() {
           </div>
 
           <div data-reveal className="[--reveal-delay:120ms]">
-            <ProjectCarousel images={PROJECT_IMAGES} />
+            <ProjectCarousel images={projectImages} />
           </div>
         </div>
       </section>
@@ -154,7 +150,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 icon: Home,
@@ -258,7 +254,7 @@ export default function HomePage() {
               <div className="glass overflow-hidden rounded-2xl border border-white/60 shadow-xl">
                 <div className="flex items-start justify-between gap-4 bg-white/85 p-5">
                   <div>
-                    <h3 className="font-bold text-gray-900">Cửa hàng SOLIQ</h3>
+                    <h3 className="font-bold text-gray-900">Văn phòng bán hàng</h3>
                     <p className="mt-1 text-sm leading-relaxed text-gray-500">
                       125 Hoàng Ngân, P.Thanh Xuân, TP Hà Nội
                     </p>
@@ -268,10 +264,13 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="relative h-[22rem] bg-green-50">
-                  <img
+                  <Image
                     src={SOLIQ_MAP_IMAGE}
                     alt="Bản đồ Google Maps tại 125 Hoàng Ngân, Thanh Xuân, Hà Nội"
+                    width={900}
+                    height={520}
                     className="h-full w-full object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                   <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center">
                     <div className="rounded-full bg-white/95 p-2 shadow-[0_14px_35px_rgba(15,23,42,0.28)]">
@@ -280,7 +279,7 @@ export default function HomePage() {
                       </div>
                     </div>
                     <div className="mt-2 rounded-xl bg-white/95 px-3 py-1 text-xs font-bold text-green-800 shadow-lg">
-                      Cửa hàng SOLIQ
+                      Văn phòng bán hàng
                     </div>
                   </div>
                   <a
@@ -309,7 +308,7 @@ export default function HomePage() {
             <p className="text-gray-500">Từ tư vấn đến vận hành chỉ trong vài ngày</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { step: '01', icon: Phone, title: 'Tư vấn miễn phí', desc: 'Gọi hotline hoặc điền form, chuyên viên liên hệ trong 5 phút' },
               { step: '02', icon: Users, title: 'Khảo sát thực địa', desc: 'Kỹ sư đến khảo sát mái nhà, thiết kế hệ thống phù hợp' },
@@ -336,6 +335,32 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── PARTNERS ─────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f8fffe_0%,#effdf8_55%,#f3fbff_100%)] py-16">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(37,93,43,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.045)_1px,transparent_1px)] bg-[size:46px_46px]" />
+        <div className="pointer-events-none absolute -left-24 top-8 h-72 w-72 rounded-full bg-orange-300/18 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-cyan-300/16 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div data-reveal className="mx-auto mb-9 max-w-3xl text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-green-700">
+              Hệ sinh thái đối tác
+            </p>
+            <h2 data-text-motion className="motion-title motion-title-soft mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Đối tác đồng hành cùng SOLIQ.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-gray-600 leading-relaxed">
+              Nhà cung cấp thiết bị, đội thi công và đối tác tài chính cùng tham gia
+              để hoàn thiện giải pháp điện mặt trời từ khảo sát đến vận hành.
+            </p>
+          </div>
+
+          <div data-reveal className="[--reveal-delay:120ms]">
+            <PartnerLogoCarousel partners={activePartners} />
+          </div>
+        </div>
+      </section>
+
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -345,14 +370,17 @@ export default function HomePage() {
             </h2>
           </div>
           <div className="space-y-4">
-            {FAQS.map((faq) => (
-              <div
-                key={faq.question}
-                data-reveal
-              >
-                <AnimatedFAQItem question={faq.question} answer={faq.answer} />
+            {featuredFaqs.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-300 bg-white/60 p-8 text-center text-gray-500">
+                Chưa có câu hỏi nổi bật. Quản lý FAQ trong /admin/faqs.
               </div>
-            ))}
+            ) : (
+              featuredFaqs.map((faq) => (
+                <div key={faq.id} data-reveal>
+                  <AnimatedFAQItem question={faq.question} answer={faq.answer} />
+                </div>
+              ))
+            )}
           </div>
           <div className="text-center mt-8">
             <Link

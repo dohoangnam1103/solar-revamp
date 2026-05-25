@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { buildPageMetadata, articleSchema } from '@/lib/seo/metadata'
+import { buildPageMetadata, articleSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { ArrowLeft, Calendar } from 'lucide-react'
-import { getArticleBySlug } from '@/app/actions/admin-crud'
+import { getCachedArticleBySlug, getCachedPublishedArticles } from '@/lib/db/public-queries'
+
+export const revalidate = 300
 
 const FALLBACK_CONTENT: Record<string, { title: string; desc: string; date: string; category: string; content: string }> = {
   'chi-phi-lap-dien-mat-troi-2026': {
@@ -22,11 +24,25 @@ const FALLBACK_CONTENT: Record<string, { title: string; desc: string; date: stri
 
 type Props = { params: Promise<{ slug: string }> }
 
+function toDisplayDate(value: Date | string | null) {
+  return new Date(value || Date.now()).toLocaleDateString('vi-VN')
+}
+
+export async function generateStaticParams() {
+  const articles = await getCachedPublishedArticles().catch(() => [])
+  const slugs = new Set([
+    ...Object.keys(FALLBACK_CONTENT),
+    ...articles.map((article) => article.slug),
+  ])
+
+  return Array.from(slugs, (slug) => ({ slug }))
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   let title = '', description = ''
   try {
-    const article = await getArticleBySlug(slug)
+    const article = await getCachedArticleBySlug(slug)
     if (article) {
       title = article.title; description = article.description || ''
     }
@@ -41,17 +57,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params
-  let article: { title: string; description?: string; date: string; category: string; content: string } | null = null
+  let article: { title: string; description?: string; date: string; category: string; content: string; image?: string } | null = null
 
   try {
-    const dbArticle = await getArticleBySlug(slug)
+    const dbArticle = await getCachedArticleBySlug(slug)
     if (dbArticle) {
       article = {
         title: dbArticle.title,
         description: dbArticle.description || undefined,
-        date: (dbArticle.publishedAt || dbArticle.createdAt).toLocaleDateString('vi-VN'),
+        date: toDisplayDate(dbArticle.publishedAt || dbArticle.createdAt),
         category: dbArticle.category || 'Tin tức',
         content: dbArticle.content || '',
+        image: dbArticle.coverImage || undefined,
       }
     }
   } catch {}
@@ -69,12 +86,20 @@ export default async function ArticlePage({ params }: Props) {
     title: article.title,
     description: article.description || article.content.slice(0, 160),
     url: `/tin-tuc/${slug}`,
+    image: article.image,
     publishedAt: article.date,
   })
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Trang chủ', url: '/' },
+    { name: 'Tin tức', url: '/tin-tuc' },
+    { name: article.title, url: `/tin-tuc/${slug}` },
+  ])
 
   return (
     <div className="bg-solar-light min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <Link href="/tin-tuc" className="inline-flex items-center gap-2 text-sm text-green-700 hover:text-green-800 mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" />Quay lại tin tức

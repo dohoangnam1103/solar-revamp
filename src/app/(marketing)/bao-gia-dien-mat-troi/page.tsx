@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import { buildPageMetadata, serviceSchema } from '@/lib/seo/metadata'
+import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
+import { getSolarAssumptions } from '@/lib/quote/settings'
 import { CheckCircle, Phone, Zap } from 'lucide-react'
 
 export const metadata: Metadata = buildPageMetadata({
@@ -10,18 +11,29 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/bao-gia-dien-mat-troi' },
 })
 
-export default function BaoGiaPage() {
+export default async function BaoGiaPage() {
+  const quoteAssumptions = await getSolarAssumptions()
+
   const jsonLd = serviceSchema(
     'Báo giá điện mặt trời',
     'Dịch vụ tư vấn và báo giá lắp đặt điện mặt trời miễn phí tại SOLIQ ENERGY',
     '/bao-gia-dien-mat-troi'
   )
 
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Trang chủ', url: '/' },
+    { name: 'Báo giá điện mặt trời', url: '/bao-gia-dien-mat-troi' },
+  ])
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }}
       />
 
       <section className="bg-solar-hero py-16">
@@ -44,7 +56,7 @@ export default function BaoGiaPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             {/* Calculator */}
             <div>
-              <QuoteCalculator />
+              <QuoteCalculator assumptions={quoteAssumptions} />
             </div>
 
             {/* Info */}

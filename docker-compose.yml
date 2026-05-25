@@ -1,0 +1,108 @@
+services:
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-soliq}
+      POSTGRES_USER: ${POSTGRES_USER:-soliq}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-soliq-db-password}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - effective_cache_size=192MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=16MB
+      - -c
+      - max_connections=25
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Expose to host loopback on a non-default port so we can run migrations via
+    # an SSH tunnel from a build machine without clashing with any system Postgres.
+    ports:
+      - '127.0.0.1:15433:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-soliq} -d ${POSTGRES_DB:-soliq}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 256m
+    mem_reservation: 160m
+    networks:
+      - app_net
+
+  web:
+    image: ${WEB_IMAGE:-soliq-web:latest}
+    pull_policy: never
+    environment:
+      DATABASE_URL: ${APP_DATABASE_URL:-postgresql://soliq:soliq-db-password@db:5432/soliq}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://soliq.com.vn}
+      NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-SOLIQ ENERGY}
+      NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+      NEXT_PUBLIC_META_PIXEL_ID: ${NEXT_PUBLIC_META_PIXEL_ID:-}
+      ADMIN_SESSION_SECRET: ${APP_ADMIN_SESSION_SECRET:-change-me-session-secret}
+      ENABLE_STRICT_HTTPS_HEADERS: ${ENABLE_STRICT_HTTPS_HEADERS:-1}
+      UPLOADS_DIR: /app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      # Bind to loopback only — public access is via Cloudflare Tunnel.
+      - '127.0.0.1:13000:3000'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'node -e "fetch(''http://127.0.0.1:3000'').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"'
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    mem_limit: 640m
+    mem_reservation: 350m
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - app_net
+
+  proxy:
+    image: caddy:2.8
+    profiles:
+      - proxy
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/minipc/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app_net
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    profiles:
+      - tunnel
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    mem_limit: 80m
+    networks:
+      - app_net
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+  uploads_data:
+
+networks:
+  app_net:

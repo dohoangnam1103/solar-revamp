@@ -1,4 +1,4 @@
-# VPS Ubuntu Docker Deploy Plan
+# Mini PC + VPS Docker Deploy Plan
 
 Date: 2026-05-23
 Scope: audit only, no implementation.
@@ -21,9 +21,27 @@ Scope: audit only, no implementation.
   - `start`: `next start`
 - `next.config.ts` is currently empty. It does not enable standalone output.
 
+## Recommended First Target: Mini PC Ubuntu `192.168.0.77`
+
+Deploy the full stack to the Mini PC first, then reuse the same container layout for VPS later.
+
+Recommended production shape on the Mini PC:
+
+- `caddy` or `nginx` on the host, or as a dedicated reverse-proxy container.
+- `web` Docker container running Next standalone server on internal port `3000`.
+- `postgres` Docker container with a named persistent volume.
+- Optional `redis` only if a future feature actually needs it.
+- No public exposure of the database port.
+
+Request path:
+
+`Internet/LAN -> reverse proxy -> web container :3000 -> postgres container`
+
+This keeps the first rollout self-contained and lets the VPS reuse the same compose shape later.
+
 ## Recommended VPS Architecture
 
-Use a normal Node.js Next server inside Docker, not OpenNext/Cloudflare.
+Use the same normal Node.js Next server inside Docker, not OpenNext/Cloudflare.
 
 Recommended production shape:
 
@@ -88,7 +106,7 @@ Cons:
 - More code and ops changes.
 - Need backups, monitoring, upgrades, restore testing.
 
-Recommendation: start with Option A if goal is to move web hosting quickly. Choose Option B only if we explicitly want the VPS to own database operations too.
+Recommendation for this repo: use Option B first on the Mini PC, because the user asked to deploy both Next.js and the database there. Keep Option A only as a fallback if we need a fast web-only cutover later.
 
 ## Required App/Config Changes For Docker
 
@@ -106,6 +124,11 @@ Reason:
 
 - Next docs recommend `output: 'standalone'` for Docker because it emits `.next/standalone/server.js` plus traced runtime dependencies.
 - Docker image can copy only the standalone server, `public`, and `.next/static`.
+
+Build impact:
+
+- This is the main lever for shorter deploys, because the runtime image no longer needs the full source tree.
+- Pair it with Docker layer caching so dependency install is reused across builds.
 
 ### 2. Add Dockerfile
 
@@ -159,6 +182,8 @@ If using local Postgres:
 - healthcheck for Postgres
 - web depends on DB health
 - migration command/process defined separately, not hidden inside app boot unless we accept deploy-time DB mutation.
+
+For the Mini PC target, use the local Postgres branch now and keep the compose file compatible with a later VPS move.
 
 ### 5. Replace Cloudflare Runtime Assumptions
 
@@ -272,6 +297,18 @@ Plan data migration from Neon to VPS Postgres:
    - `settings`
    - `audit_events`
 
+### Mini PC First-Deploy Path
+
+For `192.168.0.77`, make local Postgres the first-class target:
+
+- seed the database from the current data source before cutover
+- run the app against the local container DB
+- keep the Neon URL only as a temporary fallback during verification
+- do not publish the DB port outside the host
+- keep backups on the Mini PC or an attached backup destination before any production traffic switch
+
+This matches the user's current rollout order: Mini PC first, VPS second.
+
 ## Security/Production Checklist
 
 - Set strong `ADMIN_PASSWORD`.
@@ -283,10 +320,29 @@ Plan data migration from Neon to VPS Postgres:
 - Add VPS firewall:
   - allow `22`, `80`, `443`
   - deny direct app/db ports
+- For the Mini PC, apply the same rule set and keep Postgres bound to the internal Docker network only.
 - Add DB backups and restore test.
 - Set log rotation for Docker.
 - Add uptime check for `/`.
 - Consider basic rate limiting for contact and quote submissions.
+
+## Deploy Speed Strategy
+
+Goal: make the normal deploy path as close to `pull image -> restart container` as possible.
+
+Recommended tactics:
+
+- Use a multi-stage Dockerfile with `npm ci` before source copy so dependency layers are cached.
+- Use `output: 'standalone'` so the runtime image stays small.
+- Keep `Dockerfile` deterministic: pin Node image tag and avoid extra OS packages unless required.
+- Separate app and database deploys.
+  - the app can be replaced frequently
+  - the database container and volume stay untouched
+- Push built images to a registry once, then let Mini PC/VPS only pull the new tag.
+- Use content-hash or commit-sha image tags instead of rebuilding from scratch on the host.
+- Run migrations as a one-off step after the new app container is healthy, not during every container boot.
+- Keep a warm Docker build cache on the build machine if builds happen locally.
+- If CI is available later, let CI build the image and the host only pull it.
 
 ## Files Likely To Be Added
 
@@ -300,6 +356,8 @@ No implementation done yet. Expected files if we proceed:
 - `deploy/vps/README.md`
 - optional `scripts/deploy-vps.sh`
 - optional `scripts/backup-postgres.sh`
+- optional `deploy/minipc/README.md`
+- optional `scripts/deploy-minipc.sh`
 
 ## Files Likely To Be Edited
 
@@ -320,6 +378,7 @@ No implementation done yet. Expected edits if we proceed:
   - split VPS/Cloudflare env documentation
 - `README.md`
   - add VPS Docker runbook
+  - add Mini PC first-deploy runbook
 
 ## Validation Plan Before Deploy
 
@@ -345,24 +404,25 @@ Do this only when implementation is approved:
    - seed settings
    - submit a quote
    - confirm rows in DB.
-7. Deploy to VPS staging domain.
-8. Put reverse proxy/TLS in front.
-9. Run smoke test through public HTTPS domain.
+7. Deploy to the Mini PC first and verify the local/network domain there.
+8. Put reverse proxy/TLS in front of the Mini PC.
+9. Run smoke test through the Mini PC public or LAN domain.
+10. Reuse the same image and compose layout for VPS staging later.
 
 ## Open Questions Before Implementation
 
-1. Do we keep Neon Postgres, or move Postgres into Docker on VPS?
-2. Which domain should `NEXT_PUBLIC_SITE_URL` use on VPS?
-3. Should Cloudflare remain DNS/CDN in front of VPS?
-4. Do we want nginx or caddy?
-5. Should VPS deploy be manual `docker compose pull/up`, or automated through GitHub Actions/registry?
+1. Should the Mini PC use local Postgres immediately, or do we need a temporary Neon bridge during cutover?
+2. Which reverse proxy do we want on the Mini PC and later VPS, nginx or caddy?
+3. Which domain should `NEXT_PUBLIC_SITE_URL` use for the Mini PC rollout?
+4. Should Cloudflare remain DNS/CDN in front of the VPS later?
+5. Should deploys be manual `docker compose pull/up`, or automated through GitHub Actions and a registry?
 
 ## Recommended First Implementation Slice
 
 If approved, implement in this order:
 
-1. Add Docker standalone setup while keeping Neon.
-2. Add VPS compose and reverse-proxy docs.
+1. Add Docker standalone setup with local Postgres support.
+2. Add Mini PC compose and reverse-proxy docs.
 3. Verify full app in local Docker.
-4. Deploy to VPS staging.
-5. Only then decide whether to migrate DB from Neon to VPS Postgres.
+4. Deploy to the Mini PC.
+5. Only then decide whether to mirror the same setup to VPS staging.

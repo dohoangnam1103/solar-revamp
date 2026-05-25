@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { leads } from '@/lib/db/schema'
-import { desc } from 'drizzle-orm'
+import { desc, ne } from 'drizzle-orm'
 import { updateLeadStatus } from '@/app/actions/admin'
 
 const STATUS_OPTIONS = [
@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
 const STATUS_LABEL: Record<string, string> = Object.fromEntries(STATUS_OPTIONS.map(s => [s.value, s.label]))
 
 export default async function LeadsPage() {
-  const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt))
+  const allLeads = await db.select().from(leads).where(ne(leads.source, 'recruitment')).orderBy(desc(leads.createdAt))
 
   return (
     <div className="p-6">

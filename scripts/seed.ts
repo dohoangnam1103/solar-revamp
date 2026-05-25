@@ -1,12 +1,45 @@
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
+import { eq } from 'drizzle-orm'
+import { randomBytes, scryptSync } from 'crypto'
 import * as schema from '../src/lib/db/schema'
+import { loadEnvFile } from './lib/load-env'
+
+loadEnvFile()
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required')
+}
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
+const db = drizzle(pool, { schema })
+
+function hashPassword(plain: string): string {
+  const salt = randomBytes(16)
+  const key = scryptSync(plain, salt, 64)
+  return `${salt.toString('hex')}:${key.toString('hex')}`
+}
+
+const SUPERADMIN_EMAIL = 'superadmin@gmail.com'
+const SUPERADMIN_PASSWORD = '123456@@'
 
 async function seed() {
-  const sql = neon(process.env.DATABASE_URL!)
-  const db = drizzle(sql, { schema })
-
   console.log('Seeding...')
+
+  // ─── Superadmin ───────────────────────────────────────────────────────────
+  const existing = await db.select().from(schema.admins).where(eq(schema.admins.email, SUPERADMIN_EMAIL))
+  if (!existing.length) {
+    await db.insert(schema.admins).values({
+      email: SUPERADMIN_EMAIL,
+      passwordHash: hashPassword(SUPERADMIN_PASSWORD),
+      isSuper: true,
+    })
+    console.log(`  ✓ Created superadmin: ${SUPERADMIN_EMAIL}`)
+  } else {
+    console.log(`  · Superadmin exists: ${SUPERADMIN_EMAIL}`)
+  }
 
   await db.insert(schema.settings).values({
     key: 'solar_assumptions',
@@ -22,7 +55,7 @@ async function seed() {
       installmentOptions: [
         { termMonths: 12, interestRate: 0.08 },
         { termMonths: 24, interestRate: 0.09 },
-        { termMonths: 36, interestRate: 0.10 },
+        { termMonths: 36, interestRate: 0.1 },
         { termMonths: 60, interestRate: 0.115 },
       ],
     },
@@ -52,4 +85,11 @@ async function seed() {
   console.log('Seed complete!')
 }
 
-seed().catch(console.error)
+seed()
+  .catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+  .finally(async () => {
+    await pool.end()
+  })

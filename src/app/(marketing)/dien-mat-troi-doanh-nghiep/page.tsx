@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { buildPageMetadata, serviceSchema } from '@/lib/seo/metadata'
+import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { Building2, CheckCircle, ArrowRight, TrendingUp, Shield, Zap, Phone } from 'lucide-react'
+import { getPricingPackages } from '@/lib/db/pricing'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Điện Mặt Trời Doanh Nghiệp - Tối Ưu Chi Phí Vận Hành',
@@ -9,21 +10,17 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/dien-mat-troi-doanh-nghiep' },
 })
 
-const PACKAGES = [
-  { cap: '15 kWp', panels: '26 tấm', inv: '15kW', price: '106.500.000', fit: 'Văn phòng nhỏ, shop' },
-  { cap: '18 kWp', panels: '30 tấm', inv: '18kW', price: '119.000.000', fit: 'Văn phòng vừa' },
-  { cap: '20 kWp', panels: '34 tấm', inv: '20kW', price: '130.800.000', fit: 'Nhà xưởng nhỏ' },
-  { cap: '25 kWp', panels: '38 tấm', inv: '20kW', price: '143.000.000', fit: 'Nhà xưởng vừa' },
-  { cap: '10 kWp 3P', panels: '18 tấm', inv: '10kW 3P', price: '132.000.000', fit: 'Hybrid 3 pha' },
-  { cap: '15 kWp 3P', panels: '28 tấm', inv: '15kW 3P', price: '156.000.000', fit: 'Hybrid 3 pha' },
-  { cap: '20 kWp 3P', panels: '36 tấm', inv: '20kW 3P', price: '197.000.000', fit: 'Hybrid 3 pha lớn' },
-]
-
-export default function DoanhNghiepPage() {
+export default async function DoanhNghiepPage() {
+  const packages = await getPricingPackages('doanh-nghiep')
   const jsonLd = serviceSchema('Điện mặt trời doanh nghiệp', 'Lắp đặt hệ thống điện mặt trời cho doanh nghiệp, nhà xưởng tại SOLIQ ENERGY', '/dien-mat-troi-doanh-nghiep')
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Trang chủ', url: '/' },
+    { name: 'Điện mặt trời doanh nghiệp', url: '/dien-mat-troi-doanh-nghiep' },
+  ])
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
       <section className="bg-solar-hero py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
@@ -84,13 +81,13 @@ export default function DoanhNghiepPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {PACKAGES.map((row, i) => (
-                  <tr key={row.cap} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                {packages.map((row, i) => (
+                  <tr key={row.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-4 py-3 font-bold text-blue-700">{row.cap}</td>
                     <td className="px-4 py-3 text-gray-600">{row.panels}</td>
                     <td className="px-4 py-3 text-gray-600">{row.inv}</td>
                     <td className="px-4 py-3 text-gray-500">{row.fit}</td>
-                    <td className="px-4 py-3 text-right font-semibold">{row.price}đ</td>
+                    <td className="px-4 py-3 text-right font-semibold">{row.price ? row.price.toLocaleString('vi-VN') : '—'}đ</td>
                   </tr>
                 ))}
               </tbody>

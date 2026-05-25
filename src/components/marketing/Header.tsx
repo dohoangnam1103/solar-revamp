@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Menu, X, Phone, ChevronDown } from 'lucide-react'
 
@@ -18,13 +19,31 @@ const navLinks = [
   },
   { label: 'Dự án', href: '/du-an' },
   { label: 'Tin tức', href: '/tin-tuc' },
+  { label: 'Tuyển dụng', href: '/tuyen-dung' },
   { label: 'Đối tác', href: '/doi-tac-thi-cong' },
   { label: 'FAQ', href: '/cau-hoi-thuong-gap' },
   { label: 'Về SOLIQ', href: '/ve-soliq' },
   { label: 'Liên hệ', href: '/lien-he' },
 ]
 
+function normalizePath(path: string) {
+  if (path === '/') return path
+  return path.replace(/\/+$/, '')
+}
+
+function isRouteActive(pathname: string, href: string) {
+  if (href === '#') return false
+
+  const currentPath = normalizePath(pathname)
+  const targetPath = normalizePath(href)
+
+  if (targetPath === '/') return currentPath === '/'
+
+  return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`)
+}
+
 export default function Header() {
+  const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
@@ -35,10 +54,10 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex h-16 shrink-0 items-center">
             <span className="leading-none">
-              <span className="block text-[1.08rem] font-black tracking-normal text-green-800">
+              <span className="block text-[1.3rem] font-black tracking-normal text-green-800">
                 SOLIQ ENERGY
               </span>
-              <span className="mt-1 block text-[0.37rem] font-semibold uppercase tracking-[0.42em] text-green-700/70">
+              <span className="mt-1.5 block text-[0.45rem] font-semibold uppercase tracking-[0.42em] text-green-700/70">
                 Smart Power From Sun
               </span>
             </span>
@@ -46,8 +65,12 @@ export default function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) =>
-              link.children ? (
+            {navLinks.map((link) => {
+              const isActive = link.children
+                ? link.children.some((child) => isRouteActive(pathname, child.href))
+                : isRouteActive(pathname, link.href)
+
+              return link.children ? (
                 <div
                   key={link.label}
                   className="relative"
@@ -55,7 +78,10 @@ export default function Header() {
                   onMouseLeave={() => setOpenDropdown(null)}
                 >
                   <button
-                    className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:text-green-700 hover:bg-green-50"
+                    className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors hover:text-green-700 hover:bg-green-50 ${
+                      isActive ? 'bg-green-50 text-green-800' : 'text-gray-700'
+                    }`}
+                    aria-expanded={openDropdown === link.label}
                   >
                     {link.label}
                     <ChevronDown className="w-3.5 h-3.5" />
@@ -67,7 +93,12 @@ export default function Header() {
                           <Link
                             key={child.href}
                             href={child.href}
-                            className="block px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
+                            aria-current={isRouteActive(pathname, child.href) ? 'page' : undefined}
+                            className={`block px-4 py-2.5 text-sm transition-colors hover:bg-green-50 hover:text-green-700 ${
+                              isRouteActive(pathname, child.href)
+                                ? 'bg-green-50 font-semibold text-green-800'
+                                : 'text-gray-700'
+                            }`}
                           >
                             {child.label}
                           </Link>
@@ -80,12 +111,15 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 rounded-lg transition-colors hover:text-green-700 hover:bg-green-50"
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors hover:text-green-700 hover:bg-green-50 ${
+                    isActive ? 'bg-green-50 text-green-800' : 'text-gray-700'
+                  }`}
                 >
                   {link.label}
                 </Link>
               )
-            )}
+            })}
           </nav>
 
           {/* CTA + mobile toggle */}
@@ -99,7 +133,10 @@ export default function Header() {
             </a>
             <Link
               href="/bao-gia-dien-mat-troi"
-              className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-green-700 rounded-lg transition-colors shadow-sm hover:bg-green-800"
+              aria-current={isRouteActive(pathname, '/bao-gia-dien-mat-troi') ? 'page' : undefined}
+              className={`hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors shadow-sm hover:bg-green-800 ${
+                isRouteActive(pathname, '/bao-gia-dien-mat-troi') ? 'bg-green-900' : 'bg-green-700'
+              }`}
             >
               Báo giá miễn phí
             </Link>
@@ -118,10 +155,18 @@ export default function Header() {
       {mobileOpen && (
         <div className="lg:hidden glass border-t border-white/30">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
-            {navLinks.map((link) =>
-              link.children ? (
+            {navLinks.map((link) => {
+              const isActive = link.children
+                ? link.children.some((child) => isRouteActive(pathname, child.href))
+                : isRouteActive(pathname, link.href)
+
+              return link.children ? (
                 <div key={link.label}>
-                  <p className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <p
+                    className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wider ${
+                      isActive ? 'text-green-800' : 'text-gray-500'
+                    }`}
+                  >
                     {link.label}
                   </p>
                   {link.children.map((child) => (
@@ -129,7 +174,12 @@ export default function Header() {
                       key={child.href}
                       href={child.href}
                       onClick={() => setMobileOpen(false)}
-                      className="block px-6 py-2 text-sm text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                      aria-current={isRouteActive(pathname, child.href) ? 'page' : undefined}
+                      className={`block px-6 py-2 text-sm hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors ${
+                        isRouteActive(pathname, child.href)
+                          ? 'bg-green-50 font-semibold text-green-800'
+                          : 'text-gray-700'
+                      }`}
                     >
                       {child.label}
                     </Link>
@@ -140,12 +190,15 @@ export default function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`block px-3 py-2 text-sm font-medium hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors ${
+                    isActive ? 'bg-green-50 text-green-800' : 'text-gray-700'
+                  }`}
                 >
                   {link.label}
                 </Link>
               )
-            )}
+            })}
             <div className="pt-2 pb-1 border-t border-gray-100 flex flex-col gap-2">
               <a
                 href="tel:0902211893"
@@ -157,7 +210,10 @@ export default function Header() {
               <Link
                 href="/bao-gia-dien-mat-troi"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-green-700 rounded-lg"
+                aria-current={isRouteActive(pathname, '/bao-gia-dien-mat-troi') ? 'page' : undefined}
+                className={`flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white rounded-lg ${
+                  isRouteActive(pathname, '/bao-gia-dien-mat-troi') ? 'bg-green-900' : 'bg-green-700'
+                }`}
               >
                 Báo giá miễn phí
               </Link>

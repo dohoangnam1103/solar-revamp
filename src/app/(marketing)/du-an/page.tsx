@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 import { buildPageMetadata } from '@/lib/seo/metadata'
 import { MapPin, Zap, ArrowRight, Sun } from 'lucide-react'
 import Link from 'next/link'
-import { getPublishedProjects } from '@/app/actions/admin-crud'
+import { getCachedPublishedProjects } from '@/lib/db/public-queries'
+
+export const revalidate = 300
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Dự Án Điện Mặt Trời Tiêu Biểu - SOLIQ ENERGY',
@@ -27,7 +29,7 @@ const TYPE_COLORS: Record<string, string> = {
 }
 
 export default async function DuAnPage() {
-  const projects = await getPublishedProjects().catch(() => [])
+  const projects = await getCachedPublishedProjects().catch(() => [])
 
   const displayProjects = projects.length > 0 ? projects : FALLBACK_PROJECTS
 

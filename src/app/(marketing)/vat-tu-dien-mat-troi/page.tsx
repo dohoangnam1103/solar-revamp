@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { buildPageMetadata, serviceSchema } from '@/lib/seo/metadata'
 import { Sun, Zap, Battery, Phone, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { getPricingPackages } from '@/lib/db/pricing'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Vật Tư Điện Mặt Trời - Tấm Pin, Biến Tần, Pin Lưu Trữ',
@@ -9,43 +10,20 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/vat-tu-dien-mat-troi' },
 })
 
-const PRODUCTS = [
-  {
-    category: 'Tấm pin mặt trời',
-    icon: Sun,
-    color: 'text-orange-600',
-    bg: 'bg-orange-50',
-    items: [
-      { name: 'Tấm pin Mono PERC 400W', spec: 'Hiệu suất 21.5%, bảo hành 25 năm', note: 'Phổ biến nhất' },
-      { name: 'Tấm pin Mono PERC 450W', spec: 'Hiệu suất 22.3%, half-cell', note: 'Hiệu suất cao' },
-      { name: 'Tấm pin Bifacial 500W', spec: 'Thu điện 2 mặt, phù hợp mái bằng', note: 'Cao cấp' },
-    ],
-  },
-  {
-    category: 'Biến tần (Inverter)',
-    icon: Zap,
-    color: 'text-green-600',
-    bg: 'bg-green-50',
-    items: [
-      { name: 'Inverter On-grid 3-10kW', spec: 'Hòa lưới, hiệu suất 98.4%, WiFi monitoring', note: 'Hòa lưới' },
-      { name: 'Inverter Hybrid 3-10kW', spec: 'Kết hợp pin lưu trữ, UPS tích hợp', note: 'Hybrid' },
-      { name: 'Inverter 3 pha 10-30kW', spec: 'Cho doanh nghiệp, nhà xưởng', note: 'Công nghiệp' },
-    ],
-  },
-  {
-    category: 'Pin lưu trữ',
-    icon: Battery,
-    color: 'text-cyan-600',
-    bg: 'bg-cyan-50',
-    items: [
-      { name: 'Pin LiFePO4 51.2V/100AH', spec: '5.12kWh, 3000+ chu kỳ, BMS tích hợp', note: 'Phổ biến' },
-      { name: 'Pin LiFePO4 51.2V/200AH', spec: '10.24kWh, mở rộng linh hoạt', note: 'Dung lượng lớn' },
-      { name: 'Pin LiFePO4 Stack 48V', spec: 'Dạng rack, dễ mở rộng, cho doanh nghiệp', note: 'Doanh nghiệp' },
-    ],
-  },
-]
+const CATEGORY_META: Record<string, { label: string; icon: typeof Sun; color: string; bg: string }> = {
+  'tam-pin':     { label: 'Tấm pin mặt trời',   icon: Sun,     color: 'text-orange-600', bg: 'bg-orange-50' },
+  'bien-tan':    { label: 'Biến tần (Inverter)', icon: Zap,     color: 'text-green-600',  bg: 'bg-green-50' },
+  'pin-luu-tru': { label: 'Pin lưu trữ',         icon: Battery, color: 'text-cyan-600',   bg: 'bg-cyan-50' },
+}
 
-export default function VatTuPage() {
+export default async function VatTuPage() {
+  const allItems = await getPricingPackages('vat-tu')
+
+  const grouped = (['tam-pin', 'bien-tan', 'pin-luu-tru'] as const).map((catId) => ({
+    catId,
+    meta: CATEGORY_META[catId],
+    items: allItems.filter((item) => item.category === catId),
+  })).filter((g) => g.items.length > 0)
   const jsonLd = serviceSchema('Vật tư điện mặt trời', 'Cung cấp tấm pin, biến tần, pin lưu trữ điện mặt trời chính hãng', '/vat-tu-dien-mat-troi')
   return (
     <>
@@ -67,18 +45,18 @@ export default function VatTuPage() {
 
       <section className="py-16 bg-solar-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          {PRODUCTS.map((cat) => (
-            <div key={cat.category}>
+          {grouped.map((g) => (
+            <div key={g.catId}>
               <div className="flex items-center gap-3 mb-6">
-                <div className={`w-10 h-10 ${cat.bg} rounded-xl flex items-center justify-center`}>
-                  <cat.icon className={`w-5 h-5 ${cat.color}`} />
+                <div className={`w-10 h-10 ${g.meta.bg} rounded-xl flex items-center justify-center`}>
+                  <g.meta.icon className={`w-5 h-5 ${g.meta.color}`} />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">{cat.category}</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{g.meta.label}</h2>
               </div>
               <div className="grid sm:grid-cols-3 gap-4">
-                {cat.items.map((item) => (
-                  <div key={item.name} className="glass rounded-2xl p-5 border border-white/50">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cat.bg} ${cat.color} mb-3 inline-block`}>{item.note}</span>
+                {g.items.map((item) => (
+                  <div key={item.id} className="glass rounded-2xl p-5 border border-white/50">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${g.meta.bg} ${g.meta.color} mb-3 inline-block`}>{item.note}</span>
                     <h3 className="font-bold text-gray-900 mb-1">{item.name}</h3>
                     <p className="text-sm text-gray-500">{item.spec}</p>
                   </div>

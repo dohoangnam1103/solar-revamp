@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { buildPageMetadata, serviceSchema } from '@/lib/seo/metadata'
+import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { Home, CheckCircle, ArrowRight, Sun, TrendingUp, Shield, Phone } from 'lucide-react'
+import { getPricingPackages } from '@/lib/db/pricing'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Lắp Điện Mặt Trời Gia Đình - Tiết Kiệm 50-100% Hóa Đơn Điện',
@@ -10,18 +11,28 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/lap-dat-dien-mat-troi-gia-dinh' },
 })
 
-export default function GiaDinhPage() {
+export default async function GiaDinhPage() {
+  const packages = await getPricingPackages('gia-dinh')
   const jsonLd = serviceSchema(
     'Lắp điện mặt trời gia đình',
     'Dịch vụ lắp đặt hệ thống điện mặt trời cho hộ gia đình tại SOLIQ ENERGY',
     '/lap-dat-dien-mat-troi-gia-dinh'
   )
 
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Trang chủ', url: '/' },
+    { name: 'Điện mặt trời gia đình', url: '/lap-dat-dien-mat-troi-gia-dinh' },
+  ])
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }}
       />
 
       {/* Hero */}
@@ -109,19 +120,13 @@ export default function GiaDinhPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {[
-                  { cap: '5 kWp', panels: '10 tấm', inv: '5kW', fit: 'Hóa đơn 500k-1.5tr', price: '47.300.000' },
-                  { cap: '8 kWp', panels: '14 tấm', inv: '6kW', fit: 'Hóa đơn 1.5-2.5tr', price: '56.000.000' },
-                  { cap: '10 kWp', panels: '18 tấm', inv: '10kW', fit: 'Hóa đơn 2.5-4tr', price: '78.000.000' },
-                  { cap: '12 kWp', panels: '20 tấm', inv: '10kW', fit: 'Hóa đơn 3-5tr', price: '84.300.000' },
-                  { cap: '15 kWp', panels: '26 tấm', inv: '15kW', fit: 'Hóa đơn 4-7tr', price: '106.500.000' },
-                ].map((row, i) => (
-                  <tr key={row.cap} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                {packages.map((row, i) => (
+                  <tr key={row.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-4 py-3 font-bold text-green-700">{row.cap}</td>
                     <td className="px-4 py-3 text-gray-600">{row.panels}</td>
                     <td className="px-4 py-3 text-gray-600">{row.inv}</td>
                     <td className="px-4 py-3 text-gray-500">{row.fit}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-800">{row.price}đ</td>
+                    <td className="px-4 py-3 text-right font-semibold text-gray-800">{row.price ? row.price.toLocaleString('vi-VN') : '—'}đ</td>
                   </tr>
                 ))}
               </tbody>

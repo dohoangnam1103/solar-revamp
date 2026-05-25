@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { buildPageMetadata } from '@/lib/seo/metadata'
 import { Shield, Award, Wrench, Handshake } from 'lucide-react'
-import { getPartners } from '@/app/actions/admin-crud'
+import { getCachedPartners } from '@/lib/db/public-queries'
+
+export const revalidate = 300
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Đối Tác Thi Công & Nhà Cung Cấp - SOLIQ ENERGY',
@@ -10,7 +13,7 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 export default async function DoiTacPage() {
-  const partners = await getPartners().catch(() => [])
+  const partners = await getCachedPartners().catch(() => [])
 
   const suppliers = partners.filter(p => p.type === 'supplier' && p.active)
   const installers = partners.filter(p => p.type === 'installer' && p.active)
@@ -44,7 +47,7 @@ export default async function DoiTacPage() {
                   <a key={p.id} href={p.url || '#'} target={p.url ? '_blank' : undefined} rel="noopener noreferrer"
                     className="glass rounded-2xl p-6 border border-white/50 hover:shadow-lg transition-all text-center group">
                     <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      {p.logo ? <img src={p.logo} alt={p.name} className="w-14 h-14 object-contain" /> : <Award className="w-8 h-8 text-green-400" />}
+                      {p.logo ? <Image src={p.logo} alt={p.name} width={56} height={56} unoptimized className="w-14 h-14 object-contain" /> : <Award className="w-8 h-8 text-green-400" />}
                     </div>
                     <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors">{p.name}</h3>
                   </a>

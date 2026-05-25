@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import './globals.css'
-import { defaultMetadata, localBusinessSchema, websiteSchema } from '@/lib/seo/metadata'
+import { defaultMetadata, localBusinessSchema, organizationSchema, websiteSchema } from '@/lib/seo/metadata'
 
 const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['vietnamese', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '600', '700', '800'],
   variable: '--font-be-vietnam',
   display: 'swap',
 })
@@ -27,6 +27,12 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(localBusinessSchema()).replace(/</g, '\\u003c'),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema()).replace(/</g, '\\u003c'),
           }}
         />
         <script

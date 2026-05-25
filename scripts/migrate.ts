@@ -1,21 +1,30 @@
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
-import { migrate } from 'drizzle-orm/neon-http/migrator'
-import * as dotenv from 'fs'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { migrate } from 'drizzle-orm/node-postgres/migrator'
+import { Pool } from 'pg'
+import { loadEnvFile } from './lib/load-env'
 
-// Load .env manually
-const envFile = dotenv.readFileSync('.env', 'utf8')
-for (const line of envFile.split('\n')) {
-  const [key, ...rest] = line.split('=')
-  if (key && rest.length) {
-    process.env[key.trim()] = rest.join('=').trim().replace(/^"|"$/g, '')
-  }
+loadEnvFile()
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required')
 }
 
-const sql = neon(process.env.DATABASE_URL!)
-const db = drizzle(sql)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
+const db = drizzle(pool)
 
-console.log('Running migrations...')
-await migrate(db, { migrationsFolder: './drizzle' })
-console.log('Migrations complete!')
-process.exit(0)
+async function main() {
+  console.log('Running migrations...')
+  await migrate(db, { migrationsFolder: './drizzle' })
+  console.log('Migrations complete!')
+}
+
+main()
+  .catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+  .finally(async () => {
+    await pool.end()
+  })

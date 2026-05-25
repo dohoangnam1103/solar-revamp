@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { buildPageMetadata, serviceSchema } from '@/lib/seo/metadata'
+import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { Battery, Zap, Shield, CheckCircle, ArrowRight, Phone } from 'lucide-react'
+import { getPricingPackages } from '@/lib/db/pricing'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Hệ Thống Điện Mặt Trời Hybrid Lưu Trữ - Dùng Điện Khi Mất Điện',
@@ -9,20 +10,17 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/he-thong-hybrid-luu-tru' },
 })
 
-const PACKAGES = [
-  { cap: '5 kWp', panels: '9 tấm', inv: '5kW', bat: '51.2V/100AH', price: '51.000.000' },
-  { cap: '8 kWp', panels: '14 tấm', inv: '8kW', bat: '51.2V/100AH', price: '85.000.000' },
-  { cap: '8 kWp 3P', panels: '14 tấm', inv: '8kW 3P', bat: '51.2V/100AH', price: '100.500.000' },
-  { cap: '10 kWp 3P', panels: '18 tấm', inv: '10kW 3P', bat: '51.2V/100AH', price: '132.000.000' },
-  { cap: '15 kWp 3P', panels: '28 tấm', inv: '15kW 3P', bat: '51.2V/100AH', price: '156.000.000' },
-  { cap: '20 kWp 3P', panels: '36 tấm', inv: '20kW 3P', bat: '51.2V/100AH', price: '197.000.000' },
-]
-
-export default function HybridPage() {
+export default async function HybridPage() {
+  const packages = await getPricingPackages('hybrid')
   const jsonLd = serviceSchema('Hệ thống điện mặt trời Hybrid lưu trữ', 'Hệ thống hybrid kết hợp pin lưu trữ, dùng điện cả khi mất điện lưới', '/he-thong-hybrid-luu-tru')
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Trang chủ', url: '/' },
+    { name: 'Hệ thống Hybrid lưu trữ', url: '/he-thong-hybrid-luu-tru' },
+  ])
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
       <section className="bg-solar-hero py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
@@ -85,13 +83,13 @@ export default function HybridPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {PACKAGES.map((row, i) => (
-                  <tr key={row.cap} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                {packages.map((row, i) => (
+                  <tr key={row.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-4 py-3 font-bold text-cyan-700">{row.cap}</td>
                     <td className="px-4 py-3 text-gray-600">{row.panels}</td>
                     <td className="px-4 py-3 text-gray-600">{row.inv}</td>
                     <td className="px-4 py-3 text-gray-500">{row.bat}</td>
-                    <td className="px-4 py-3 text-right font-semibold">{row.price}đ</td>
+                    <td className="px-4 py-3 text-right font-semibold">{row.price ? row.price.toLocaleString('vi-VN') : '—'}đ</td>
                   </tr>
                 ))}
               </tbody>

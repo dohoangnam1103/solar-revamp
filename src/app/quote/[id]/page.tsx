@@ -13,12 +13,15 @@ type Props = { params: Promise<{ id: string }> }
 export const metadata: Metadata = buildPageMetadata({
   title: 'Báo Giá Điện Mặt Trời - SOLIQ ENERGY',
   description: 'Chi tiết báo giá điện mặt trời của bạn.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 })
 
 export default async function QuoteDetailPage({ params }: Props) {
-  const { id } = await params
-  const quoteId = parseInt(id)
-  if (isNaN(quoteId)) notFound()
+  const { id: quoteToken } = await params
+  if (!/^[A-Za-z0-9_-]{20,80}$/.test(quoteToken)) notFound()
 
   const quoteRows = await db
     .select({
@@ -34,7 +37,7 @@ export default async function QuoteDetailPage({ params }: Props) {
     })
     .from(quoteRequests)
     .leftJoin(leads, eq(quoteRequests.leadId, leads.id))
-    .where(eq(quoteRequests.id, quoteId))
+    .where(eq(quoteRequests.publicToken, quoteToken))
 
   if (quoteRows.length === 0) notFound()
   const quote = quoteRows[0]
@@ -42,7 +45,7 @@ export default async function QuoteDetailPage({ params }: Props) {
   const resultRows = await db
     .select()
     .from(quoteResults)
-    .where(eq(quoteResults.quoteRequestId, quoteId))
+    .where(eq(quoteResults.quoteRequestId, quote.id))
     .limit(1)
 
   const result = resultRows[0] || null

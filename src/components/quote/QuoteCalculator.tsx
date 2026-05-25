@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from 'react'
 import { submitQuote, type SubmitQuoteResult } from '@/app/actions/quote'
-import { calculateQuote } from '@/lib/quote/calculator'
+import Link from 'next/link'
+import { calculateQuote, type QuoteAssumptions } from '@/lib/quote/calculator'
 import { formatVnd } from '@/lib/quote/calculator'
 import {
   Zap, Home, Building2, Factory, Battery, CreditCard, Banknote,
@@ -38,7 +39,7 @@ const BILL_OPTIONS = [
   { label: 'Trên 10 triệu', value: 12_000_000 },
 ]
 
-export default function QuoteCalculator() {
+export default function QuoteCalculator({ assumptions }: { assumptions: QuoteAssumptions }) {
   const [step, setStep] = useState(1) // 1: inputs, 2: lead capture, 3: result
   const [state, formAction, pending] = useActionState(submitQuote, INITIAL_STATE)
 
@@ -51,17 +52,20 @@ export default function QuoteCalculator() {
   const [batteryOption, setBatteryOption] = useState(false)
 
   // Live preview
-  const preview = calculateQuote({
-    monthlyBillVnd: monthlyBill,
-    daytimeUsageRate: daytimeRate,
-    customerType,
-    paymentMode,
-    batteryOption,
-    province,
-  })
+  const preview = calculateQuote(
+    {
+      monthlyBillVnd: monthlyBill,
+      daytimeUsageRate: daytimeRate,
+      customerType,
+      paymentMode,
+      batteryOption,
+      province,
+    },
+    assumptions
+  )
 
   if (state.success && state.result) {
-    return <QuoteResult result={state.result} />
+    return <QuoteResult quoteToken={state.quoteToken} result={state.result} />
   }
 
   return (
@@ -95,13 +99,13 @@ export default function QuoteCalculator() {
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Hóa đơn điện trung bình/tháng
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {BILL_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setMonthlyBill(opt.value)}
-                  className={`cursor-pointer px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
+                  className={`cursor-pointer whitespace-nowrap px-2 py-2 text-xs font-medium rounded-lg border transition-all sm:px-3 ${
                     monthlyBill === opt.value
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
@@ -139,7 +143,7 @@ export default function QuoteCalculator() {
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Loại khách hàng
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {[
                 { value: 'residential', label: 'Gia đình', icon: Home },
                 { value: 'business', label: 'Doanh nghiệp', icon: Building2 },
@@ -149,7 +153,7 @@ export default function QuoteCalculator() {
                   key={value}
                   type="button"
                   onClick={() => setCustomerType(value as typeof customerType)}
-                  className={`flex cursor-pointer flex-col items-center gap-1.5 p-3 rounded-lg border text-xs font-medium transition-all ${
+                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-[11px] font-medium whitespace-nowrap transition-all sm:text-xs ${
                     customerType === value
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
@@ -192,7 +196,7 @@ export default function QuoteCalculator() {
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Hình thức thanh toán
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {[
                 { value: 'cash', label: 'Trả thẳng', icon: Banknote },
                 { value: 'installment', label: 'Trả góp', icon: CreditCard },
@@ -201,7 +205,7 @@ export default function QuoteCalculator() {
                   key={value}
                   type="button"
                   onClick={() => setPaymentMode(value as typeof paymentMode)}
-                  className={`flex cursor-pointer items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                  className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-2 py-2.5 text-sm font-medium transition-all whitespace-nowrap sm:gap-2 sm:px-3 ${
                     paymentMode === value
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
@@ -364,7 +368,13 @@ export default function QuoteCalculator() {
   )
 }
 
-function QuoteResult({ result }: { result: NonNullable<SubmitQuoteResult['result']> }) {
+function QuoteResult({
+  quoteToken,
+  result,
+}: {
+  quoteToken?: string
+  result: NonNullable<SubmitQuoteResult['result']>
+}) {
   return (
     <div className="glass rounded-2xl overflow-hidden shadow-xl border border-white/50">
       <div className="bg-gradient-to-r from-green-700 to-green-600 px-6 py-4">
@@ -456,6 +466,14 @@ function QuoteResult({ result }: { result: NonNullable<SubmitQuoteResult['result
         </p>
 
         {/* CTA */}
+        {quoteToken && (
+          <Link
+            href={`/quote/${quoteToken}`}
+            className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-green-200 hover:bg-green-50 text-green-700 font-semibold rounded-xl transition-colors"
+          >
+            Xem trang báo giá riêng
+          </Link>
+        )}
         <a
           href="tel:0902211893"
           className="flex items-center justify-center gap-2 w-full py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors"

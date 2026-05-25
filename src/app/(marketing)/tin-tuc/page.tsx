@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { buildPageMetadata } from '@/lib/seo/metadata'
-import { ArrowRight, Calendar, Tag } from 'lucide-react'
-import { getPublishedArticles } from '@/app/actions/admin-crud'
+import { ArrowRight, Calendar } from 'lucide-react'
+import { getCachedPublishedArticles } from '@/lib/db/public-queries'
+
+export const revalidate = 300
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Tin Tức & Blog Điện Mặt Trời - SOLIQ ENERGY',
@@ -26,8 +28,12 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Kỹ thuật': 'bg-purple-100 text-purple-700',
 }
 
+function toDisplayDate(value: Date | string | null) {
+  return new Date(value || Date.now()).toLocaleDateString('vi-VN')
+}
+
 export default async function TinTucPage() {
-  const articles = await getPublishedArticles().catch(() => [])
+  const articles = await getCachedPublishedArticles().catch(() => [])
 
   const displayArticles = articles.length > 0 ? articles.map(a => ({
     slug: a.slug,
@@ -60,7 +66,7 @@ export default async function TinTucPage() {
                       {article.category}
                     </span>
                     <span className="text-xs text-gray-900 flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />{article.publishedAt.toLocaleDateString('vi-VN')}
+                      <Calendar className="w-3 h-3" />{toDisplayDate(article.publishedAt)}
                     </span>
                   </div>
                   <h2 className="font-bold text-gray-900 mb-2 group-hover:text-green-700 transition-colors line-clamp-2">{article.title}</h2>

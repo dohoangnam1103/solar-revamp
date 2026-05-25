@@ -78,27 +78,29 @@ export const DEFAULT_ASSUMPTIONS = {
   ],
 }
 
+export type QuoteAssumptions = typeof DEFAULT_ASSUMPTIONS
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function estimateMonthlyKwh(monthlyBillVnd: number): number {
+function estimateMonthlyKwh(monthlyBillVnd: number, assumptions: QuoteAssumptions): number {
   // Ước tính kWh từ hóa đơn dựa trên giá bậc thang EVN
   // Đơn giản hóa: dùng giá bình quân
-  return monthlyBillVnd / DEFAULT_ASSUMPTIONS.evnPricePerKwh
+  return monthlyBillVnd / assumptions.evnPricePerKwh
 }
 
-function getProductionPerKwp(province?: string): number {
-  if (!province) return DEFAULT_ASSUMPTIONS.annualProductionPerKwp.default
+function getProductionPerKwp(province: string | undefined, assumptions: QuoteAssumptions): number {
+  if (!province) return assumptions.annualProductionPerKwp.default
   const p = province.toLowerCase()
   if (p.includes('hà nội') || p.includes('hải phòng') || p.includes('bắc')) {
-    return DEFAULT_ASSUMPTIONS.annualProductionPerKwp.north
+    return assumptions.annualProductionPerKwp.north
   }
   if (p.includes('đà nẵng') || p.includes('huế') || p.includes('trung')) {
-    return DEFAULT_ASSUMPTIONS.annualProductionPerKwp.central
+    return assumptions.annualProductionPerKwp.central
   }
   if (p.includes('hồ chí minh') || p.includes('cần thơ') || p.includes('nam')) {
-    return DEFAULT_ASSUMPTIONS.annualProductionPerKwp.south
+    return assumptions.annualProductionPerKwp.south
   }
-  return DEFAULT_ASSUMPTIONS.annualProductionPerKwp.default
+  return assumptions.annualProductionPerKwp.default
 }
 
 function calculateIRR(cashFlows: number[]): number {
@@ -122,7 +124,7 @@ function calculateIRR(cashFlows: number[]): number {
 
 export function calculateQuote(
   input: QuoteInput,
-  assumptions = DEFAULT_ASSUMPTIONS
+  assumptions: QuoteAssumptions = DEFAULT_ASSUMPTIONS
 ): QuoteOutput {
   const {
     monthlyBillVnd,
@@ -134,14 +136,14 @@ export function calculateQuote(
   } = input
 
   // 1. Ước tính tiêu thụ điện
-  const monthlyKwh = estimateMonthlyKwh(monthlyBillVnd)
+  const monthlyKwh = estimateMonthlyKwh(monthlyBillVnd, assumptions)
   const annualKwh = monthlyKwh * 12
 
   // 2. Điện tiêu thụ ban ngày (phần có thể tự dùng từ solar)
   const daytimeAnnualKwh = annualKwh * daytimeUsageRate
 
   // 3. Sản lượng điện theo vùng
-  const productionPerKwp = getProductionPerKwp(province)
+  const productionPerKwp = getProductionPerKwp(province, assumptions)
 
   // 4. Công suất đề xuất (kWp)
   // Thiết kế để đáp ứng ~90% nhu cầu ban ngày
