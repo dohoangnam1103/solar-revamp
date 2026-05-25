@@ -17,6 +17,12 @@ const STATUS_COLORS: Record<string, string> = {
   closed: 'bg-gray-100 text-gray-500',
 }
 const STATUS_LABEL: Record<string, string> = Object.fromEntries(STATUS_OPTIONS.map(s => [s.value, s.label]))
+const SOURCE_LABEL: Record<string, string> = {
+  contact_form: 'Form liên hệ',
+  website_quote: 'Form báo giá',
+  recruitment: 'Tuyển dụng',
+  website: 'Website',
+}
 
 export default async function LeadsPage() {
   const allLeads = await db.select().from(leads).where(ne(leads.source, 'recruitment')).orderBy(desc(leads.createdAt))
@@ -46,7 +52,7 @@ export default async function LeadsPage() {
                   <td className="px-4 py-3"><a href={`tel:${lead.phone}`} className="text-green-600 hover:underline">{lead.phone}</a></td>
                   <td className="px-4 py-3 text-gray-600">{lead.email || '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{lead.province || '—'}</td>
-                  <td className="px-4 py-3 text-gray-400 text-xs">{lead.source}</td>
+                  <td className="px-4 py-3 text-gray-500 text-xs">{SOURCE_LABEL[lead.source || ''] || lead.source || '—'}</td>
                   <td className="px-4 py-3">
                     <StatusUpdateForm
                       action={async (fd) => {
