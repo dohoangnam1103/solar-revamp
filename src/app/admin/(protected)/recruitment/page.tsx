@@ -1,6 +1,7 @@
 import { deleteRecruitmentPost, getRecruitmentApplications, getRecruitmentPosts, updateRecruitmentApplicationStatus } from '@/app/actions/admin-crud'
-import { Pencil, Save, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import CreateRecruitmentForm from './CreateRecruitmentForm'
+import StatusUpdateForm from '../StatusUpdateForm'
 
 function formatDate(value: Date | string | null) {
   if (!value) return '—'
@@ -101,26 +102,15 @@ export default async function AdminRecruitmentPage() {
                     <span className="line-clamp-2">{application.message || '—'}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <form className="flex items-center gap-2" action={async (formData) => {
-                      'use server'
-                      await updateRecruitmentApplicationStatus(application.id, formData.get('status') as string)
-                    }}>
-                      <select
-                        name="status"
-                        defaultValue={application.status || 'new'}
-                        className={`cursor-pointer rounded-lg border px-2 py-1 text-xs font-medium ${STATUS_COLORS[application.status || 'new'] || STATUS_COLORS.new}`}
-                      >
-                        {STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                      </select>
-                      <button
-                        type="submit"
-                        title="Lưu trạng thái"
-                        aria-label="Lưu trạng thái"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-green-200 bg-green-50 text-green-700 transition-colors hover:border-green-300 hover:bg-green-100 hover:text-green-800"
-                      >
-                        <Save className="h-5 w-5" />
-                      </button>
-                    </form>
+                    <StatusUpdateForm
+                      action={async (formData) => {
+                        'use server'
+                        await updateRecruitmentApplicationStatus(application.id, formData.get('status') as string)
+                      }}
+                      initialStatus={application.status || 'new'}
+                      options={STATUS_OPTIONS}
+                      statusColors={STATUS_COLORS}
+                    />
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">{new Date(application.createdAt).toLocaleString('vi-VN')}</td>
                 </tr>

@@ -1,5 +1,6 @@
 import { getArticle, updateArticle } from '@/app/actions/admin-crud'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
+import SlugTitleFields from '../../SlugTitleFields'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -12,14 +13,7 @@ export default async function EditArticlePage({ params }: Props) {
     <div className="p-6 max-w-2xl">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Sửa bài viết</h1>
       <form action={updateArticle.bind(null, article.id)} className="space-y-4 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Slug</label>
-          <input name="slug" defaultValue={article.slug} required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Tiêu đề</label>
-          <input name="title" defaultValue={article.title} required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-        </div>
+        <SlugTitleFields defaultTitle={article.title} fallbackSlug="bai-viet" />
         <div>
           <label className="block text-xs text-gray-500 mb-1">Mô tả</label>
           <textarea name="description" defaultValue={article.description || ''} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
@@ -34,10 +28,21 @@ export default async function EditArticlePage({ params }: Props) {
             <input name="category" defaultValue={article.category || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Ảnh bìa URL</label>
-            <input name="coverImage" defaultValue={article.coverImage || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            <label className="block text-xs text-gray-500 mb-1">Ảnh bìa upload</label>
+            <input
+              name="coverImageUpload"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-gray-700"
+            />
           </div>
         </div>
+        {article.coverImage && (
+          <div>
+            <p className="mb-2 text-xs text-gray-500">Ảnh bìa hiện tại</p>
+            <img src={article.coverImage} alt="" className="h-32 w-56 rounded-lg border border-gray-200 object-cover" />
+          </div>
+        )}
         <label className="flex items-center gap-2 text-sm text-gray-600">
           <input type="checkbox" name="published" defaultChecked={article.published || false} className="accent-green-600" /> Đã xuất bản
         </label>

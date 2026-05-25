@@ -112,6 +112,8 @@ export default async function BaoGiaPage() {
                 <h3 className="font-bold text-gray-900 mb-4">Tại sao chọn SOLIQ?</h3>
                 <ul className="space-y-3">
                   {[
+                    'Lắp đặt trọn gói',
+                    'Vay ngân hàng lên tới 500tr không thế chấp',
                     'Tư vấn miễn phí, không ép mua',
                     'Báo giá minh bạch, không phát sinh',
                     'Thi công đúng tiến độ cam kết',

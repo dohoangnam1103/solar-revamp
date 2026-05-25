@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { buildPageMetadata, articleSchema, breadcrumbSchema } from '@/lib/seo/metadata'
@@ -110,6 +111,18 @@ export default async function ArticlePage({ params }: Props) {
           <div className="flex items-center gap-2 text-sm text-gray-900 mb-8 pb-6 border-b border-gray-100">
             <Calendar className="w-4 h-4" />{article.date} · SOLIQ ENERGY
           </div>
+          {article.image && (
+            <div className="relative mb-8 aspect-[16/9] overflow-hidden rounded-xl bg-gray-100">
+              <Image
+                src={article.image}
+                alt={article.title}
+                fill
+                sizes="(min-width: 768px) 768px, 100vw"
+                className="object-cover"
+                priority
+              />
+            </div>
+          )}
           <div className="prose prose-green max-w-none">
             {article.content.split('\n\n').map((para, i) => (
               <p key={i} className="text-gray-700 leading-relaxed mb-4">{para}</p>

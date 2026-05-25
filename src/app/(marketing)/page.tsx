@@ -6,7 +6,6 @@ import PageMotionController from '@/components/marketing/PageMotionController'
 import ProjectCarousel from '@/components/marketing/ProjectCarousel'
 import PartnerLogoCarousel from '@/components/marketing/PartnerLogoCarousel'
 import SolarSystemExperience from '@/components/marketing/SolarSystemExperience'
-import HeroSpline3D from '@/components/marketing/HeroSpline3D'
 import AnimatedFAQItem from '@/components/marketing/AnimatedFAQItem'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
 import { getSolarAssumptions } from '@/lib/quote/settings'
@@ -63,9 +62,6 @@ export default async function HomePage() {
       />
       <PageMotionController />
 
-      {/* ── HERO 3D SCENE ─────────────────────────────────────────────────── */}
-      <HeroSpline3D />
-
       {/* ── INTERACTIVE SYSTEM PREVIEW ───────────────────────────────────── */}
       <SolarSystemExperience />
 
@@ -97,8 +93,8 @@ export default async function HomePage() {
                   <CheckCircle className="h-6 w-6 shrink-0 text-emerald-700" />
                   <span>Lắp đặt trọn gói từ khảo sát đến vận hành</span>
                 </div>
-                <div className="flex items-center gap-3 rounded-2xl border border-orange-500/20 bg-white/55 px-4 py-3 shadow-sm backdrop-blur">
-                  <CheckCircle className="h-6 w-6 shrink-0 text-orange-500" />
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-600/15 bg-white/55 px-4 py-3 shadow-sm backdrop-blur">
+                  <CheckCircle className="h-6 w-6 shrink-0 text-emerald-700" />
                   <span>
                     Vay ngân hàng tới <span className="text-orange-600">500tr</span>, không thế chấp
                   </span>

@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { leads } from '@/lib/db/schema'
 import { desc, ne } from 'drizzle-orm'
 import { updateLeadStatus } from '@/app/actions/admin'
+import StatusUpdateForm from '../StatusUpdateForm'
 
 const STATUS_OPTIONS = [
   { value: 'new', label: 'Mới' },
@@ -47,16 +48,15 @@ export default async function LeadsPage() {
                   <td className="px-4 py-3 text-gray-600">{lead.province || '—'}</td>
                   <td className="px-4 py-3 text-gray-400 text-xs">{lead.source}</td>
                   <td className="px-4 py-3">
-                    <form action={async (fd) => {
-                      'use server'
-                      await updateLeadStatus(lead.id, fd.get('status') as string)
-                    }}>
-                      <select name="status" defaultValue={lead.status || 'new'}
-                        className={`text-xs px-2 py-1 rounded-lg border font-medium cursor-pointer ${STATUS_COLORS[lead.status || 'new']}`}>
-                        {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                      </select>
-                      <button type="submit" className="ml-1 text-xs text-gray-400 hover:text-gray-900">✓</button>
-                    </form>
+                    <StatusUpdateForm
+                      action={async (fd) => {
+                        'use server'
+                        await updateLeadStatus(lead.id, fd.get('status') as string)
+                      }}
+                      initialStatus={lead.status || 'new'}
+                      options={STATUS_OPTIONS}
+                      statusColors={STATUS_COLORS}
+                    />
                   </td>
                   <td className="px-4 py-3 text-gray-500 text-xs">{new Date(lead.createdAt).toLocaleString('vi-VN')}</td>
                 </tr>

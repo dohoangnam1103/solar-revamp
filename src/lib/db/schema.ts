@@ -79,7 +79,6 @@ export const projects = pgTable('projects', {
   customerType: text('customer_type'),
   coverImage: text('cover_image'),
   content: text('content'),
-  metricsJson: jsonb('metrics_json'),
   published: boolean('published').default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })

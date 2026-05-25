@@ -19,6 +19,7 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
 //   3. File → Export → Code Export → React → copy the URL ending in /scene.splinecode
 // Leave empty to show the static fallback below.
 const SPLINE_SCENE_URL = ''
+const SHOW_HERO_VISUAL = false
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Skeleton({ label }: { label: string }) {
@@ -87,7 +88,11 @@ export default function HeroSpline3D() {
       <div className="pointer-events-none absolute -left-24 top-16 -z-10 h-96 w-96 rounded-full bg-orange-300/25 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 bottom-10 -z-10 h-[28rem] w-[28rem] rounded-full bg-cyan-300/22 blur-3xl" />
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-8 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_1.1fr] lg:gap-8 lg:px-8 lg:pb-12 lg:pt-20">
+      <div
+        className={`mx-auto grid max-w-7xl gap-10 px-4 pb-8 pt-12 sm:px-6 sm:pt-16 lg:gap-8 lg:px-8 lg:pb-12 lg:pt-20 ${
+          SHOW_HERO_VISUAL ? 'lg:grid-cols-[1.05fr_1.1fr]' : ''
+        }`}
+      >
         <div className="flex flex-col justify-center">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-green-700">
             SOLIQ ENERGY
@@ -134,13 +139,15 @@ export default function HeroSpline3D() {
           </dl>
         </div>
 
-        <div className="relative h-[420px] w-full overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-2xl backdrop-blur sm:h-[520px] lg:h-[600px]">
-          {showScene ? (
-            <SplineSceneWithErrorBoundary url={SPLINE_SCENE_URL} />
-          ) : (
-            <StaticFallback />
-          )}
-        </div>
+        {SHOW_HERO_VISUAL && (
+          <div className="relative h-[420px] w-full overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-2xl backdrop-blur sm:h-[520px] lg:h-[600px]">
+            {showScene ? (
+              <SplineSceneWithErrorBoundary url={SPLINE_SCENE_URL} />
+            ) : (
+              <StaticFallback />
+            )}
+          </div>
+        )}
       </div>
     </section>
   )

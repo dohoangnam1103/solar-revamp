@@ -8,15 +8,7 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/auth/admin'
 import { buildSolarAssumptionsFromForm } from '@/lib/quote/settings'
 import { deleteStoredUpload, saveUploadedImage } from '@/lib/media/storage'
-
-function parseMetricsJson(raw: FormDataEntryValue | null): unknown {
-  if (typeof raw !== 'string' || !raw.trim()) return null
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return null
-  }
-}
+import { slugifyVietnamese } from '@/lib/slug'
 
 function revalidateArticles() {
   revalidateTag('articles', 'max')
@@ -59,6 +51,78 @@ function revalidateCarouselImages() {
 
 const DEFAULT_CAROUSEL_ALT = 'Công trình điện mặt trời SOLIQ đã lắp đặt'
 
+async function deleteMediaAssetByUrl(url: string | null) {
+  if (!url?.startsWith('/uploads/')) return
+
+  const rows = await db
+    .select({
+      id: mediaAssets.id,
+      storagePath: mediaAssets.storagePath,
+    })
+    .from(mediaAssets)
+    .where(eq(mediaAssets.url, url))
+    .limit(1)
+  const asset = rows[0]
+  if (!asset) return
+
+  await db.delete(mediaAssets).where(eq(mediaAssets.id, asset.id))
+  await deleteStoredUpload(asset.storagePath)
+}
+
+async function getOptionalUploadedImageUrl(formData: FormData, fieldName: string, usage: string) {
+  const file = formData.get(fieldName)
+  if (!(file instanceof File) || file.size === 0) return null
+
+  const asset = await uploadImageAsset(file, usage)
+  return asset.url
+}
+
+async function getCoverImageUrl(formData: FormData, usage: string, currentUrl: string | null = null) {
+  const uploadedUrl = await getOptionalUploadedImageUrl(formData, 'coverImageUpload', usage)
+  if (!uploadedUrl) return currentUrl
+
+  await deleteMediaAssetByUrl(currentUrl)
+  return uploadedUrl
+}
+
+async function buildUniqueArticleSlug(title: string, currentId?: number) {
+  const baseSlug = slugifyVietnamese(title, 'bai-viet')
+  let slug = baseSlug
+  let suffix = 2
+
+  while (true) {
+    const rows = await db
+      .select({ id: articles.id })
+      .from(articles)
+      .where(eq(articles.slug, slug))
+      .limit(1)
+    const existing = rows[0]
+    if (!existing || existing.id === currentId) return slug
+
+    slug = `${baseSlug}-${suffix}`
+    suffix++
+  }
+}
+
+async function buildUniqueProjectSlug(title: string, currentId?: number) {
+  const baseSlug = slugifyVietnamese(title, 'du-an')
+  let slug = baseSlug
+  let suffix = 2
+
+  while (true) {
+    const rows = await db
+      .select({ id: projects.id })
+      .from(projects)
+      .where(eq(projects.slug, slug))
+      .limit(1)
+    const existing = rows[0]
+    if (!existing || existing.id === currentId) return slug
+
+    slug = `${baseSlug}-${suffix}`
+    suffix++
+  }
+}
+
 // ─── ARTICLES ─────────────────────────────────────────────────────────────────
 
 export async function getArticles() {
@@ -81,12 +145,12 @@ export async function getArticleBySlug(slug: string) {
 
 export async function createArticle(formData: FormData) {
   await requireAdmin()
-  const slug = formData.get('slug') as string
   const title = formData.get('title') as string
+  const slug = await buildUniqueArticleSlug(title)
   const description = formData.get('description') as string
   const content = formData.get('content') as string
   const category = (formData.get('category') as string) || 'tin-tuc'
-  const coverImage = (formData.get('coverImage') as string) || null
+  const coverImage = await getCoverImageUrl(formData, 'article-cover')
   const published = formData.get('published') === 'on'
 
   await db.insert(articles).values({
@@ -100,12 +164,13 @@ export async function createArticle(formData: FormData) {
 
 export async function updateArticle(id: number, formData: FormData) {
   await requireAdmin()
-  const slug = formData.get('slug') as string
+  const currentArticle = await getArticle(id)
   const title = formData.get('title') as string
+  const slug = await buildUniqueArticleSlug(title, id)
   const description = formData.get('description') as string
   const content = formData.get('content') as string
   const category = (formData.get('category') as string) || 'tin-tuc'
-  const coverImage = (formData.get('coverImage') as string) || null
+  const coverImage = await getCoverImageUrl(formData, 'article-cover', currentArticle?.coverImage || null)
   const published = formData.get('published') === 'on'
 
   await db.update(articles).set({
@@ -120,7 +185,9 @@ export async function updateArticle(id: number, formData: FormData) {
 
 export async function deleteArticle(id: number) {
   await requireAdmin()
+  const article = await getArticle(id)
   await db.delete(articles).where(eq(articles.id, id))
+  await deleteMediaAssetByUrl(article?.coverImage || null)
   revalidateArticles()
 }
 
@@ -195,33 +262,32 @@ export async function getProject(id: number) {
 export async function createProject(formData: FormData) {
   await requireAdmin()
   const title = formData.get('title') as string
-  const slug = formData.get('slug') as string
+  const slug = await buildUniqueProjectSlug(title)
   const location = (formData.get('location') as string) || null
   const capacityKwp = formData.get('capacityKwp') ? parseFloat(formData.get('capacityKwp') as string) : null
   const customerType = (formData.get('customerType') as string) || null
-  const coverImage = (formData.get('coverImage') as string) || null
+  const coverImage = await getCoverImageUrl(formData, 'project-cover')
   const content = (formData.get('content') as string) || null
   const published = formData.get('published') === 'on'
-  const metricsJson = parseMetricsJson(formData.get('metrics'))
 
-  await db.insert(projects).values({ title, slug, location, capacityKwp, customerType, coverImage, content, metricsJson, published })
+  await db.insert(projects).values({ title, slug, location, capacityKwp, customerType, coverImage, content, published })
   revalidateProjects()
   redirect('/admin/projects')
 }
 
 export async function updateProject(id: number, formData: FormData) {
   await requireAdmin()
+  const currentProject = await getProject(id)
   const title = formData.get('title') as string
-  const slug = formData.get('slug') as string
+  const slug = await buildUniqueProjectSlug(title, id)
   const location = (formData.get('location') as string) || null
   const capacityKwp = formData.get('capacityKwp') ? parseFloat(formData.get('capacityKwp') as string) : null
   const customerType = (formData.get('customerType') as string) || null
-  const coverImage = (formData.get('coverImage') as string) || null
+  const coverImage = await getCoverImageUrl(formData, 'project-cover', currentProject?.coverImage || null)
   const content = (formData.get('content') as string) || null
   const published = formData.get('published') === 'on'
-  const metricsJson = parseMetricsJson(formData.get('metrics'))
 
-  await db.update(projects).set({ title, slug, location, capacityKwp, customerType, coverImage, content, metricsJson, published })
+  await db.update(projects).set({ title, slug, location, capacityKwp, customerType, coverImage, content, published })
     .where(eq(projects.id, id))
   revalidateProjects()
   redirect('/admin/projects')
@@ -229,7 +295,9 @@ export async function updateProject(id: number, formData: FormData) {
 
 export async function deleteProject(id: number) {
   await requireAdmin()
+  const project = await getProject(id)
   await db.delete(projects).where(eq(projects.id, id))
+  await deleteMediaAssetByUrl(project?.coverImage || null)
   revalidateProjects()
 }
 
@@ -241,21 +309,8 @@ function parseOptionalDate(value: FormDataEntryValue | null) {
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-function slugifyVietnamese(value: string) {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'd')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    || 'tin-tuyen-dung'
-}
-
 async function buildUniqueRecruitmentSlug(title: string, currentId?: number) {
-  const baseSlug = slugifyVietnamese(title)
+  const baseSlug = slugifyVietnamese(title, 'tin-tuyen-dung')
   let slug = baseSlug
   let suffix = 2
 
@@ -271,14 +326,6 @@ async function buildUniqueRecruitmentSlug(title: string, currentId?: number) {
     slug = `${baseSlug}-${suffix}`
     suffix++
   }
-}
-
-async function getOptionalUploadedImageUrl(formData: FormData, fieldName: string, usage: string) {
-  const file = formData.get(fieldName)
-  if (!(file instanceof File) || file.size === 0) return null
-
-  const asset = await uploadImageAsset(file, usage)
-  return asset.url
 }
 
 export async function getRecruitmentPosts() {

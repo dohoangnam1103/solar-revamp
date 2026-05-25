@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createRecruitmentPost } from '@/app/actions/admin-crud'
 import { Plus, X } from 'lucide-react'
-import RecruitmentTitleFields from './RecruitmentFields'
+import SlugTitleFields from '../SlugTitleFields'
 
 function ModalOverlay({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
@@ -38,7 +38,7 @@ export default function CreateRecruitmentForm() {
             <button type="button" onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-900"><X className="h-5 w-5" /></button>
           </div>
           <form action={createRecruitmentPost} className="space-y-3">
-            <RecruitmentTitleFields />
+            <SlugTitleFields fallbackSlug="tin-tuyen-dung" />
             <div><label className="mb-1 block text-xs text-gray-500">Mô tả ngắn</label><textarea name="description" rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div><label className="mb-1 block text-xs text-gray-500">Phòng ban</label><input name="department" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>

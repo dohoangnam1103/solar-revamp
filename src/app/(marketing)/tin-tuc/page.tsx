@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { buildPageMetadata } from '@/lib/seo/metadata'
 import { ArrowRight, Calendar } from 'lucide-react'
@@ -13,12 +14,12 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 const FALLBACK_ARTICLES = [
-  { slug: 'chi-phi-lap-dien-mat-troi-2026', title: 'Chi phí lắp điện mặt trời năm 2026: Bảng giá chi tiết', description: 'Tổng hợp chi phí lắp đặt điện mặt trời mới nhất năm 2026.', category: 'Kiến thức', publishedAt: new Date('2026-05-15') },
-  { slug: 'thoi-gian-hoan-von-dien-mat-troi', title: 'Thời gian hoàn vốn điện mặt trời: Tính như thế nào?', description: 'Hướng dẫn cách tính thời gian hoàn vốn khi lắp điện mặt trời.', category: 'Tài chính', publishedAt: new Date('2026-05-10') },
-  { slug: 'he-thong-hybrid-la-gi', title: 'Hệ thống điện mặt trời Hybrid là gì?', description: 'Giải thích chi tiết về hệ thống hybrid, so sánh với hòa lưới.', category: 'Kiến thức', publishedAt: new Date('2026-05-05') },
-  { slug: 'chinh-sach-dien-mat-troi-2026', title: 'Chính sách điện mặt trời mái nhà 2026', description: 'Tổng hợp các chính sách hỗ trợ điện mặt trời của Chính phủ.', category: 'Chính sách', publishedAt: new Date('2026-04-28') },
-  { slug: 'bao-tri-dien-mat-troi', title: 'Hướng dẫn bảo trì hệ thống điện mặt trời', description: 'Các bước bảo trì định kỳ để hệ thống hoạt động hiệu quả.', category: 'Kỹ thuật', publishedAt: new Date('2026-04-20') },
-  { slug: 'tam-pin-mono-vs-poly', title: 'Tấm pin Mono vs Poly: Nên chọn loại nào?', description: 'So sánh chi tiết tấm pin monocrystalline và polycrystalline.', category: 'Kiến thức', publishedAt: new Date('2026-04-15') },
+  { slug: 'chi-phi-lap-dien-mat-troi-2026', title: 'Chi phí lắp điện mặt trời năm 2026: Bảng giá chi tiết', description: 'Tổng hợp chi phí lắp đặt điện mặt trời mới nhất năm 2026.', category: 'Kiến thức', coverImage: null, publishedAt: new Date('2026-05-15') },
+  { slug: 'thoi-gian-hoan-von-dien-mat-troi', title: 'Thời gian hoàn vốn điện mặt trời: Tính như thế nào?', description: 'Hướng dẫn cách tính thời gian hoàn vốn khi lắp điện mặt trời.', category: 'Tài chính', coverImage: null, publishedAt: new Date('2026-05-10') },
+  { slug: 'he-thong-hybrid-la-gi', title: 'Hệ thống điện mặt trời Hybrid là gì?', description: 'Giải thích chi tiết về hệ thống hybrid, so sánh với hòa lưới.', category: 'Kiến thức', coverImage: null, publishedAt: new Date('2026-05-05') },
+  { slug: 'chinh-sach-dien-mat-troi-2026', title: 'Chính sách điện mặt trời mái nhà 2026', description: 'Tổng hợp các chính sách hỗ trợ điện mặt trời của Chính phủ.', category: 'Chính sách', coverImage: null, publishedAt: new Date('2026-04-28') },
+  { slug: 'bao-tri-dien-mat-troi', title: 'Hướng dẫn bảo trì hệ thống điện mặt trời', description: 'Các bước bảo trì định kỳ để hệ thống hoạt động hiệu quả.', category: 'Kỹ thuật', coverImage: null, publishedAt: new Date('2026-04-20') },
+  { slug: 'tam-pin-mono-vs-poly', title: 'Tấm pin Mono vs Poly: Nên chọn loại nào?', description: 'So sánh chi tiết tấm pin monocrystalline và polycrystalline.', category: 'Kiến thức', coverImage: null, publishedAt: new Date('2026-04-15') },
 ]
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -40,6 +41,7 @@ export default async function TinTucPage() {
     title: a.title,
     description: a.description || '',
     category: a.category || 'tin-tuc',
+    coverImage: a.coverImage || null,
     publishedAt: a.publishedAt || a.createdAt,
   })) : FALLBACK_ARTICLES
 
@@ -57,9 +59,21 @@ export default async function TinTucPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayArticles.map((article) => (
               <Link key={article.slug} href={`/tin-tuc/${article.slug}`} className="group glass rounded-2xl overflow-hidden border border-white/50 hover:shadow-lg transition-all hover:-translate-y-1">
-                <div className="h-36 bg-gradient-to-br from-green-700 to-cyan-600 flex items-center justify-center p-6">
-                  <p className="text-white font-bold text-center text-sm leading-snug">{article.title}</p>
-                </div>
+                {article.coverImage ? (
+                  <div className="relative h-44 overflow-hidden bg-gray-100">
+                    <Image
+                      src={article.coverImage}
+                      alt={article.title}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+                    />
+                  </div>
+                ) : (
+                  <div className="h-36 bg-gradient-to-br from-green-700 to-cyan-600 flex items-center justify-center p-6">
+                    <p className="text-white font-bold text-center text-sm leading-snug">{article.title}</p>
+                  </div>
+                )}
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${CATEGORY_COLORS[article.category] || 'bg-gray-100 text-gray-600'}`}>

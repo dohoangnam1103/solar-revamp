@@ -1,6 +1,6 @@
 import { getRecruitmentPost, updateRecruitmentPost } from '@/app/actions/admin-crud'
 import { notFound } from 'next/navigation'
-import RecruitmentTitleFields from '../RecruitmentFields'
+import SlugTitleFields from '../../SlugTitleFields'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -18,7 +18,7 @@ export default async function EditRecruitmentPage({ params }: Props) {
     <div className="max-w-3xl p-6">
       <h1 className="mb-6 text-2xl font-bold text-gray-900">Sửa tin tuyển dụng</h1>
       <form action={updateRecruitmentPost.bind(null, post.id)} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <RecruitmentTitleFields defaultTitle={post.title} />
+        <SlugTitleFields defaultTitle={post.title} fallbackSlug="tin-tuyen-dung" />
         <div><label className="mb-1 block text-xs text-gray-500">Mô tả ngắn</label><textarea name="description" defaultValue={post.description || ''} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div><label className="mb-1 block text-xs text-gray-500">Phòng ban</label><input name="department" defaultValue={post.department || ''} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>

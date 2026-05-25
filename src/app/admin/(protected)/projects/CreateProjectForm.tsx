@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createProject } from '@/app/actions/admin-crud'
 import { Plus, X } from 'lucide-react'
+import SlugTitleFields from '../SlugTitleFields'
 
 function ModalOverlay({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
@@ -34,8 +35,7 @@ export default function CreateProjectForm() {
             <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-900"><X className="w-5 h-5" /></button>
           </div>
           <form action={createProject} className="space-y-3">
-            <div><label className="block text-xs text-gray-500 mb-1">Tiêu đề</label><input name="title" required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-            <div><label className="block text-xs text-gray-500 mb-1">Slug</label><input name="slug" required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+            <SlugTitleFields fallbackSlug="du-an" />
             <div className="grid grid-cols-2 gap-3">
               <div><label className="block text-xs text-gray-500 mb-1">Địa điểm</label><input name="location" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
               <div><label className="block text-xs text-gray-500 mb-1">Công suất (kWp)</label><input name="capacityKwp" type="number" step="0.1" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
@@ -48,10 +48,17 @@ export default function CreateProjectForm() {
                   <option value="factory">Nhà máy</option>
                 </select>
               </div>
-              <div><label className="block text-xs text-gray-500 mb-1">Ảnh bìa URL</label><input name="coverImage" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Ảnh bìa upload</label>
+                <input
+                  name="coverImageUpload"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-gray-700"
+                />
+              </div>
             </div>
             <div><label className="block text-xs text-gray-500 mb-1">Nội dung</label><textarea name="content" rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-            <div><label className="block text-xs text-gray-500 mb-1">Metrics JSON</label><textarea name="metrics" rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono" /></div>
             <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" name="published" className="accent-green-600" /> Đã xuất bản</label>
             <button type="submit" className="w-full py-2.5 bg-green-700 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors">Tạo dự án</button>
           </form>

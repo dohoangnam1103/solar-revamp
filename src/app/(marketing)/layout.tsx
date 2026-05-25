@@ -2,6 +2,8 @@ import Header from '@/components/marketing/Header'
 import Footer from '@/components/marketing/Footer'
 import FloatingContact from '@/components/marketing/FloatingContact'
 
+export const dynamic = 'force-dynamic'
+
 export default function MarketingLayout({
   children,
 }: {

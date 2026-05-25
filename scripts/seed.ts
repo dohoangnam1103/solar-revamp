@@ -82,6 +82,79 @@ async function seed() {
     await db.insert(schema.articles).values(article).onConflictDoNothing()
   }
 
+  const projects = [
+    {
+      title: 'Hệ thống 10kWp - Biệt thự Hà Đông',
+      slug: 'biet-thu-ha-dong',
+      location: 'Hà Đông, Hà Nội',
+      capacityKwp: 10,
+      customerType: 'residential',
+      content:
+        'Hệ thống điện mặt trời 10kWp cho biệt thự tại Hà Đông, tối ưu sản lượng ban ngày và giảm hóa đơn điện sinh hoạt.',
+      published: true,
+      createdAt: new Date('2026-05-06T09:00:00+07:00'),
+    },
+    {
+      title: 'Hệ thống 25kWp - Nhà xưởng Bắc Ninh',
+      slug: 'nha-xuong-bac-ninh',
+      location: 'Từ Sơn, Bắc Ninh',
+      capacityKwp: 25,
+      customerType: 'business',
+      content:
+        'Dự án 25kWp cho nhà xưởng tại Bắc Ninh, ưu tiên bù tải sản xuất ban ngày và kiểm soát chi phí vận hành.',
+      published: true,
+      createdAt: new Date('2026-05-05T09:00:00+07:00'),
+    },
+    {
+      title: 'Hybrid 8kWp - Nhà phố Cầu Giấy',
+      slug: 'nha-pho-cau-giay',
+      location: 'Cầu Giấy, Hà Nội',
+      capacityKwp: 8,
+      customerType: 'residential',
+      content:
+        'Hệ thống hybrid 8kWp cho nhà phố tại Cầu Giấy, kết hợp pin lưu trữ để duy trì tải thiết yếu khi mất điện.',
+      published: true,
+      createdAt: new Date('2026-05-04T09:00:00+07:00'),
+    },
+    {
+      title: 'Hệ thống 20kWp - Văn phòng Long Biên',
+      slug: 'van-phong-long-bien',
+      location: 'Long Biên, Hà Nội',
+      capacityKwp: 20,
+      customerType: 'business',
+      content:
+        'Hệ thống 20kWp cho văn phòng tại Long Biên, thiết kế để khai thác tốt tải điều hòa và thiết bị văn phòng ban ngày.',
+      published: true,
+      createdAt: new Date('2026-05-03T09:00:00+07:00'),
+    },
+    {
+      title: 'Hệ thống 15kWp - Nhà máy Hưng Yên',
+      slug: 'nha-may-hung-yen',
+      location: 'Mỹ Hào, Hưng Yên',
+      capacityKwp: 15,
+      customerType: 'factory',
+      content:
+        'Dự án điện mặt trời 15kWp tại nhà máy Hưng Yên, phục vụ nhu cầu tải sản xuất ổn định trong giờ nắng.',
+      published: true,
+      createdAt: new Date('2026-05-02T09:00:00+07:00'),
+    },
+    {
+      title: 'Hybrid 5kWp - Nhà ở Đống Đa',
+      slug: 'nha-o-dong-da',
+      location: 'Đống Đa, Hà Nội',
+      capacityKwp: 5,
+      customerType: 'residential',
+      content:
+        'Hệ thống hybrid 5kWp cho nhà ở Đống Đa, phù hợp hộ gia đình cần tiết kiệm điện và có nguồn dự phòng cơ bản.',
+      published: true,
+      createdAt: new Date('2026-05-01T09:00:00+07:00'),
+    },
+  ]
+
+  for (const project of projects) {
+    await db.insert(schema.projects).values(project).onConflictDoNothing()
+  }
+
   console.log('Seed complete!')
 }
 
