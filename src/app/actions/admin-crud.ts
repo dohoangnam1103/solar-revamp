@@ -5,7 +5,7 @@ import { articles, carouselImages, faqs, mediaAssets, partners, pricingPackages,
 import { eq, desc, asc, max } from 'drizzle-orm'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { requireAdmin } from '@/lib/auth/admin'
+import { requireAdmin, requireSuperAdmin } from '@/lib/auth/admin'
 import { buildSolarAssumptionsFromForm } from '@/lib/quote/settings'
 import { deleteStoredUpload, saveUploadedImage } from '@/lib/media/storage'
 import { slugifyVietnamese } from '@/lib/slug'
@@ -50,6 +50,17 @@ function revalidateCarouselImages() {
 }
 
 const DEFAULT_CAROUSEL_ALT = 'Công trình điện mặt trời SOLIQ đã lắp đặt'
+const CONTENT_ADMIN_UPLOAD_USAGES = new Set(['article-cover', 'project-cover', 'carousel'])
+
+export type PartnerFormState = {
+  error?: string
+  success?: string
+}
+
+export type ArticleFormState = {
+  error?: string
+  success?: string
+}
 
 async function deleteMediaAssetByUrl(url: string | null) {
   if (!url?.startsWith('/uploads/')) return
@@ -143,44 +154,59 @@ export async function getArticleBySlug(slug: string) {
   return rows[0] || null
 }
 
-export async function createArticle(formData: FormData) {
-  await requireAdmin()
-  const title = formData.get('title') as string
-  const slug = await buildUniqueArticleSlug(title)
-  const description = formData.get('description') as string
-  const content = formData.get('content') as string
-  const category = (formData.get('category') as string) || 'tin-tuc'
-  const coverImage = await getCoverImageUrl(formData, 'article-cover')
-  const published = formData.get('published') === 'on'
+export async function createArticle(
+  _prevState: ArticleFormState,
+  formData: FormData
+): Promise<ArticleFormState> {
+  try {
+    await requireAdmin()
+    const title = formData.get('title') as string
+    const slug = await buildUniqueArticleSlug(title)
+    const description = formData.get('description') as string
+    const content = formData.get('content') as string
+    const category = (formData.get('category') as string) || 'tin-tuc'
+    const coverImage = await getCoverImageUrl(formData, 'article-cover')
+    const published = formData.get('published') === 'on'
 
-  await db.insert(articles).values({
-    slug, title, description, content, category,
-    coverImage, published,
-    publishedAt: published ? new Date() : null,
-  })
-  revalidateArticles()
-  redirect('/admin/articles')
+    await db.insert(articles).values({
+      slug, title, description, content, category,
+      coverImage, published,
+      publishedAt: published ? new Date() : null,
+    })
+    revalidateArticles()
+    return { success: 'Đã tạo bài viết.' }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Không thể tạo bài viết.' }
+  }
 }
 
-export async function updateArticle(id: number, formData: FormData) {
-  await requireAdmin()
-  const currentArticle = await getArticle(id)
-  const title = formData.get('title') as string
-  const slug = await buildUniqueArticleSlug(title, id)
-  const description = formData.get('description') as string
-  const content = formData.get('content') as string
-  const category = (formData.get('category') as string) || 'tin-tuc'
-  const coverImage = await getCoverImageUrl(formData, 'article-cover', currentArticle?.coverImage || null)
-  const published = formData.get('published') === 'on'
+export async function updateArticle(
+  id: number,
+  _prevState: ArticleFormState,
+  formData: FormData
+): Promise<ArticleFormState> {
+  try {
+    await requireAdmin()
+    const currentArticle = await getArticle(id)
+    const title = formData.get('title') as string
+    const slug = await buildUniqueArticleSlug(title, id)
+    const description = formData.get('description') as string
+    const content = formData.get('content') as string
+    const category = (formData.get('category') as string) || 'tin-tuc'
+    const coverImage = await getCoverImageUrl(formData, 'article-cover', currentArticle?.coverImage || null)
+    const published = formData.get('published') === 'on'
 
-  await db.update(articles).set({
-    slug, title, description, content, category,
-    coverImage, published,
-    publishedAt: published ? new Date() : null,
-    updatedAt: new Date(),
-  }).where(eq(articles.id, id))
-  revalidateArticles()
-  redirect('/admin/articles')
+    await db.update(articles).set({
+      slug, title, description, content, category,
+      coverImage, published,
+      publishedAt: published ? new Date() : null,
+      updatedAt: new Date(),
+    }).where(eq(articles.id, id))
+    revalidateArticles()
+    return { success: 'Đã cập nhật bài viết.' }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Không thể cập nhật bài viết.' }
+  }
 }
 
 export async function deleteArticle(id: number) {
@@ -197,22 +223,32 @@ export async function getPartners() {
   return db.select().from(partners).orderBy(partners.sortOrder)
 }
 
-export async function createPartner(formData: FormData) {
-  await requireAdmin()
-  const name = formData.get('name') as string
-  const logo = await getOptionalUploadedImageUrl(formData, 'logo', 'partner-logo')
-  const type = (formData.get('type') as string) || 'supplier'
-  const url = (formData.get('url') as string) || null
-  const [lastPartner] = await db.select({ sortOrder: partners.sortOrder }).from(partners).orderBy(desc(partners.sortOrder)).limit(1)
-  const sortOrder = (lastPartner?.sortOrder ?? 0) + 1
-  const active = formData.get('active') === 'on'
+export async function createPartner(
+  _prevState: PartnerFormState,
+  formData: FormData
+): Promise<PartnerFormState> {
+  try {
+    await requireSuperAdmin()
+    const name = String(formData.get('name') || '').trim()
+    if (!name) return { error: 'Vui lòng nhập tên đối tác.' }
 
-  await db.insert(partners).values({ name, logo, type, url, sortOrder, active })
-  revalidatePartners()
+    const logo = await getOptionalUploadedImageUrl(formData, 'logo', 'partner-logo')
+    const type = (formData.get('type') as string) || 'supplier'
+    const url = String(formData.get('url') || '').trim() || null
+    const [lastPartner] = await db.select({ sortOrder: partners.sortOrder }).from(partners).orderBy(desc(partners.sortOrder)).limit(1)
+    const sortOrder = (lastPartner?.sortOrder ?? 0) + 1
+    const active = formData.get('active') === 'on'
+
+    await db.insert(partners).values({ name, logo, type, url, sortOrder, active })
+    revalidatePartners()
+    return { success: 'Đã thêm đối tác.' }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Không thể thêm đối tác.' }
+  }
 }
 
 export async function updatePartner(id: number, formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const name = formData.get('name') as string
   const logo = await getOptionalUploadedImageUrl(formData, 'logo', 'partner-logo')
   const type = (formData.get('type') as string) || 'supplier'
@@ -225,13 +261,13 @@ export async function updatePartner(id: number, formData: FormData) {
 }
 
 export async function deletePartner(id: number) {
-  await requireAdmin()
+  await requireSuperAdmin()
   await db.delete(partners).where(eq(partners.id, id))
   revalidatePartners()
 }
 
 export async function reorderPartners(ids: number[]) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const orderedIds = Array.from(new Set(ids))
     .filter((id) => Number.isInteger(id) && id > 0)
 
@@ -342,7 +378,7 @@ export async function getRecruitmentApplications() {
 }
 
 export async function createRecruitmentPost(formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const title = formData.get('title') as string
   const slug = await buildUniqueRecruitmentSlug(title)
   const description = (formData.get('description') as string) || null
@@ -373,7 +409,7 @@ export async function createRecruitmentPost(formData: FormData) {
 }
 
 export async function updateRecruitmentPost(id: number, formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const title = formData.get('title') as string
   const slug = await buildUniqueRecruitmentSlug(title, id)
   const description = (formData.get('description') as string) || null
@@ -405,13 +441,13 @@ export async function updateRecruitmentPost(id: number, formData: FormData) {
 }
 
 export async function deleteRecruitmentPost(id: number) {
-  await requireAdmin()
+  await requireSuperAdmin()
   await db.delete(recruitmentPosts).where(eq(recruitmentPosts.id, id))
   revalidateRecruitmentPosts()
 }
 
 export async function updateRecruitmentApplicationStatus(id: number, status: string) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const allowed = new Set(['new', 'reviewing', 'contacted', 'rejected'])
   if (!allowed.has(status)) return
 
@@ -426,7 +462,10 @@ export async function updateRecruitmentApplicationStatus(id: number, status: str
 // ─── MEDIA + CAROUSEL ────────────────────────────────────────────────────────
 
 export async function uploadImageAsset(file: File, usage: string, alt: string | null = null) {
-  await requireAdmin()
+  const admin = await requireAdmin()
+  if (!admin.isSuper && !CONTENT_ADMIN_UPLOAD_USAGES.has(usage)) {
+    throw new Error('Forbidden')
+  }
   const storedImage = await saveUploadedImage(file, usage)
   const [asset] = await db.insert(mediaAssets).values({
     url: storedImage.url,
@@ -536,7 +575,7 @@ export async function getSetting(key: string) {
 }
 
 export async function updateSettings(formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const entries: { key: string; value: any }[] = []
   for (const [key, value] of formData.entries()) {
     if (key.startsWith('setting_')) {
@@ -555,7 +594,7 @@ export async function updateSettings(formData: FormData) {
 }
 
 export async function updateSolarAssumptions(formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const assumptions = buildSolarAssumptionsFromForm(formData)
 
   await db.insert(settings).values({ key: 'solar_assumptions', valueJson: assumptions })
@@ -596,7 +635,7 @@ export async function getFeaturedFaqs() {
 }
 
 export async function createFaq(formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const question = (formData.get('question') as string)?.trim()
   const answer = (formData.get('answer') as string)?.trim()
   if (!question || !answer) return
@@ -610,7 +649,7 @@ export async function createFaq(formData: FormData) {
 }
 
 export async function updateFaq(id: number, formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const question = (formData.get('question') as string)?.trim()
   const answer = (formData.get('answer') as string)?.trim()
   if (!question || !answer) return
@@ -627,7 +666,7 @@ export async function updateFaq(id: number, formData: FormData) {
 }
 
 export async function deleteFaq(id: number) {
-  await requireAdmin()
+  await requireSuperAdmin()
   await db.delete(faqs).where(eq(faqs.id, id))
   revalidateFaqs()
 }
@@ -642,7 +681,7 @@ function revalidatePricing() {
 }
 
 export async function createPricingPackage(formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const page = formData.get('page') as string
   const category = (formData.get('category') as string) || null
   const cap = (formData.get('cap') as string) || null
@@ -662,7 +701,7 @@ export async function createPricingPackage(formData: FormData) {
 }
 
 export async function updatePricingPackage(id: number, formData: FormData) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const category = (formData.get('category') as string) || null
   const cap = (formData.get('cap') as string) || null
   const panels = (formData.get('panels') as string) || null
@@ -681,13 +720,13 @@ export async function updatePricingPackage(id: number, formData: FormData) {
 }
 
 export async function deletePricingPackage(id: number) {
-  await requireAdmin()
+  await requireSuperAdmin()
   await db.delete(pricingPackages).where(eq(pricingPackages.id, id))
   revalidatePricing()
 }
 
 export async function reorderPricingPackages(ids: number[]) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const orderedIds = Array.from(new Set(ids)).filter((id) => Number.isInteger(id) && id > 0)
   for (const [index, id] of orderedIds.entries()) {
     await db.update(pricingPackages).set({ sortOrder: index + 1, updatedAt: new Date() }).where(eq(pricingPackages.id, id))

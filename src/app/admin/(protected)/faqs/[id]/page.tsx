@@ -1,9 +1,11 @@
 import { getFaq, updateFaq } from '@/app/actions/admin-crud'
+import { requireSuperAdminPage } from '@/lib/auth/admin-route'
 import { notFound } from 'next/navigation'
 
 type Props = { params: Promise<{ id: string }> }
 
 export default async function EditFaqPage({ params }: Props) {
+  await requireSuperAdminPage()
   const { id } = await params
   const faq = await getFaq(parseInt(id))
   if (!faq) notFound()

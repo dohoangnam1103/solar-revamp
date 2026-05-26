@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { adminLogout } from '@/app/actions/admin'
+import { CONTENT_ADMIN_PATHS } from '@/lib/auth/admin-access'
 import {
   Briefcase,
   Building2,
@@ -37,8 +38,8 @@ export default function AdminSidebar({ email, isSuper }: AdminSidebarProps) {
     setCollapsed(window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1')
   }, [])
 
-  const navItems = useMemo(
-    () => [
+  const navItems = useMemo(() => {
+    const items = [
       { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/admin/leads', label: 'Khách tiềm năng', icon: Users },
       { href: '/admin/quotes', label: 'Báo giá', icon: FileText },
@@ -50,9 +51,11 @@ export default function AdminSidebar({ email, isSuper }: AdminSidebarProps) {
       { href: '/admin/faqs', label: 'FAQ', icon: HelpCircle },
       { href: '/admin/pricing', label: 'Giá cả', icon: Tag },
       ...(isSuper ? [{ href: '/admin/admins', label: 'Quản trị viên', icon: ShieldCheck }] : []),
-    ],
-    [isSuper]
-  )
+    ]
+
+    if (isSuper) return items
+    return items.filter((item) => CONTENT_ADMIN_PATHS.includes(item.href as (typeof CONTENT_ADMIN_PATHS)[number]))
+  }, [isSuper])
 
   const toggleCollapsed = () => {
     setCollapsed((current) => {

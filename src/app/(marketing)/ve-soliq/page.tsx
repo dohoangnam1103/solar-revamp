@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { buildPageMetadata, localBusinessSchema } from '@/lib/seo/metadata'
+import ProjectCarousel from '@/components/marketing/ProjectCarousel'
 import { Award, Users, Shield, Zap, MapPin, Phone, Mail } from 'lucide-react'
 
 export const metadata: Metadata = buildPageMetadata({
@@ -7,6 +8,11 @@ export const metadata: Metadata = buildPageMetadata({
   description: 'SOLIQ ENERGY - đơn vị lắp đặt điện mặt trời uy tín tại Hà Nội. Hơn 500 công trình, 5+ năm kinh nghiệm, bảo hành 25 năm. Smart Power From Sun.',
   alternates: { canonical: '/ve-soliq' },
 })
+
+const MASTER_PHI_PROJECT_IMAGES = Array.from({ length: 29 }, (_, index) => ({
+  src: `/projects/master-phi/master-phi-${String(index + 1).padStart(2, '0')}.webp`,
+  alt: `Hình ảnh công trình điện mặt trời SOLIQ ${index + 1}`,
+}))
 
 export default function VeSoliqPage() {
   const jsonLd = localBusinessSchema()
@@ -70,6 +76,25 @@ export default function VeSoliqPage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f3fbff_52%,#effdf8_100%)] py-16">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(37,93,43,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.045)_1px,transparent_1px)] bg-[size:48px_48px]" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-10 max-w-3xl text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-green-700">
+              Hình ảnh thực tế
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Công trình và đội ngũ SOLIQ tại hiện trường.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-gray-600 leading-relaxed">
+              Một số hình ảnh thi công, nghiệm thu và vận hành từ nguồn tư liệu mới nhất của SOLIQ.
+            </p>
+          </div>
+
+          <ProjectCarousel images={MASTER_PHI_PROJECT_IMAGES} />
         </div>
       </section>
 

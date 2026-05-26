@@ -5,6 +5,7 @@ import { buildPageMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
 import { getCachedPublishedRecruitmentPosts, getCachedRecruitmentPostBySlug } from '@/lib/db/public-queries'
 import { ArrowLeft, BriefcaseBusiness, CalendarDays, MapPin } from 'lucide-react'
 import RecruitmentApplicationForm from '@/components/marketing/RecruitmentApplicationForm'
+import FormattedContent from '@/components/content/FormattedContent'
 
 export const revalidate = 300
 
@@ -70,11 +71,7 @@ export default async function RecruitmentDetailPage({ params }: Props) {
             <span className="flex items-center gap-2"><BriefcaseBusiness className="h-4 w-4 text-green-700" />{post.salaryRange || 'Thỏa thuận'}</span>
           </div>
 
-          <div className="prose prose-green max-w-none">
-            {(post.content || '').split('\n\n').map((paragraph, index) => (
-              <p key={index} className="mb-4 leading-relaxed text-gray-700">{paragraph}</p>
-            ))}
-          </div>
+          <FormattedContent content={post.content || ''} className="prose prose-green max-w-none" />
 
           <RecruitmentApplicationForm position={post.title} />
         </article>

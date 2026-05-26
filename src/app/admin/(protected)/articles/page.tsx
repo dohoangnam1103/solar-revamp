@@ -1,6 +1,7 @@
-import { getArticles, deleteArticle } from '@/app/actions/admin-crud'
-import { Pencil, Trash2, Plus } from 'lucide-react'
+import { getArticles } from '@/app/actions/admin-crud'
+import { Pencil } from 'lucide-react'
 import CreateArticleForm from './CreateArticleForm'
+import DeleteArticleButton from './DeleteArticleButton'
 
 export default async function AdminArticlesPage() {
   const allArticles = await getArticles()
@@ -36,9 +37,7 @@ export default async function AdminArticlesPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <a href={`/admin/articles/${a.id}`} className="p-1.5 text-gray-400 hover:text-gray-900 transition-colors"><Pencil className="w-3.5 h-3.5" /></a>
-                      <form action={async () => { 'use server'; await deleteArticle(a.id) }}>
-                        <button type="submit" className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                      </form>
+                      <DeleteArticleButton articleId={a.id} />
                     </div>
                   </td>
                 </tr>

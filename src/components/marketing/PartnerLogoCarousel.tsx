@@ -58,8 +58,6 @@ export default function PartnerLogoCarousel({ partners }: { partners: PartnerLog
 
   return (
     <div className="partner-marquee group relative overflow-hidden py-2">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#f4fffb] to-transparent sm:w-24" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#f4fffb] to-transparent sm:w-24" />
 
       <div className="partner-marquee-track flex w-max gap-4 pr-4 sm:gap-5 sm:pr-5">
         {loopPartners.map((partner, index) => {

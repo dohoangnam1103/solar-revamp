@@ -1,6 +1,8 @@
 import { getRecruitmentPost, updateRecruitmentPost } from '@/app/actions/admin-crud'
+import { requireSuperAdminPage } from '@/lib/auth/admin-route'
 import { notFound } from 'next/navigation'
 import SlugTitleFields from '../../SlugTitleFields'
+import RichTextEditor from '../../RichTextEditor'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -10,6 +12,7 @@ function toDateInputValue(value: Date | string | null) {
 }
 
 export default async function EditRecruitmentPage({ params }: Props) {
+  await requireSuperAdminPage()
   const { id } = await params
   const post = await getRecruitmentPost(parseInt(id, 10))
   if (!post) notFound()
@@ -37,7 +40,10 @@ export default async function EditRecruitmentPage({ params }: Props) {
           <div><label className="mb-1 block text-xs text-gray-500">Lương</label><input name="salaryRange" defaultValue={post.salaryRange || ''} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
           <div><label className="mb-1 block text-xs text-gray-500">Hạn ứng tuyển</label><input name="deadline" type="date" defaultValue={toDateInputValue(post.deadline)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
         </div>
-        <div><label className="mb-1 block text-xs text-gray-500">Nội dung</label><textarea name="content" defaultValue={post.content || ''} rows={10} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
+        <div>
+          <label className="mb-1 block text-xs text-gray-500">Nội dung</label>
+          <RichTextEditor name="content" defaultValue={post.content || ''} minHeightClassName="min-h-64" />
+        </div>
         <label className="flex items-center gap-2 text-sm text-gray-600">
           <input type="checkbox" name="published" defaultChecked={post.published || false} className="accent-green-600" /> Đã xuất bản
         </label>

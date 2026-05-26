@@ -2,9 +2,15 @@ import { db } from '@/lib/db'
 import { leads, quoteRequests } from '@/lib/db/schema'
 import { desc, count, eq, gte } from 'drizzle-orm'
 import { Users, FileText, TrendingUp, Clock } from 'lucide-react'
+import { redirect } from 'next/navigation'
+import { getCurrentAdmin } from '@/lib/auth/admin'
+import { CONTENT_ADMIN_HOME } from '@/lib/auth/admin-access'
 import RefreshButton from './RefreshButton'
 
 export default async function AdminDashboard() {
+  const current = await getCurrentAdmin()
+  if (!current?.isSuper) redirect(CONTENT_ADMIN_HOME)
+
   const [totalLeads] = await db.select({ count: count() }).from(leads)
   const [totalQuotes] = await db.select({ count: count() }).from(quoteRequests)
   const today = new Date(); today.setHours(0, 0, 0, 0)

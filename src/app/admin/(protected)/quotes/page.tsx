@@ -1,9 +1,11 @@
 import { db } from '@/lib/db'
 import { quoteRequests, quoteResults, leads } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
+import { requireSuperAdminPage } from '@/lib/auth/admin-route'
 import RefreshButton from '../RefreshButton'
 
 export default async function QuotesPage() {
+  await requireSuperAdminPage()
   const quotes = await db
     .select({
       id: quoteRequests.id,

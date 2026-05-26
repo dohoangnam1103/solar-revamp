@@ -1,4 +1,5 @@
 import { deleteRecruitmentPost, getRecruitmentApplications, getRecruitmentPosts } from '@/app/actions/admin-crud'
+import { requireSuperAdminPage } from '@/lib/auth/admin-route'
 import { Pencil, Trash2 } from 'lucide-react'
 import CreateRecruitmentForm from './CreateRecruitmentForm'
 import CandidateTable from './CandidateTable'
@@ -10,6 +11,7 @@ function formatDate(value: Date | string | null) {
 }
 
 export default async function AdminRecruitmentPage() {
+  await requireSuperAdminPage()
   const [posts, applications] = await Promise.all([
     getRecruitmentPosts(),
     getRecruitmentApplications(),

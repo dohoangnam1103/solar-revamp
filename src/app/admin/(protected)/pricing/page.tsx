@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { pricingPackages } from '@/lib/db/schema'
+import { requireSuperAdminPage } from '@/lib/auth/admin-route'
 import { getSolarAssumptions } from '@/lib/quote/settings'
 import { eq, asc } from 'drizzle-orm'
 import PricingManager from './PricingManager'
@@ -9,6 +10,7 @@ async function getByPage(page: string) {
 }
 
 export default async function AdminPricingPage() {
+  await requireSuperAdminPage()
   const [assumptions, giaDinh, doanhNghiep, hybrid, vatTu] = await Promise.all([
     getSolarAssumptions(),
     getByPage('gia-dinh'),

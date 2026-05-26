@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createRecruitmentPost } from '@/app/actions/admin-crud'
 import { Plus, X } from 'lucide-react'
 import SlugTitleFields from '../SlugTitleFields'
+import RichTextEditor from '../RichTextEditor'
 
 function ModalOverlay({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
@@ -57,7 +58,10 @@ export default function CreateRecruitmentForm() {
               <div><label className="mb-1 block text-xs text-gray-500">Lương</label><input name="salaryRange" placeholder="Thỏa thuận" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
               <div><label className="mb-1 block text-xs text-gray-500">Hạn ứng tuyển</label><input name="deadline" type="date" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
             </div>
-            <div><label className="mb-1 block text-xs text-gray-500">Nội dung</label><textarea name="content" rows={8} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></div>
+            <div>
+              <label className="mb-1 block text-xs text-gray-500">Nội dung</label>
+              <RichTextEditor name="content" minHeightClassName="min-h-48" />
+            </div>
             <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" name="published" className="accent-green-600" /> Đã xuất bản</label>
             <button type="submit" className="w-full rounded-lg bg-green-700 py-2.5 font-semibold text-white transition-colors hover:bg-green-600">Tạo tin</button>
           </form>

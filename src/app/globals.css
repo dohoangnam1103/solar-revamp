@@ -56,6 +56,48 @@ body {
   box-shadow: var(--glass-shadow);
 }
 
+.rich-text-editor-content p {
+  margin: 0 0 0.75rem;
+}
+
+.rich-text-editor-content h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.rich-text-editor-content h3 {
+  margin: 0.875rem 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.rich-text-editor-content ul,
+.rich-text-editor-content ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.rich-text-editor-content ul {
+  list-style: disc;
+}
+
+.rich-text-editor-content ol {
+  list-style: decimal;
+}
+
+.rich-text-editor-content a {
+  color: #15803d;
+  text-decoration: underline;
+}
+
+.rich-text-editor-content:focus,
+.rich-text-editor-content:focus-visible {
+  outline: none;
+}
+
 /* Solar gradient backgrounds */
 .bg-solar-hero {
   background: linear-gradient(
@@ -212,7 +254,7 @@ body {
 }
 
 .project-carousel-track {
-  animation: project-carousel 46s linear infinite;
+  animation: project-carousel 140s linear infinite;
   will-change: transform;
 }
 

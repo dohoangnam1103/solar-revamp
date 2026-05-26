@@ -1,8 +1,10 @@
 import { getFaqs, deleteFaq } from '@/app/actions/admin-crud'
+import { requireSuperAdminPage } from '@/lib/auth/admin-route'
 import { Pencil, Trash2, Star, CheckCircle, XCircle } from 'lucide-react'
 import CreateFaqForm from './CreateFaqForm'
 
 export default async function AdminFaqsPage() {
+  await requireSuperAdminPage()
   const allFaqs = await getFaqs()
 
   return (

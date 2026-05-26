@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { leads } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-import { clearAdminSession, createAdminSession, requireAdmin, verifyAdminCredentials } from '@/lib/auth/admin'
+import { clearAdminSession, createAdminSession, requireSuperAdmin, verifyAdminCredentials } from '@/lib/auth/admin'
 import { checkRateLimit } from '@/lib/security/rate-limit'
 
 export interface AdminLoginState {
@@ -41,7 +41,7 @@ export async function adminLogout() {
 }
 
 export async function updateLeadStatus(leadId: number, status: string) {
-  await requireAdmin()
+  await requireSuperAdmin()
   await db.update(leads).set({ status, updatedAt: new Date() }).where(eq(leads.id, leadId))
   revalidatePath('/admin/leads')
 }

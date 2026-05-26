@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { buildPageMetadata, articleSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { ArrowLeft, Calendar } from 'lucide-react'
 import { getCachedArticleBySlug, getCachedPublishedArticles } from '@/lib/db/public-queries'
+import FormattedContent from '@/components/content/FormattedContent'
 
 export const revalidate = 300
 
@@ -123,11 +124,7 @@ export default async function ArticlePage({ params }: Props) {
               />
             </div>
           )}
-          <div className="prose prose-green max-w-none">
-            {article.content.split('\n\n').map((para, i) => (
-              <p key={i} className="text-gray-700 leading-relaxed mb-4">{para}</p>
-            ))}
-          </div>
+          <FormattedContent content={article.content} className="prose prose-green max-w-none" />
           <div className="mt-8 pt-6 border-t border-gray-100">
             <p className="text-sm text-gray-500 mb-4">Cần tư vấn thêm?</p>
             <a href="tel:0902211893" className="inline-flex items-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">

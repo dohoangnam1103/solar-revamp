@@ -7,6 +7,7 @@ import ProjectCarousel from '@/components/marketing/ProjectCarousel'
 import PartnerLogoCarousel from '@/components/marketing/PartnerLogoCarousel'
 import SolarSystemExperience from '@/components/marketing/SolarSystemExperience'
 import AnimatedFAQItem from '@/components/marketing/AnimatedFAQItem'
+import QuoteBackgroundVideo from '@/components/marketing/QuoteBackgroundVideo'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
 import { getSolarAssumptions } from '@/lib/quote/settings'
 import { getCachedCarouselImages, getCachedPartners } from '@/lib/db/public-queries'
@@ -68,16 +69,11 @@ export default async function HomePage() {
       {/* ── QUICK QUOTE ──────────────────────────────────────────────────── */}
       <section data-reveal className="relative mt-8 pb-20 sm:mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-[2rem] border border-emerald-100/80 bg-[radial-gradient(circle_at_18%_18%,rgba(255,184,75,0.24),transparent_28%),radial-gradient(circle_at_78%_78%,rgba(14,165,233,0.18),transparent_34%),linear-gradient(135deg,#f9fffb_0%,#ecfff7_42%,#e8f7ff_100%)] p-5 shadow-2xl backdrop-blur sm:gap-y-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
-            <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(37,93,43,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.055)_1px,transparent_1px)] bg-[size:44px_44px]" />
-            <div className="pointer-events-none absolute -left-20 top-12 z-0 h-80 w-80 rounded-full bg-orange-300/25 blur-3xl" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-52 bg-[radial-gradient(ellipse_at_18%_100%,rgba(251,146,60,0.24),transparent_38%),radial-gradient(ellipse_at_72%_100%,rgba(16,185,129,0.22),transparent_42%),linear-gradient(180deg,transparent,rgba(14,165,233,0.12))]" />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -left-4 bottom-0 z-0 hidden h-[82%] w-[52%] bg-contain bg-left-bottom bg-no-repeat opacity-[0.16] mix-blend-multiply lg:block"
-              style={{ backgroundImage: "url('/illustrations/solar-ev-charging.webp')" }}
-            />
-            <div className="relative z-10 flex flex-col justify-start lg:pt-8">
+          <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-[2rem] border border-emerald-100/80 bg-emerald-50 p-5 shadow-2xl backdrop-blur sm:gap-y-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
+            <QuoteBackgroundVideo />
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[60px] bg-[linear-gradient(180deg,#ecfdf5_0%,#ecfdf5_28%,rgba(236,253,245,0.78)_58%,transparent_100%)]" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[60px] bg-[linear-gradient(0deg,#ecfdf5_0%,#ecfdf5_28%,rgba(236,253,245,0.78)_58%,transparent_100%)]" />
+            <div className="relative z-10 flex flex-col self-start rounded-3xl bg-white/55 p-5 backdrop-blur-sm lg:pt-8">
               <p className="text-sm font-bold uppercase tracking-[0.16em] text-green-700">
                 Ước tính đầu tư
               </p>
@@ -101,6 +97,7 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-[1] hidden w-[58%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.48)_46%,rgba(255,255,255,0.16)_72%,transparent_100%)] lg:block" />
             <div className="relative z-10 lg:max-w-xl lg:justify-self-end">
               <QuoteCalculator assumptions={quoteAssumptions} />
             </div>

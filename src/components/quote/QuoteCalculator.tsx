@@ -69,7 +69,7 @@ export default function QuoteCalculator({ assumptions }: { assumptions: QuoteAss
   }
 
   return (
-    <div className="glass rounded-2xl overflow-hidden shadow-xl border border-white/50">
+    <div className="overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-700 to-green-600 px-6 py-4">
         <h2 className="text-white font-bold text-lg">Tính báo giá điện mặt trời</h2>

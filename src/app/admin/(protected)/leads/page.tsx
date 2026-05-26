@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { leads } from '@/lib/db/schema'
 import { desc, ne } from 'drizzle-orm'
 import { updateLeadStatus } from '@/app/actions/admin'
+import { requireSuperAdminPage } from '@/lib/auth/admin-route'
 import StatusUpdateForm from '../StatusUpdateForm'
 import RefreshButton from '../RefreshButton'
 
@@ -26,6 +27,7 @@ const SOURCE_LABEL: Record<string, string> = {
 }
 
 export default async function LeadsPage() {
+  await requireSuperAdminPage()
   const allLeads = await db.select().from(leads).where(ne(leads.source, 'recruitment')).orderBy(desc(leads.createdAt))
 
   return (

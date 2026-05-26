@@ -46,8 +46,8 @@ export default async function DoiTacPage() {
                 {(suppliers.length > 0 ? suppliers : [{ id: 1, name: 'Thương hiệu A', logo: null, url: null }, { id: 2, name: 'Thương hiệu B', logo: null, url: null }]).map((p) => (
                   <a key={p.id} href={p.url || '#'} target={p.url ? '_blank' : undefined} rel="noopener noreferrer"
                     className="glass rounded-2xl p-6 border border-white/50 hover:shadow-lg transition-all text-center group">
-                    <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      {p.logo ? <Image src={p.logo} alt={p.name} width={56} height={56} unoptimized className="w-14 h-14 object-contain" /> : <Award className="w-8 h-8 text-green-400" />}
+                    <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      {p.logo ? <Image src={p.logo} alt={p.name} width={96} height={96} unoptimized className="w-24 h-24 object-contain" /> : <Award className="w-10 h-10 text-green-400" />}
                     </div>
                     <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors">{p.name}</h3>
                   </a>
