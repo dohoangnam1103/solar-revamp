@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { leads, quoteRequests } from '@/lib/db/schema'
 import { desc, count, eq, gte } from 'drizzle-orm'
 import { Users, FileText, TrendingUp, Clock } from 'lucide-react'
+import RefreshButton from './RefreshButton'
 
 export default async function AdminDashboard() {
   const [totalLeads] = await db.select({ count: count() }).from(leads)
@@ -26,11 +27,14 @@ export default async function AdminDashboard() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <RefreshButton />
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Tổng leads', value: totalLeads.count, icon: Users, color: 'text-blue-600' },
-          { label: 'Leads mới hôm nay', value: newToday.count, icon: TrendingUp, color: 'text-green-600' },
+          { label: 'Tổng khách tiềm năng', value: totalLeads.count, icon: Users, color: 'text-blue-600' },
+          { label: 'Mới hôm nay', value: newToday.count, icon: TrendingUp, color: 'text-green-600' },
           { label: 'Chờ xử lý', value: newLeads.count, icon: Clock, color: 'text-yellow-600' },
           { label: 'Tổng báo giá', value: totalQuotes.count, icon: FileText, color: 'text-purple-600' },
         ].map((stat) => (
@@ -44,7 +48,7 @@ export default async function AdminDashboard() {
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-900">Leads gần đây</h2>
+          <h2 className="font-semibold text-gray-900">Khách tiềm năng gần đây</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

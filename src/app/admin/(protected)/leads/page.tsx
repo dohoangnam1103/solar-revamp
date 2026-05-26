@@ -3,6 +3,7 @@ import { leads } from '@/lib/db/schema'
 import { desc, ne } from 'drizzle-orm'
 import { updateLeadStatus } from '@/app/actions/admin'
 import StatusUpdateForm from '../StatusUpdateForm'
+import RefreshButton from '../RefreshButton'
 
 const STATUS_OPTIONS = [
   { value: 'new', label: 'Mới' },
@@ -29,8 +30,9 @@ export default async function LeadsPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Leads ({allLeads.length})</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Khách tiềm năng ({allLeads.length})</h1>
+        <RefreshButton />
       </div>
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">

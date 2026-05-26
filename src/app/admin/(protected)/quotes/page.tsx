@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { quoteRequests, quoteResults, leads } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
+import RefreshButton from '../RefreshButton'
 
 export default async function QuotesPage() {
   const quotes = await db
@@ -21,9 +22,18 @@ export default async function QuotesPage() {
   const results = await db.select().from(quoteResults).orderBy(desc(quoteResults.createdAt))
   const resultMap = new Map(results.map((r) => [r.quoteRequestId, r]))
 
+  const CUSTOMER_TYPE_LABEL: Record<string, string> = {
+    residential: 'Hộ gia đình',
+    business: 'Doanh nghiệp',
+    factory: 'Nhà máy',
+  }
+
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Báo giá ({quotes.length})</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Báo giá ({quotes.length})</h1>
+        <RefreshButton />
+      </div>
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -44,7 +54,7 @@ export default async function QuotesPage() {
                     <td className="px-4 py-3 text-gray-400 text-xs">#{q.id}</td>
                     <td className="px-4 py-3 text-gray-900 font-medium">{q.leadName || '—'}</td>
                     <td className="px-4 py-3 text-green-600">{q.leadPhone || '—'}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{q.customerType}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs">{CUSTOMER_TYPE_LABEL[q.customerType] ?? q.customerType}</td>
                     <td className="px-4 py-3 text-gray-600">{(q.monthlyBill / 1_000_000).toFixed(1)}tr</td>
                     <td className="px-4 py-3 text-cyan-700 font-medium">{result ? `${result.recommendedCapacityKwp} kWp` : '—'}</td>
                     <td className="px-4 py-3 text-orange-700">{result ? `${(result.estimatedInvestmentVnd / 1_000_000).toFixed(0)}tr` : '—'}</td>
