@@ -19,6 +19,7 @@ const navLinks = [
     ],
   },
   { label: 'Dự án', href: '/du-an' },
+  { label: 'Check', href: '/check' },
   { label: 'Tin tức', href: '/tin-tuc' },
   { label: 'Tuyển dụng', href: '/tuyen-dung' },
   { label: 'Đối tác', href: '/doi-tac-thi-cong' },
