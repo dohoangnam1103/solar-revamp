@@ -102,8 +102,8 @@ else
 fi
 
 # ─── Restart stack ───────────────────────────────────────────────────────────
-say "Restarting web container on VPS..."
-"${SSH_CMD[@]}" "$VPS_HOST" "cd '$REMOTE_DIR' && docker compose up -d --force-recreate web"
+say "Restarting stack on VPS (web + proxy)..."
+"${SSH_CMD[@]}" "$VPS_HOST" "cd '$REMOTE_DIR' && docker compose up -d --remove-orphans && docker compose up -d --force-recreate web proxy"
 
 # ─── Health check ────────────────────────────────────────────────────────────
 say "Waiting for web container to become healthy..."
