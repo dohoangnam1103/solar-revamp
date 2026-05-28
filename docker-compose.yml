@@ -77,8 +77,6 @@ services:
 
   proxy:
     image: caddy:2.8
-    profiles:
-      - proxy
     restart: unless-stopped
     depends_on:
       web:
