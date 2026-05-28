@@ -3,6 +3,7 @@ import { buildPageMetadata, serviceSchema } from '@/lib/seo/metadata'
 import { Sun, Zap, Battery, Phone, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { getPricingPackages } from '@/lib/db/pricing'
+import { getSiteConfig } from '@/lib/site-config'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Vật Tư Điện Mặt Trời - Tấm Pin, Biến Tần, Pin Lưu Trữ',
@@ -17,7 +18,7 @@ const CATEGORY_META: Record<string, { label: string; icon: typeof Sun; color: st
 }
 
 export default async function VatTuPage() {
-  const allItems = await getPricingPackages('vat-tu')
+  const [allItems, siteConfig] = await Promise.all([getPricingPackages('vat-tu'), getSiteConfig()])
 
   const grouped = (['tam-pin', 'bien-tan', 'pin-luu-tru'] as const).map((catId) => ({
     catId,
@@ -36,7 +37,7 @@ export default async function VatTuPage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-yellow-300">chính hãng</span>
             </h1>
             <p className="text-green-100 text-lg leading-relaxed mb-8">Tấm pin monocrystalline, biến tần on-grid/hybrid, pin lưu trữ LiFePO4. Nguồn hàng chính hãng, giá sỉ cho đại lý và nhà thầu.</p>
-            <a href="tel:0902211893" className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors">
+            <a href={`tel:${siteConfig.phone}`} className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors">
               <Phone className="w-4 h-4" />Hỏi giá sỉ ngay
             </a>
           </div>
@@ -53,7 +54,7 @@ export default async function VatTuPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">{g.meta.label}</h2>
               </div>
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div data-stagger className="grid sm:grid-cols-3 gap-4">
                 {g.items.map((item) => (
                   <div key={item.id} className="glass rounded-2xl p-5 border border-white/50">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${g.meta.bg} ${g.meta.color} mb-3 inline-block`}>{item.note}</span>
@@ -72,8 +73,8 @@ export default async function VatTuPage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Cần báo giá vật tư?</h2>
           <p className="text-gray-500 mb-8">Liên hệ để nhận bảng giá sỉ và tư vấn lựa chọn thiết bị phù hợp</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="tel:0902211893" className="flex items-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
-              <Phone className="w-4 h-4" />090.22.11.893
+            <a href={`tel:${siteConfig.phone}`} className="flex items-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
+              <Phone className="w-4 h-4" />{siteConfig.phoneFormatted}
             </a>
             <Link href="/lien-he" className="flex items-center gap-2 px-6 py-3 border border-green-700 text-green-700 hover:bg-green-50 font-semibold rounded-xl transition-colors">
               Gửi yêu cầu báo giá <ArrowRight className="w-4 h-4" />

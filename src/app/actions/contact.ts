@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { leads, recruitmentApplications } from '@/lib/db/schema'
 import { revalidatePath } from 'next/cache'
 import { checkRateLimit } from '@/lib/security/rate-limit'
+import { notifyNewContact, notifyNewRecruitmentApplication } from '@/lib/email/notifications'
 
 export interface ContactState {
   success?: boolean
@@ -40,6 +41,14 @@ export async function submitContact(
       status: 'new',
     })
     revalidatePath('/admin/leads')
+
+    notifyNewContact({
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email?.trim(),
+      message: message?.trim(),
+    }).catch((err) => console.error('[notifyNewContact] failed:', err))
+
     return { success: true }
   } catch {
     return { error: 'Có lỗi xảy ra. Vui lòng thử lại hoặc gọi hotline.' }
@@ -84,6 +93,15 @@ export async function submitRecruitmentApplication(
       status: 'new',
     })
     revalidatePath('/admin/recruitment')
+
+    notifyNewRecruitmentApplication({
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email?.trim(),
+      position: position.trim() || 'Tin tuyển dụng',
+      message: message?.trim(),
+    }).catch((err) => console.error('[notifyNewRecruitmentApplication] failed:', err))
+
     return { success: true }
   } catch {
     return { error: 'Có lỗi xảy ra. Vui lòng thử lại hoặc gọi hotline.' }

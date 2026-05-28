@@ -4,7 +4,9 @@ import { useMemo, useState } from 'react'
 import { updateSolarAssumptions } from '@/app/actions/admin-crud'
 import {
   calculateQuote,
+  formatNumberWithDots,
   formatVnd,
+  parseFormattedNumber,
   type CustomerType,
   type PaymentMode,
   type QuoteAssumptions,
@@ -31,13 +33,13 @@ type AssumptionFormState = {
 }
 
 const BILL_OPTIONS = [
-  { label: 'Dưới 500k', value: 400_000 },
-  { label: '500k - 1 triệu', value: 750_000 },
-  { label: '1 - 2 triệu', value: 1_500_000 },
-  { label: '2 - 3 triệu', value: 2_500_000 },
-  { label: '3 - 5 triệu', value: 4_000_000 },
-  { label: '5 - 10 triệu', value: 7_500_000 },
-  { label: 'Trên 10 triệu', value: 12_000_000 },
+  { label: `Dưới ${formatVnd(500_000)}`, value: 400_000 },
+  { label: `${formatVnd(500_000)} - ${formatVnd(1_000_000)}`, value: 750_000 },
+  { label: `${formatVnd(1_000_000)} - ${formatVnd(2_000_000)}`, value: 1_500_000 },
+  { label: `${formatVnd(2_000_000)} - ${formatVnd(3_000_000)}`, value: 2_500_000 },
+  { label: `${formatVnd(3_000_000)} - ${formatVnd(5_000_000)}`, value: 4_000_000 },
+  { label: `${formatVnd(5_000_000)} - ${formatVnd(10_000_000)}`, value: 7_500_000 },
+  { label: `Trên ${formatVnd(10_000_000)}`, value: 12_000_000 },
 ]
 
 function percent(value: number) {
@@ -97,6 +99,7 @@ function toAssumptions(values: AssumptionFormState): QuoteAssumptions {
 }
 
 function NumberField({
+  currency,
   label,
   name,
   onChange,
@@ -104,6 +107,7 @@ function NumberField({
   suffix,
   value,
 }: {
+  currency?: boolean
   label: string
   name: keyof AssumptionFormState
   onChange: (name: keyof AssumptionFormState, value: number) => void
@@ -117,10 +121,11 @@ function NumberField({
       <div className="flex overflow-hidden rounded-lg border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-green-600">
         <input
           name={name === 'gridTiedPricePerKwp' ? 'gridTiedPricePerKwp' : name === 'hybridPricePerKwp' ? 'hybridPricePerKwp' : name}
-          type="number"
+          type={currency ? 'text' : 'number'}
+          inputMode={currency ? 'numeric' : undefined}
           step={step}
-          value={value}
-          onChange={(event) => onChange(name, Number(event.target.value))}
+          value={currency ? formatNumberWithDots(value) : value}
+          onChange={(event) => onChange(name, currency ? parseFormattedNumber(event.target.value) : Number(event.target.value))}
           className="min-w-0 flex-1 px-3 py-2 text-sm text-gray-900 outline-none"
         />
         {suffix && (
@@ -180,7 +185,7 @@ function AdminQuotePreview({ assumptions }: { assumptions: QuoteAssumptions }) {
                   key={option.value}
                   type="button"
                   onClick={() => setMonthlyBillVnd(option.value)}
-                  className={`rounded-lg border px-3 py-2 text-center ${
+                  className={`rounded-lg border px-3 py-2 text-center leading-snug ${
                     monthlyBillVnd === option.value
                       ? 'border-green-700 bg-green-700 text-white'
                       : 'border-gray-200 bg-white text-gray-700 transition-colors hover:border-green-500'
@@ -351,15 +356,15 @@ export default function AdminQuoteSettingsForm({ assumptions }: { assumptions: Q
           <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-700">Giá hệ thống</h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <NumberField label="Hòa lưới" name="gridTiedPricePerKwp" suffix="VNĐ/kWp" value={values.gridTiedPricePerKwp} onChange={updateValue} />
-              <NumberField label="Hybrid / có lưu trữ" name="hybridPricePerKwp" suffix="VNĐ/kWp" value={values.hybridPricePerKwp} onChange={updateValue} />
+              <NumberField currency label="Hòa lưới" name="gridTiedPricePerKwp" suffix="VNĐ/kWp" value={values.gridTiedPricePerKwp} onChange={updateValue} />
+              <NumberField currency label="Hybrid / có lưu trữ" name="hybridPricePerKwp" suffix="VNĐ/kWp" value={values.hybridPricePerKwp} onChange={updateValue} />
             </div>
           </section>
 
           <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-700">Giá điện và hiệu suất</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <NumberField label="Giá điện bình quân" name="evnPricePerKwh" suffix="VNĐ/kWh" value={values.evnPricePerKwh} onChange={updateValue} />
+              <NumberField currency label="Giá điện bình quân" name="evnPricePerKwh" suffix="VNĐ/kWh" value={values.evnPricePerKwh} onChange={updateValue} />
               <NumberField label="VAT" name="vatPercent" step="0.1" suffix="%" value={values.vatPercent} onChange={updateValue} />
               <NumberField label="Tăng giá điện mỗi năm" name="annualElectricityPriceIncreasePercent" step="0.1" suffix="%" value={values.annualElectricityPriceIncreasePercent} onChange={updateValue} />
               <NumberField label="Suy giảm hiệu suất mỗi năm" name="annualDegradationPercent" step="0.1" suffix="%" value={values.annualDegradationPercent} onChange={updateValue} />

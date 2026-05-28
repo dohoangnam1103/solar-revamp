@@ -4,26 +4,29 @@ import { Phone, X } from 'lucide-react'
 import { useState } from 'react'
 import { FacebookIcon, MessengerIcon, ZaloIcon } from './SocialIcons'
 
-const CONTACT_LINKS = [
-  {
-    label: 'Messenger SOLIQ',
-    href: 'https://m.me/829928056870811',
-    icon: MessengerIcon,
-  },
-  {
-    label: 'Facebook SOLIQ',
-    href: 'https://www.facebook.com/soliqvn',
-    icon: FacebookIcon,
-  },
-  {
-    label: 'Zalo SOLIQ',
-    href: 'https://zalo.me/0902211893',
-    icon: ZaloIcon,
-  },
-]
+function getContactLinks(phone: string) {
+  return [
+    {
+      label: 'Messenger SOLIQ',
+      href: 'https://m.me/829928056870811',
+      icon: MessengerIcon,
+    },
+    {
+      label: 'Facebook SOLIQ',
+      href: 'https://www.facebook.com/soliqvn',
+      icon: FacebookIcon,
+    },
+    {
+      label: 'Zalo SOLIQ',
+      href: `https://zalo.me/${phone}`,
+      icon: ZaloIcon,
+    },
+  ]
+}
 
-export default function FloatingContact() {
+export default function FloatingContact({ phone = '0902211893' }: { phone?: string }) {
   const [open, setOpen] = useState(false)
+  const contactLinks = getContactLinks(phone)
 
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
@@ -32,7 +35,7 @@ export default function FloatingContact() {
           open ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'
         }`}
       >
-        {CONTACT_LINKS.map((item) => {
+        {contactLinks.map((item) => {
           const Icon = item.icon
 
           return (

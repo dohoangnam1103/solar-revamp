@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { quoteRequests, quoteResults, leads } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
 import { requireSuperAdminPage } from '@/lib/auth/admin-route'
+import { formatVnd } from '@/lib/quote/calculator'
 import RefreshButton from '../RefreshButton'
 
 export default async function QuotesPage() {
@@ -57,9 +58,9 @@ export default async function QuotesPage() {
                     <td className="px-4 py-3 text-gray-900 font-medium">{q.leadName || '—'}</td>
                     <td className="px-4 py-3 text-green-600">{q.leadPhone || '—'}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs">{CUSTOMER_TYPE_LABEL[q.customerType] ?? q.customerType}</td>
-                    <td className="px-4 py-3 text-gray-600">{(q.monthlyBill / 1_000_000).toFixed(1)}tr</td>
+                    <td className="px-4 py-3 text-gray-600">{formatVnd(q.monthlyBill)}</td>
                     <td className="px-4 py-3 text-cyan-700 font-medium">{result ? `${result.recommendedCapacityKwp} kWp` : '—'}</td>
-                    <td className="px-4 py-3 text-orange-700">{result ? `${(result.estimatedInvestmentVnd / 1_000_000).toFixed(0)}tr` : '—'}</td>
+                    <td className="px-4 py-3 text-orange-700">{result ? formatVnd(result.estimatedInvestmentVnd) : '—'}</td>
                     <td className="px-4 py-3 text-gray-600">{result ? `${result.paybackYears} năm` : '—'}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs">{new Date(q.createdAt).toLocaleString('vi-VN')}</td>
                   </tr>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { buildPageMetadata, localBusinessSchema } from '@/lib/seo/metadata'
+import { getSiteConfig } from '@/lib/site-config'
 import { MapPin, Phone, Mail } from 'lucide-react'
 import ContactForm from '@/components/marketing/ContactForm'
 import { FacebookIcon, MessengerIcon, ZaloIcon } from '@/components/marketing/SocialIcons'
@@ -10,8 +11,10 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/lien-he' },
 })
 
-export default function LienHePage() {
-  const jsonLd = localBusinessSchema()
+export default async function LienHePage() {
+  const siteConfig = await getSiteConfig()
+  const phoneIntl = `+84${siteConfig.phone.replace(/^0/, '')}`
+  const jsonLd = localBusinessSchema(phoneIntl)
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
@@ -29,10 +32,10 @@ export default function LienHePage() {
             <div className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông tin liên hệ</h2>
-                <div className="space-y-4">
+                <div data-stagger className="space-y-4">
                   {[
                     { icon: MapPin, label: 'Địa chỉ', value: '125 Hoàng Ngân, P.Thanh Xuân, TP Hà Nội', href: undefined },
-                    { icon: Phone, label: 'Hotline', value: '090.22.11.893 — 0902.262.101', href: 'tel:0902211893' },
+                    { icon: Phone, label: 'Hotline', value: siteConfig.phoneFormatted, href: `tel:${siteConfig.phone}` },
                     { icon: Mail, label: 'Email', value: 'lienhe@soliq.com.vn', href: 'mailto:lienhe@soliq.com.vn' },
                   ].map((item) => (
                     <div key={item.label} className="flex gap-4 glass rounded-xl p-4 border border-white/50">
@@ -60,7 +63,7 @@ export default function LienHePage() {
                     <FacebookIcon className="h-5 w-5" />
                     Facebook
                   </a>
-                  <a href="https://zalo.me/0902211893" target="_blank" rel="noopener noreferrer"
+                  <a href={`https://zalo.me/${siteConfig.phone}`} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-colors">
                     <ZaloIcon className="h-5 w-5" />Zalo
                   </a>

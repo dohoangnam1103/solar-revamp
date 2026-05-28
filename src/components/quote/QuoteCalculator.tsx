@@ -3,8 +3,7 @@
 import { useActionState, useState } from 'react'
 import { submitQuote, type SubmitQuoteResult } from '@/app/actions/quote'
 import Link from 'next/link'
-import { calculateQuote, type QuoteAssumptions } from '@/lib/quote/calculator'
-import { formatVnd } from '@/lib/quote/calculator'
+import { calculateQuote, formatKwh, formatVnd, type QuoteAssumptions } from '@/lib/quote/calculator'
 import {
   Zap, Home, Building2, Factory, Battery, CreditCard, Banknote,
   ChevronRight, ChevronLeft, Loader2, CheckCircle2, AlertCircle,
@@ -30,16 +29,14 @@ const PROVINCES = [
 ]
 
 const BILL_OPTIONS = [
-  { label: 'Dưới 500k', value: 400_000 },
-  { label: '500k - 1 triệu', value: 750_000 },
-  { label: '1 - 2 triệu', value: 1_500_000 },
-  { label: '2 - 3 triệu', value: 2_500_000 },
-  { label: '3 - 5 triệu', value: 4_000_000 },
-  { label: '5 - 10 triệu', value: 7_500_000 },
-  { label: 'Trên 10 triệu', value: 12_000_000 },
+  { label: `${formatVnd(1_000_000)} - ${formatVnd(2_000_000)}`, value: 1_500_000 },
+  { label: `${formatVnd(2_000_000)} - ${formatVnd(3_000_000)}`, value: 2_500_000 },
+  { label: `${formatVnd(3_000_000)} - ${formatVnd(5_000_000)}`, value: 4_000_000 },
+  { label: `${formatVnd(5_000_000)} - ${formatVnd(10_000_000)}`, value: 7_500_000 },
+  { label: `Trên ${formatVnd(10_000_000)}`, value: 12_000_000 },
 ]
 
-export default function QuoteCalculator({ assumptions }: { assumptions: QuoteAssumptions }) {
+export default function QuoteCalculator({ assumptions, phone = '0902211893' }: { assumptions: QuoteAssumptions; phone?: string }) {
   const [step, setStep] = useState(1) // 1: inputs, 2: lead capture, 3: result
   const [state, formAction, pending] = useActionState(submitQuote, INITIAL_STATE)
 
@@ -65,7 +62,7 @@ export default function QuoteCalculator({ assumptions }: { assumptions: QuoteAss
   )
 
   if (state.success && state.result) {
-    return <QuoteResult quoteToken={state.quoteToken} result={state.result} />
+    return <QuoteResult quoteToken={state.quoteToken} result={state.result} phone={phone} />
   }
 
   return (
@@ -105,7 +102,7 @@ export default function QuoteCalculator({ assumptions }: { assumptions: QuoteAss
                   key={opt.value}
                   type="button"
                   onClick={() => setMonthlyBill(opt.value)}
-                  className={`cursor-pointer whitespace-nowrap px-2 py-2 text-xs font-medium rounded-lg border transition-all sm:px-3 ${
+                  className={`cursor-pointer px-2 py-2 text-xs font-medium leading-snug rounded-lg border transition-all sm:px-3 ${
                     monthlyBill === opt.value
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
@@ -371,12 +368,14 @@ export default function QuoteCalculator({ assumptions }: { assumptions: QuoteAss
 function QuoteResult({
   quoteToken,
   result,
+  phone = '0902211893',
 }: {
   quoteToken?: string
   result: NonNullable<SubmitQuoteResult['result']>
+  phone?: string
 }) {
   return (
-    <div className="glass rounded-2xl overflow-hidden shadow-xl border border-white/50">
+    <div className="overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl">
       <div className="bg-gradient-to-r from-green-700 to-green-600 px-6 py-4">
         <div className="flex items-center gap-2 text-white">
           <CheckCircle2 className="w-5 h-5" />
@@ -425,7 +424,7 @@ function QuoteResult({
         <div className="bg-gray-50 rounded-xl p-4 space-y-2.5">
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Sản lượng điện/năm</span>
-            <span className="font-semibold">{result.annualProductionKwh.toLocaleString('vi-VN')} kWh</span>
+            <span className="font-semibold">{formatKwh(result.annualProductionKwh)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Tỷ suất hoàn vốn (IRR)</span>
@@ -433,7 +432,7 @@ function QuoteResult({
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Điện tự dùng/năm</span>
-            <span className="font-semibold">{result.selfConsumedKwh.toLocaleString('vi-VN')} kWh</span>
+            <span className="font-semibold">{formatKwh(result.selfConsumedKwh)}</span>
           </div>
         </div>
 
@@ -475,7 +474,7 @@ function QuoteResult({
           </Link>
         )}
         <a
-          href="tel:0902211893"
+          href={`tel:${phone}`}
           className="flex items-center justify-center gap-2 w-full py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors"
         >
           Gọi ngay để tư vấn chi tiết

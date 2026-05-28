@@ -67,17 +67,17 @@ export default function PartnerLogoCarousel({ partners }: { partners: PartnerLog
             <Image
               src={partner.logo}
               alt={partner.name}
-              width={120}
+              width={220}
               height={120}
               unoptimized
-              className="h-20 w-20 object-contain sm:h-24 sm:w-24"
+              className="h-24 w-36 object-contain sm:h-28 sm:w-44"
             />
           ) : (
-            <Icon className={`h-16 w-16 ${meta.iconClassName}`} />
+            <Icon className={`h-20 w-20 sm:h-24 sm:w-24 ${meta.iconClassName}`} />
           )
 
           const className =
-            'flex h-28 w-[10rem] shrink-0 items-center justify-center sm:w-[12rem]'
+            'flex h-36 w-[12rem] shrink-0 items-center justify-center sm:w-[15rem]'
 
           return partner.url ? (
             <a

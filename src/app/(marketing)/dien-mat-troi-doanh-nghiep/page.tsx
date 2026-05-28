@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { Building2, CheckCircle, ArrowRight, TrendingUp, Shield, Zap, Phone } from 'lucide-react'
 import { getPricingPackages } from '@/lib/db/pricing'
+import { getSiteConfig } from '@/lib/site-config'
+import { formatVnd } from '@/lib/quote/calculator'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Điện Mặt Trời Doanh Nghiệp - Tối Ưu Chi Phí Vận Hành',
@@ -11,7 +13,7 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 export default async function DoanhNghiepPage() {
-  const packages = await getPricingPackages('doanh-nghiep')
+  const [packages, siteConfig] = await Promise.all([getPricingPackages('doanh-nghiep'), getSiteConfig()])
   const jsonLd = serviceSchema('Điện mặt trời doanh nghiệp', 'Lắp đặt hệ thống điện mặt trời cho doanh nghiệp, nhà xưởng tại SOLIQ ENERGY', '/dien-mat-troi-doanh-nghiep')
   const breadcrumb = breadcrumbSchema([
     { name: 'Trang chủ', url: '/' },
@@ -36,7 +38,7 @@ export default async function DoanhNghiepPage() {
               <Link href="/bao-gia-dien-mat-troi" className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors">
                 Nhận báo giá miễn phí <ArrowRight className="w-4 h-4" />
               </Link>
-              <a href="tel:0902211893" className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-colors">
+              <a href={`tel:${siteConfig.phone}`} className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-colors">
                 <Phone className="w-4 h-4" />Gọi tư vấn
               </a>
             </div>
@@ -47,7 +49,7 @@ export default async function DoanhNghiepPage() {
       <section className="py-16 bg-solar-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Lợi ích cho doanh nghiệp</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: TrendingUp, title: 'Giảm 40-70% chi phí điện', desc: 'Tiết kiệm hàng trăm triệu đồng mỗi năm, cải thiện biên lợi nhuận đáng kể.' },
               { icon: Shield, title: 'Hoàn vốn 4-6 năm', desc: 'ROI 15-20%/năm, vượt trội so với nhiều kênh đầu tư truyền thống.' },
@@ -87,7 +89,7 @@ export default async function DoanhNghiepPage() {
                     <td className="px-4 py-3 text-gray-600">{row.panels}</td>
                     <td className="px-4 py-3 text-gray-600">{row.inv}</td>
                     <td className="px-4 py-3 text-gray-500">{row.fit}</td>
-                    <td className="px-4 py-3 text-right font-semibold">{row.price ? row.price.toLocaleString('vi-VN') : '—'}đ</td>
+                    <td className="px-4 py-3 text-right font-semibold">{row.price ? formatVnd(row.price) : '—'}</td>
                   </tr>
                 ))}
               </tbody>

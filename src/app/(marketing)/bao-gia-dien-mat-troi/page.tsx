@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
 import { getSolarAssumptions } from '@/lib/quote/settings'
+import { getSiteConfig } from '@/lib/site-config'
+import { formatVnd } from '@/lib/quote/calculator'
 import { CheckCircle, Phone, Zap } from 'lucide-react'
 
 export const metadata: Metadata = buildPageMetadata({
@@ -12,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 export default async function BaoGiaPage() {
-  const quoteAssumptions = await getSolarAssumptions()
+  const [quoteAssumptions, siteConfig] = await Promise.all([getSolarAssumptions(), getSiteConfig()])
 
   const jsonLd = serviceSchema(
     'Báo giá điện mặt trời',
@@ -56,7 +58,7 @@ export default async function BaoGiaPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             {/* Calculator */}
             <div>
-              <QuoteCalculator assumptions={quoteAssumptions} />
+              <QuoteCalculator assumptions={quoteAssumptions} phone={siteConfig.phone} />
             </div>
 
             {/* Info */}
@@ -65,42 +67,42 @@ export default async function BaoGiaPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   Bảng giá tham khảo
                 </h2>
-                <div className="space-y-3">
+                <div data-stagger className="space-y-3">
                   <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">Hệ thống hòa lưới</h3>
                   {[
-                    { cap: '5 kWp', panels: '10 tấm', inv: '5kW', price: '47.300.000' },
-                    { cap: '8 kWp', panels: '14 tấm', inv: '6kW', price: '56.000.000' },
-                    { cap: '10 kWp', panels: '18 tấm', inv: '10kW', price: '78.000.000' },
-                    { cap: '12 kWp', panels: '20 tấm', inv: '10kW', price: '84.300.000' },
-                    { cap: '15 kWp', panels: '26 tấm', inv: '15kW', price: '106.500.000' },
-                    { cap: '20 kWp', panels: '34 tấm', inv: '20kW', price: '130.800.000' },
-                    { cap: '25 kWp', panels: '38 tấm', inv: '20kW', price: '143.000.000' },
+                    { cap: '5 kWp', panels: '10 tấm', inv: '5kW', price: 47_300_000 },
+                    { cap: '8 kWp', panels: '14 tấm', inv: '6kW', price: 56_000_000 },
+                    { cap: '10 kWp', panels: '18 tấm', inv: '10kW', price: 78_000_000 },
+                    { cap: '12 kWp', panels: '20 tấm', inv: '10kW', price: 84_300_000 },
+                    { cap: '15 kWp', panels: '26 tấm', inv: '15kW', price: 106_500_000 },
+                    { cap: '20 kWp', panels: '34 tấm', inv: '20kW', price: 130_800_000 },
+                    { cap: '25 kWp', panels: '38 tấm', inv: '20kW', price: 143_000_000 },
                   ].map((row) => (
                     <div key={row.cap} className="flex items-center justify-between p-3 glass rounded-xl border border-white/50 text-sm">
                       <div className="flex items-center gap-2 sm:gap-4">
                         <span className="font-bold text-green-700 w-16 shrink-0">{row.cap}</span>
                         <span className="text-gray-500 text-xs sm:text-sm">{row.panels} · {row.inv}</span>
                       </div>
-                      <span className="font-semibold text-gray-800 shrink-0">{row.price}đ</span>
+                      <span className="font-semibold text-gray-800 shrink-0">{formatVnd(row.price)}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-6 space-y-3">
+                <div data-stagger className="mt-6 space-y-3">
                   <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">Hệ thống Hybrid (có pin lưu trữ)</h3>
                   {[
-                    { cap: '5 kWp', panels: '9 tấm', inv: '5kW', bat: '51.2V/100AH', price: '51.000.000' },
-                    { cap: '8 kWp', panels: '14 tấm', inv: '8kW', bat: '51.2V/100AH', price: '85.000.000' },
-                    { cap: '10 kWp 3P', panels: '18 tấm', inv: '10kW 3P', bat: '51.2V/100AH', price: '132.000.000' },
-                    { cap: '15 kWp 3P', panels: '28 tấm', inv: '15kW 3P', bat: '51.2V/100AH', price: '156.000.000' },
-                    { cap: '20 kWp 3P', panels: '36 tấm', inv: '20kW 3P', bat: '51.2V/100AH', price: '197.000.000' },
+                    { cap: '5 kWp', panels: '9 tấm', inv: '5kW', bat: '51.2V/100AH', price: 51_000_000 },
+                    { cap: '8 kWp', panels: '14 tấm', inv: '8kW', bat: '51.2V/100AH', price: 85_000_000 },
+                    { cap: '10 kWp 3P', panels: '18 tấm', inv: '10kW 3P', bat: '51.2V/100AH', price: 132_000_000 },
+                    { cap: '15 kWp 3P', panels: '28 tấm', inv: '15kW 3P', bat: '51.2V/100AH', price: 156_000_000 },
+                    { cap: '20 kWp 3P', panels: '36 tấm', inv: '20kW 3P', bat: '51.2V/100AH', price: 197_000_000 },
                   ].map((row) => (
                     <div key={row.cap} className="flex items-center justify-between p-3 glass rounded-xl border border-white/50 text-sm">
                       <div className="flex items-center gap-2 sm:gap-4">
                         <span className="font-bold text-cyan-700 w-20 shrink-0">{row.cap}</span>
                         <span className="text-gray-500 text-xs sm:text-sm">{row.panels}</span>
                       </div>
-                      <span className="font-semibold text-gray-800 shrink-0">{row.price}đ</span>
+                      <span className="font-semibold text-gray-800 shrink-0">{formatVnd(row.price)}</span>
                     </div>
                   ))}
                 </div>
@@ -110,10 +112,10 @@ export default async function BaoGiaPage() {
               {/* Why SOLIQ */}
               <div className="glass rounded-2xl p-6 border border-white/50">
                 <h3 className="font-bold text-gray-900 mb-4">Tại sao chọn SOLIQ?</h3>
-                <ul className="space-y-3">
+                <ul data-stagger className="space-y-3">
                   {[
                     'Lắp đặt trọn gói',
-                    'Vay ngân hàng lên tới 500tr không thế chấp',
+                    `Vay ngân hàng lên tới ${formatVnd(500_000_000)} không thế chấp`,
                     'Tư vấn miễn phí, không ép mua',
                     'Báo giá minh bạch, không phát sinh',
                     'Thi công đúng tiến độ cam kết',
@@ -130,11 +132,11 @@ export default async function BaoGiaPage() {
               </div>
 
               <a
-                href="tel:0902211893"
+                href={`tel:${siteConfig.phone}`}
                 className="flex items-center justify-center gap-2 w-full py-4 bg-green-700 hover:bg-green-800 text-white font-bold rounded-xl transition-colors text-lg"
               >
                 <Phone className="w-5 h-5" />
-                Gọi ngay: 090.22.11.893
+                Gọi ngay: {siteConfig.phoneFormatted}
               </a>
             </div>
           </div>

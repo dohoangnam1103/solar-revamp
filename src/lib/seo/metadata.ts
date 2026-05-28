@@ -83,7 +83,7 @@ export function buildPageMetadata(overrides: Partial<Metadata>): Metadata {
 
 // ─── JSON-LD schemas ──────────────────────────────────────────────────────────
 
-export function localBusinessSchema() {
+export function localBusinessSchema(phone = '+84902211893') {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -94,7 +94,7 @@ export function localBusinessSchema() {
     url: SITE_URL,
     logo: LOGO_URL,
     image: OG_IMAGE,
-    telephone: '+84902211893',
+    telephone: phone,
     email: 'lienhe@soliq.com.vn',
     address: {
       '@type': 'PostalAddress',
@@ -110,7 +110,7 @@ export function localBusinessSchema() {
     },
     sameAs: [
       'https://www.facebook.com/soliqvn',
-      'https://zalo.me/0902211893',
+      `https://zalo.me/${phone.replace(/^\+84/, '0')}`,
     ],
     openingHoursSpecification: [
       {
@@ -147,7 +147,7 @@ export function websiteSchema() {
   }
 }
 
-export function organizationSchema() {
+export function organizationSchema(phone = '+84902211893') {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -161,12 +161,12 @@ export function organizationSchema() {
     },
     sameAs: [
       'https://www.facebook.com/soliqvn',
-      'https://zalo.me/0902211893',
+      `https://zalo.me/${phone.replace(/^\+84/, '0')}`,
     ],
     contactPoint: [
       {
         '@type': 'ContactPoint',
-        telephone: '+84902211893',
+        telephone: phone,
         contactType: 'customer service',
         areaServed: 'VN',
         availableLanguage: ['Vietnamese'],

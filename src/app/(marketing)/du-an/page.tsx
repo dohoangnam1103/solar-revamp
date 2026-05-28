@@ -39,7 +39,7 @@ export default async function DuAnPage() {
               Chưa có dự án đã xuất bản. Thêm dự án trong trang quản trị để hiển thị tại đây.
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => (
                 <div key={project.slug || project.title} className="glass rounded-2xl overflow-hidden border border-white/50 hover:shadow-lg transition-shadow">
                   <div className="h-40 bg-gradient-to-br from-green-800 to-green-600 flex items-center justify-center">

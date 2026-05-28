@@ -1,19 +1,24 @@
 import Header from '@/components/marketing/Header'
 import Footer from '@/components/marketing/Footer'
 import FloatingContact from '@/components/marketing/FloatingContact'
+import PageMotionController from '@/components/marketing/PageMotionController'
+import { getSiteConfig } from '@/lib/site-config'
 
 export const dynamic = 'force-dynamic'
 
-export default function MarketingLayout({
+export default async function MarketingLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const siteConfig = await getSiteConfig()
+
   return (
     <>
-      <Header />
+      <PageMotionController />
+      <Header siteConfig={siteConfig} />
       <main className="pt-16">{children}</main>
-      <FloatingContact />
+      <FloatingContact phone={siteConfig.phone} />
       <Footer />
     </>
   )

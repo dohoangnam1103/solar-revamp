@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { Home, CheckCircle, ArrowRight, Sun, TrendingUp, Shield, Phone } from 'lucide-react'
 import { getPricingPackages } from '@/lib/db/pricing'
+import { getSiteConfig } from '@/lib/site-config'
+import { formatVnd } from '@/lib/quote/calculator'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Lắp Điện Mặt Trời Gia Đình - Tiết Kiệm 50-100% Hóa Đơn Điện',
@@ -12,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 export default async function GiaDinhPage() {
-  const packages = await getPricingPackages('gia-dinh')
+  const [packages, siteConfig] = await Promise.all([getPricingPackages('gia-dinh'), getSiteConfig()])
   const jsonLd = serviceSchema(
     'Lắp điện mặt trời gia đình',
     'Dịch vụ lắp đặt hệ thống điện mặt trời cho hộ gia đình tại SOLIQ ENERGY',
@@ -62,7 +64,7 @@ export default async function GiaDinhPage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <a
-                href="tel:0902211893"
+                href={`tel:${siteConfig.phone}`}
                 className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-colors"
               >
                 <Phone className="w-4 h-4" />
@@ -79,10 +81,10 @@ export default async function GiaDinhPage() {
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
             Lợi ích khi lắp điện mặt trời gia đình
           </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: TrendingUp, title: 'Tiết kiệm 50-100% điện', desc: 'Tùy công suất và mức tiêu thụ, nhiều gia đình giảm hóa đơn điện về 0 hoặc thậm chí bán điện dư lại lưới.' },
-              { icon: Shield, title: 'Hoàn vốn 5-7 năm', desc: 'Với hóa đơn điện 2-4 triệu/tháng, thời gian hoàn vốn thường 5-7 năm. Hệ thống dùng được 25-30 năm.' },
+              { icon: Shield, title: 'Hoàn vốn 5-7 năm', desc: `Với hóa đơn điện ${formatVnd(2_000_000)} - ${formatVnd(4_000_000)}/tháng, thời gian hoàn vốn thường 5-7 năm. Hệ thống dùng được 25-30 năm.` },
               { icon: Sun, title: 'Bảo hành 25 năm', desc: 'Tấm pin bảo hành hiệu suất 25 năm, biến tần 5-10 năm. SOLIQ bảo hành thi công 2 năm.' },
               { icon: Home, title: 'Tăng giá trị bất động sản', desc: 'Nhà có hệ thống điện mặt trời được định giá cao hơn và hấp dẫn hơn khi bán hoặc cho thuê.' },
               { icon: CheckCircle, title: 'Không cần bảo trì nhiều', desc: 'Hệ thống hoạt động tự động, chỉ cần vệ sinh tấm pin định kỳ 1-2 lần/năm.' },
@@ -126,7 +128,7 @@ export default async function GiaDinhPage() {
                     <td className="px-4 py-3 text-gray-600">{row.panels}</td>
                     <td className="px-4 py-3 text-gray-600">{row.inv}</td>
                     <td className="px-4 py-3 text-gray-500">{row.fit}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-800">{row.price ? row.price.toLocaleString('vi-VN') : '—'}đ</td>
+                    <td className="px-4 py-3 text-right font-semibold text-gray-800">{row.price ? formatVnd(row.price) : '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -152,11 +154,11 @@ export default async function GiaDinhPage() {
           <h2 className="text-3xl font-bold text-white mb-4">Sẵn sàng lắp điện mặt trời?</h2>
           <p className="text-green-100 mb-8">Liên hệ ngay để được khảo sát và báo giá miễn phí</p>
           <a
-            href="tel:0902211893"
+            href={`tel:${siteConfig.phone}`}
             className="inline-flex items-center gap-2 px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-lg"
           >
             <Phone className="w-5 h-5" />
-            090.22.11.893
+            {siteConfig.phoneFormatted}
           </a>
         </div>
       </section>

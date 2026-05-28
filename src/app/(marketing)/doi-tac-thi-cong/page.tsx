@@ -42,7 +42,7 @@ export default async function DoiTacPage() {
                   <p className="text-sm text-gray-500">Đối tác cung cấp tấm pin, biến tần và phụ kiện</p>
                 </div>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {(suppliers.length > 0 ? suppliers : [{ id: 1, name: 'Thương hiệu A', logo: null, url: null }, { id: 2, name: 'Thương hiệu B', logo: null, url: null }]).map((p) => (
                   <a key={p.id} href={p.url || '#'} target={p.url ? '_blank' : undefined} rel="noopener noreferrer"
                     className="glass rounded-2xl p-6 border border-white/50 hover:shadow-lg transition-all text-center group">
@@ -68,7 +68,7 @@ export default async function DoiTacPage() {
                   <p className="text-sm text-gray-500">Đơn vị thi công uy tín trên toàn quốc</p>
                 </div>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {(installers.length > 0 ? installers : [{ id: 1, name: 'Đối tác thi công 1', logo: null, url: null }]).map((p) => (
                   <a key={p.id} href={p.url || '#'} target={p.url ? '_blank' : undefined} rel="noopener noreferrer"
                     className="glass rounded-2xl p-5 border border-white/50 hover:shadow-lg transition-all flex items-center gap-4 group">
@@ -97,7 +97,7 @@ export default async function DoiTacPage() {
                   <p className="text-sm text-gray-500">Hỗ trợ vay vốn và trả góp</p>
                 </div>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {financials.map((p) => (
                   <a key={p.id} href={p.url || '#'} target="_blank" rel="noopener noreferrer"
                     className="glass rounded-2xl p-5 border border-white/50 hover:shadow-lg transition-all flex items-center gap-4 group">

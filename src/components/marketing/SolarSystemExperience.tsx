@@ -71,7 +71,7 @@ const SYSTEM_NODES = [
     name: 'Inverter hybrid',
     tooltip: 'Inverter',
     src: '/hero/solar-node-inverter.webp',
-    className: 'left-[44%] top-[34%] w-[19%] sm:left-[45%] sm:top-[35%] sm:w-[17%]',
+    className: 'left-[41.5%] top-[33%] w-[24%] sm:left-[42.5%] sm:top-[34%] sm:w-[22%]',
   },
   {
     name: 'Pin lưu trữ',
@@ -130,7 +130,7 @@ export default function SolarSystemExperience() {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(37,93,43,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.055)_1px,transparent_1px)] bg-[size:56px_56px] opacity-70" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-white to-transparent" />
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 py-12 sm:gap-20 sm:px-6 sm:py-14 lg:px-8 lg:py-16 xl:grid-cols-[0.42fr_0.58fr] xl:gap-10 xl:py-12">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-6 sm:gap-12 sm:px-6 sm:py-8 lg:px-8 lg:py-10 xl:grid-cols-[0.42fr_0.58fr] xl:gap-10 xl:py-8">
         <div className="contents xl:relative xl:z-20 xl:block xl:w-full xl:max-w-xl">
           <div className="relative z-20 order-1 mx-auto w-full max-w-3xl text-center xl:mx-0 xl:max-w-xl xl:text-left">
             <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-emerald-600/18 bg-white/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_16px_45px_rgba(37,93,43,0.08)] backdrop-blur">
@@ -156,10 +156,11 @@ export default function SolarSystemExperience() {
           </div>
         </div>
 
-        <div className="relative order-2 mx-auto min-h-[390px] w-full max-w-4xl sm:min-h-[520px] lg:min-h-[610px] xl:order-none xl:min-h-[690px] xl:max-w-none">
-          <div className="absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/28 blur-3xl" />
+        <div className="order-2 mx-auto flex w-full max-w-4xl flex-col xl:order-none xl:max-w-none">
+          <div className="relative w-full">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/28 blur-3xl" />
 
-          <div className="absolute inset-x-0 bottom-24 z-20 mx-auto aspect-[1000/640] w-full max-w-[900px] origin-center sm:bottom-28 xl:bottom-32 xl:w-[112%]">
+          <div className="relative z-20 mx-auto aspect-[1000/640] w-full max-w-[900px] origin-center xl:w-[112%]">
             <div className="absolute inset-0 rounded-[2rem] border border-emerald-900/10 bg-white/48 shadow-[0_35px_110px_rgba(37,93,43,0.14)] backdrop-blur-[2px]" />
             <div
               className={`energy-spark absolute left-[13%] top-[8%] z-40 flex h-7 w-7 items-center justify-center rounded-full border backdrop-blur-sm transition-colors duration-500 sm:h-16 sm:w-16 ${
@@ -225,24 +226,27 @@ export default function SolarSystemExperience() {
             ))}
           </div>
 
-          <div className="absolute inset-x-0 bottom-6 z-30 mx-auto w-full max-w-[900px] px-1 xl:w-[112%]">
-            {modeControls}
+          <div className="absolute left-4 top-16 z-10 h-28 w-28 rounded-full bg-orange-200/35 blur-2xl" />
           </div>
 
-          <div className="absolute hidden -top-24 left-[55%] z-40 w-[min(88%,20rem)] -translate-x-1/2 rounded-3xl border border-emerald-900/10 bg-white/76 p-4 shadow-[0_24px_70px_rgba(37,93,43,0.16)] backdrop-blur-xl lg:block lg:-top-14 xl:-top-10">
-            <div className={`mb-4 h-1.5 rounded-full bg-gradient-to-r ${active.accent}`} />
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
-                <ActiveIcon className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-sm font-black leading-snug text-slate-950">{active.title}</h2>
-                <p className="mt-2 text-xs leading-5 text-slate-600">{active.description}</p>
+          <div className="relative z-30 mx-auto mt-8 w-full max-w-[900px] xl:w-[112%]">
+            <div className="block w-full rounded-3xl border border-emerald-900/10 bg-white/76 p-4 shadow-[0_24px_70px_rgba(37,93,43,0.16)] backdrop-blur-xl">
+              <div className={`mb-4 h-1.5 rounded-full bg-gradient-to-r ${active.accent}`} />
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
+                  <ActiveIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black leading-snug text-slate-950">{active.title}</h2>
+                  <p className="mt-2 text-xs leading-5 text-slate-600">{active.description}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="absolute left-4 top-16 z-10 h-28 w-28 rounded-full bg-orange-200/35 blur-2xl" />
+            <div className="mt-6 w-full px-1">
+              {modeControls}
+            </div>
+          </div>
         </div>
       </div>
     </section>

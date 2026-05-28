@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Menu, X, Phone, ChevronDown } from 'lucide-react'
+import type { SiteConfig } from '@/lib/site-config'
 
 const navLinks = [
   {
@@ -42,7 +43,7 @@ function isRouteActive(pathname: string, href: string) {
   return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`)
 }
 
-export default function Header() {
+export default function Header({ siteConfig }: { siteConfig: SiteConfig }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
@@ -53,14 +54,23 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex h-16 shrink-0 items-center">
-            <span className="leading-none">
-              <span className="block text-[1.3rem] font-black tracking-normal text-green-800">
-                SOLIQ ENERGY
+            {siteConfig.headerLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={siteConfig.headerLogo}
+                alt="SOLIQ ENERGY"
+                className="h-12 w-auto object-contain"
+              />
+            ) : (
+              <span className="leading-none">
+                <span className="block text-[1.3rem] font-black tracking-normal text-green-800">
+                  SOLIQ ENERGY
+                </span>
+                <span className="mt-1.5 block text-[0.45rem] font-semibold uppercase tracking-[0.42em] text-green-700/70">
+                  Smart Power From Sun
+                </span>
               </span>
-              <span className="mt-1.5 block text-[0.45rem] font-semibold uppercase tracking-[0.42em] text-green-700/70">
-                Smart Power From Sun
-              </span>
-            </span>
+            )}
           </Link>
 
           {/* Desktop nav */}
@@ -125,11 +135,11 @@ export default function Header() {
           {/* CTA + mobile toggle */}
           <div className="flex items-center gap-3">
             <a
-              href="tel:0902211893"
+              href={`tel:${siteConfig.phone}`}
               className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-green-700 transition-colors hover:text-green-800"
             >
               <Phone className="w-4 h-4" />
-              090.22.11.893
+              {siteConfig.phoneFormatted}
             </a>
             <Link
               href="/bao-gia-dien-mat-troi"
@@ -201,11 +211,11 @@ export default function Header() {
             })}
             <div className="pt-2 pb-1 border-t border-gray-100 flex flex-col gap-2">
               <a
-                href="tel:0902211893"
+                href={`tel:${siteConfig.phone}`}
                 className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-green-700"
               >
                 <Phone className="w-4 h-4" />
-                090.22.11.893
+                {siteConfig.phoneFormatted}
               </a>
               <Link
                 href="/bao-gia-dien-mat-troi"

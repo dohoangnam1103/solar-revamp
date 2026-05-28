@@ -2,7 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { settings } from '@/lib/db/schema'
-import { DEFAULT_ASSUMPTIONS, type QuoteAssumptions } from '@/lib/quote/calculator'
+import { DEFAULT_ASSUMPTIONS, parseFormattedNumber, type QuoteAssumptions } from '@/lib/quote/calculator'
 
 const SETTINGS_KEY = 'solar_assumptions'
 
@@ -13,8 +13,7 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function numberValue(value: unknown, fallback: number) {
-  const parsed = typeof value === 'number' ? value : Number(value)
-  return Number.isFinite(parsed) ? parsed : fallback
+  return parseFormattedNumber(value, fallback)
 }
 
 function positiveNumberValue(value: unknown, fallback: number) {

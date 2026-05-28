@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { buildPageMetadata, faqSchema } from '@/lib/seo/metadata'
-import PageMotionController from '@/components/marketing/PageMotionController'
 import ProjectCarousel from '@/components/marketing/ProjectCarousel'
 import PartnerLogoCarousel from '@/components/marketing/PartnerLogoCarousel'
 import SolarSystemExperience from '@/components/marketing/SolarSystemExperience'
@@ -10,6 +9,8 @@ import AnimatedFAQItem from '@/components/marketing/AnimatedFAQItem'
 import QuoteBackgroundVideo from '@/components/marketing/QuoteBackgroundVideo'
 import QuoteCalculator from '@/components/quote/QuoteCalculator'
 import { getSolarAssumptions } from '@/lib/quote/settings'
+import { formatVnd } from '@/lib/quote/calculator'
+import { getSiteConfig } from '@/lib/site-config'
 import { getCachedCarouselImages, getCachedPartners } from '@/lib/db/public-queries'
 import { getFeaturedFaqs } from '@/app/actions/admin-crud'
 import {
@@ -41,11 +42,12 @@ const STATIC_PROJECT_IMAGES = Array.from({ length: 14 }, (_, index) => ({
 }))
 
 export default async function HomePage() {
-  const [quoteAssumptions, featuredFaqs, partners, carouselImages] = await Promise.all([
+  const [quoteAssumptions, featuredFaqs, partners, carouselImages, siteConfig] = await Promise.all([
     getSolarAssumptions(),
     getFeaturedFaqs(),
     getCachedPartners().catch(() => []),
     getCachedCarouselImages().catch(() => []),
+    getSiteConfig(),
   ])
   const activePartners = partners.filter((partner) => partner.active)
   const projectImages = carouselImages.length > 0 ? carouselImages : STATIC_PROJECT_IMAGES
@@ -61,7 +63,6 @@ export default async function HomePage() {
           ).replace(/</g, '\\u003c'),
         }}
       />
-      <PageMotionController />
 
       {/* ── INTERACTIVE SYSTEM PREVIEW ───────────────────────────────────── */}
       <SolarSystemExperience />
@@ -69,7 +70,7 @@ export default async function HomePage() {
       {/* ── QUICK QUOTE ──────────────────────────────────────────────────── */}
       <section data-reveal className="relative mt-8 pb-20 sm:mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-[2rem] border border-emerald-100/80 bg-emerald-50 p-5 shadow-2xl backdrop-blur sm:gap-y-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
+          <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-[2rem] border border-emerald-100/80 bg-emerald-50 p-5 shadow-2xl backdrop-blur sm:gap-y-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
             <QuoteBackgroundVideo />
             <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[60px] bg-[linear-gradient(180deg,#ecfdf5_0%,#ecfdf5_28%,rgba(236,253,245,0.78)_58%,transparent_100%)]" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[60px] bg-[linear-gradient(0deg,#ecfdf5_0%,#ecfdf5_28%,rgba(236,253,245,0.78)_58%,transparent_100%)]" />
@@ -92,14 +93,14 @@ export default async function HomePage() {
                 <div className="flex items-center gap-3 rounded-2xl border border-emerald-600/15 bg-white/55 px-4 py-3 shadow-sm backdrop-blur">
                   <CheckCircle className="h-6 w-6 shrink-0 text-emerald-700" />
                   <span>
-                    Vay ngân hàng tới <span className="text-orange-600">500tr</span>, không thế chấp
+                    Vay ngân hàng tới <span className="text-orange-600">{formatVnd(500_000_000)}</span>, không thế chấp
                   </span>
                 </div>
               </div>
             </div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-[1] hidden w-[58%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.48)_46%,rgba(255,255,255,0.16)_72%,transparent_100%)] lg:block" />
-            <div className="relative z-10 lg:max-w-xl lg:justify-self-end">
-              <QuoteCalculator assumptions={quoteAssumptions} />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-[1] hidden w-[50%] lg:block" />
+            <div className="relative z-10 lg:justify-self-stretch">
+              <QuoteCalculator assumptions={quoteAssumptions} phone={siteConfig.phone} />
             </div>
           </div>
         </div>
@@ -143,7 +144,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div data-stagger className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 icon: Home,
@@ -207,7 +208,7 @@ export default async function HomePage() {
                 Tại sao chọn{' '}
                 <span className="text-green-700">SOLIQ ENERGY?</span>
               </h2>
-              <div className="space-y-5">
+              <div className="space-y-5" data-stagger>
                 {[
                   {
                     icon: Award,
@@ -230,7 +231,7 @@ export default async function HomePage() {
                     desc: 'Đội ngũ kỹ thuật hỗ trợ 24/7, bảo trì định kỳ theo hợp đồng',
                   },
                 ].map((item) => (
-                  <div key={item.title} data-reveal className="flex gap-4">
+                  <div key={item.title} className="flex gap-4">
                     <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
                       <item.icon className="motion-icon w-5 h-5 text-green-700" />
                     </div>
@@ -301,14 +302,14 @@ export default async function HomePage() {
             <p className="text-gray-500">Từ tư vấn đến vận hành chỉ trong vài ngày</p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div data-stagger className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { step: '01', icon: Phone, title: 'Tư vấn miễn phí', desc: 'Gọi hotline hoặc điền form, chuyên viên liên hệ trong 5 phút' },
               { step: '02', icon: Users, title: 'Khảo sát thực địa', desc: 'Kỹ sư đến khảo sát mái nhà, thiết kế hệ thống phù hợp' },
               { step: '03', icon: Wrench, title: 'Thi công chuyên nghiệp', desc: 'Đội ngũ lắp đặt 1-3 ngày, đảm bảo an toàn và thẩm mỹ' },
               { step: '04', icon: CheckCircle, title: 'Bàn giao & vận hành', desc: 'Kiểm tra hệ thống, hướng dẫn sử dụng, bảo hành đầy đủ' },
             ].map((item, i) => (
-              <div key={item.step} data-reveal className="relative">
+              <div key={item.step} className="relative">
                 {i < 3 && (
                   <div className="hidden lg:block absolute top-8 left-[calc(50%+2rem)] w-[calc(100%+1.5rem-4rem)] h-0.5 bg-gradient-to-r from-green-300 to-transparent z-0" />
                 )}
@@ -362,14 +363,14 @@ export default async function HomePage() {
               Câu hỏi thường gặp
             </h2>
           </div>
-          <div className="space-y-4">
+          <div data-stagger className="space-y-4">
             {featuredFaqs.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-300 bg-white/60 p-8 text-center text-gray-500">
                 Chưa có câu hỏi nổi bật. Quản lý FAQ trong /admin/faqs.
               </div>
             ) : (
               featuredFaqs.map((faq) => (
-                <div key={faq.id} data-reveal>
+                <div key={faq.id}>
                   <AnimatedFAQItem question={faq.question} answer={faq.answer} />
                 </div>
               ))
@@ -397,11 +398,11 @@ export default async function HomePage() {
           </p>
           <div className="mx-auto flex w-full max-w-md flex-col justify-center gap-4 sm:max-w-none sm:flex-row sm:flex-wrap">
             <a
-              href="tel:0902211893"
+              href={`tel:${siteConfig.phone}`}
               className="cta-shine flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-lg font-bold text-white shadow-lg transition-colors hover:bg-orange-600 sm:w-auto"
             >
               <Phone className="w-5 h-5" />
-              090.22.11.893
+              {siteConfig.phoneFormatted}
             </a>
             <Link
               href="/bao-gia-dien-mat-troi"

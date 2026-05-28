@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { formatVietnameseCurrencyText } from '@/lib/quote/calculator'
 
 type FormattedContentProps = {
   content: string
@@ -23,14 +24,15 @@ const INLINE_TOKEN_PATTERN = /(\*\*[^*\n]+?\*\*|\*[^*\n]+?\*)/g
 const ALLOWED_LINK_PROTOCOLS = ['http:', 'https:', 'mailto:', 'tel:']
 
 function parseInline(text: string, keyPrefix: string): ReactNode[] {
+  const formattedText = formatVietnameseCurrencyText(text)
   const nodes: ReactNode[] = []
   let cursor = 0
   let match: RegExpExecArray | null
 
   INLINE_TOKEN_PATTERN.lastIndex = 0
-  while ((match = INLINE_TOKEN_PATTERN.exec(text)) !== null) {
+  while ((match = INLINE_TOKEN_PATTERN.exec(formattedText)) !== null) {
     if (match.index > cursor) {
-      nodes.push(text.slice(cursor, match.index))
+      nodes.push(formattedText.slice(cursor, match.index))
     }
 
     const token = match[0]
@@ -43,8 +45,8 @@ function parseInline(text: string, keyPrefix: string): ReactNode[] {
     cursor = match.index + token.length
   }
 
-  if (cursor < text.length) {
-    nodes.push(text.slice(cursor))
+  if (cursor < formattedText.length) {
+    nodes.push(formattedText.slice(cursor))
   }
 
   return nodes
@@ -93,7 +95,7 @@ function renderTiptapChildren(nodes: TiptapNode[] | undefined, keyPrefix: string
 
 function renderTiptapNode(node: TiptapNode, key: string): ReactNode {
   if (node.type === 'text') {
-    return applyMarks(node.text || '', node.marks, key)
+    return applyMarks(formatVietnameseCurrencyText(node.text || ''), node.marks, key)
   }
 
   if (node.type === 'hardBreak') {

@@ -2,6 +2,7 @@
 
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { formatVietnameseCurrencyText } from '@/lib/quote/calculator'
 
 type AnimatedFAQItemProps = {
   question: string
@@ -11,6 +12,7 @@ type AnimatedFAQItemProps = {
 
 export default function AnimatedFAQItem({ question, answer, className = '' }: AnimatedFAQItemProps) {
   const [open, setOpen] = useState(false)
+  const displayAnswer = formatVietnameseCurrencyText(answer)
 
   return (
     <div
@@ -45,7 +47,7 @@ export default function AnimatedFAQItem({ question, answer, className = '' }: An
               open ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
             }`}
           >
-            <p className="pt-4">{answer}</p>
+            <p className="pt-4">{displayAnswer}</p>
           </div>
         </div>
       </div>

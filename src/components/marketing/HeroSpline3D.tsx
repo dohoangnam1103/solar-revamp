@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ArrowRight, Phone, Sparkles } from 'lucide-react'
+import type { SiteConfig } from '@/lib/site-config'
 
 const Spline = dynamic(() => import('@splinetool/react-spline'), {
   ssr: false,
@@ -69,7 +70,7 @@ function SplineSceneWithErrorBoundary({ url }: { url: string }) {
   )
 }
 
-export default function HeroSpline3D() {
+export default function HeroSpline3D({ siteConfig }: { siteConfig: SiteConfig }) {
   const [reducedMotion, setReducedMotion] = useState(false)
 
   useEffect(() => {
@@ -116,11 +117,11 @@ export default function HeroSpline3D() {
               <ArrowRight className="h-5 w-5" />
             </Link>
             <a
-              href="tel:0902211893"
+              href={`tel:${siteConfig.phone}`}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-orange-200 bg-white/85 px-7 py-3.5 text-base font-bold text-orange-600 backdrop-blur transition-colors hover:bg-orange-50"
             >
               <Phone className="h-5 w-5" />
-              090.22.11.893
+              {siteConfig.phoneFormatted}
             </a>
           </div>
           <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 text-center">

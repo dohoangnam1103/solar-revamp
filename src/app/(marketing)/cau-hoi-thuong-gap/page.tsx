@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { buildPageMetadata, faqSchema } from '@/lib/seo/metadata'
+import { getSiteConfig } from '@/lib/site-config'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import AnimatedFAQItem from '@/components/marketing/AnimatedFAQItem'
@@ -14,7 +15,7 @@ export const metadata: Metadata = buildPageMetadata({
 export const revalidate = 300
 
 export default async function FAQPage() {
-  const faqs = await getPublishedFaqs()
+  const [faqs, siteConfig] = await Promise.all([getPublishedFaqs(), getSiteConfig()])
   const jsonLd = faqSchema(faqs.map((f) => ({ question: f.question, answer: f.answer })))
   return (
     <>
@@ -28,7 +29,7 @@ export default async function FAQPage() {
 
       <section className="py-16 bg-solar-light">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-3">
+          <div data-stagger className="space-y-3">
             {faqs.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-300 bg-white/60 p-10 text-center text-gray-500">
                 Chưa có câu hỏi nào được đăng. Liên hệ trực tiếp để được tư vấn.
@@ -43,8 +44,8 @@ export default async function FAQPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-2">Còn câu hỏi khác?</h2>
             <p className="text-gray-500 mb-6">Liên hệ trực tiếp để được tư vấn chi tiết</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="tel:0902211893" className="px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
-                Gọi: 090.22.11.893
+              <a href={`tel:${siteConfig.phone}`} className="px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
+                Gọi: {siteConfig.phoneFormatted}
               </a>
               <Link href="/bao-gia-dien-mat-troi" className="flex items-center gap-2 px-6 py-3 border border-green-700 text-green-700 hover:bg-green-50 font-semibold rounded-xl transition-colors">
                 Tính báo giá <ArrowRight className="w-4 h-4" />

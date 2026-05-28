@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { buildPageMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
 import { getCachedPublishedRecruitmentPosts, getCachedRecruitmentPostBySlug } from '@/lib/db/public-queries'
+import { formatSalaryRange } from '@/lib/quote/calculator'
 import { ArrowLeft, BriefcaseBusiness, CalendarDays, MapPin } from 'lucide-react'
 import RecruitmentApplicationForm from '@/components/marketing/RecruitmentApplicationForm'
 import FormattedContent from '@/components/content/FormattedContent'
@@ -68,7 +69,7 @@ export default async function RecruitmentDetailPage({ params }: Props) {
           <div className="mb-8 grid gap-3 rounded-2xl border border-white/70 bg-white/70 p-4 text-sm text-gray-700 sm:grid-cols-3">
             <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-green-700" />{post.location || 'Hà Nội'}</span>
             <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-green-700" />{formatDate(post.deadline)}</span>
-            <span className="flex items-center gap-2"><BriefcaseBusiness className="h-4 w-4 text-green-700" />{post.salaryRange || 'Thỏa thuận'}</span>
+            <span className="flex items-center gap-2"><BriefcaseBusiness className="h-4 w-4 text-green-700" />{formatSalaryRange(post.salaryRange)}</span>
           </div>
 
           <FormattedContent content={post.content || ''} className="prose prose-green max-w-none" />

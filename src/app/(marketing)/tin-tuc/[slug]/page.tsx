@@ -5,7 +5,9 @@ import { notFound } from 'next/navigation'
 import { buildPageMetadata, articleSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { ArrowLeft, Calendar } from 'lucide-react'
 import { getCachedArticleBySlug, getCachedPublishedArticles } from '@/lib/db/public-queries'
+import { getSiteConfig } from '@/lib/site-config'
 import FormattedContent from '@/components/content/FormattedContent'
+import { formatVnd } from '@/lib/quote/calculator'
 
 export const revalidate = 300
 
@@ -14,13 +16,13 @@ const FALLBACK_CONTENT: Record<string, { title: string; desc: string; date: stri
     title: 'Chi phí lắp điện mặt trời năm 2026: Bảng giá chi tiết',
     desc: 'Tổng hợp chi phí lắp đặt điện mặt trời mới nhất năm 2026, từ hệ thống gia đình đến doanh nghiệp.',
     date: '2026-05-15', category: 'Kiến thức',
-    content: `Chi phí lắp điện mặt trời năm 2026 dao động từ 47 triệu đến hơn 200 triệu tùy công suất và loại hệ thống. Hệ thống hòa lưới (grid-tied) có giá thấp hơn, trong khi hệ thống hybrid với pin lưu trữ có chi phí cao hơn nhưng mang lại nhiều lợi ích hơn.\n\nCác yếu tố ảnh hưởng đến chi phí bao gồm: công suất hệ thống (kWp), loại tấm pin, thương hiệu biến tần, có hay không có pin lưu trữ, và chi phí thi công tùy địa điểm.\n\nVới hóa đơn điện 2-3 triệu/tháng, hệ thống 8-10kWp thường là lựa chọn tối ưu với chi phí 56-78 triệu đồng.`,
+    content: `Chi phí lắp điện mặt trời năm 2026 dao động từ ${formatVnd(47_000_000)} đến hơn ${formatVnd(200_000_000)} tùy công suất và loại hệ thống. Hệ thống hòa lưới (grid-tied) có giá thấp hơn, trong khi hệ thống hybrid với pin lưu trữ có chi phí cao hơn nhưng mang lại nhiều lợi ích hơn.\n\nCác yếu tố ảnh hưởng đến chi phí bao gồm: công suất hệ thống (kWp), loại tấm pin, thương hiệu biến tần, có hay không có pin lưu trữ, và chi phí thi công tùy địa điểm.\n\nVới hóa đơn điện ${formatVnd(2_000_000)} - ${formatVnd(3_000_000)}/tháng, hệ thống 8-10kWp thường là lựa chọn tối ưu với chi phí ${formatVnd(56_000_000)} - ${formatVnd(78_000_000)}.`,
   },
   'thoi-gian-hoan-von-dien-mat-troi': {
     title: 'Thời gian hoàn vốn điện mặt trời: Tính như thế nào?',
     desc: 'Hướng dẫn cách tính thời gian hoàn vốn khi lắp điện mặt trời.',
     date: '2026-05-10', category: 'Tài chính',
-    content: `Thời gian hoàn vốn = Tổng đầu tư / Tiết kiệm hàng năm. Với hệ thống 10kWp, đầu tư khoảng 78 triệu, tiết kiệm khoảng 12-15 triệu/năm, thời gian hoàn vốn khoảng 5-6 năm.\n\nCác yếu tố tối ưu thời gian hoàn vốn: tỷ lệ dùng điện ban ngày cao (>60%), hóa đơn điện lớn, vị trí nhiều nắng (miền Nam nhanh hơn miền Bắc).`,
+    content: `Thời gian hoàn vốn = Tổng đầu tư / Tiết kiệm hàng năm. Với hệ thống 10kWp, đầu tư khoảng ${formatVnd(78_000_000)}, tiết kiệm khoảng ${formatVnd(12_000_000)} - ${formatVnd(15_000_000)}/năm, thời gian hoàn vốn khoảng 5-6 năm.\n\nCác yếu tố tối ưu thời gian hoàn vốn: tỷ lệ dùng điện ban ngày cao (>60%), hóa đơn điện lớn, vị trí nhiều nắng (miền Nam nhanh hơn miền Bắc).`,
   },
 }
 
@@ -59,6 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params
+  const siteConfig = await getSiteConfig()
   let article: { title: string; description?: string; date: string; category: string; content: string; image?: string } | null = null
 
   try {
@@ -127,8 +130,8 @@ export default async function ArticlePage({ params }: Props) {
           <FormattedContent content={article.content} className="prose prose-green max-w-none" />
           <div className="mt-8 pt-6 border-t border-gray-100">
             <p className="text-sm text-gray-500 mb-4">Cần tư vấn thêm?</p>
-            <a href="tel:0902211893" className="inline-flex items-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
-              Gọi ngay: 090.22.11.893
+            <a href={`tel:${siteConfig.phone}`} className="inline-flex items-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
+              Gọi ngay: {siteConfig.phoneFormatted}
             </a>
           </div>
         </div>

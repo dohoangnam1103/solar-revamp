@@ -2,21 +2,33 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Phone, Mail, MapPin } from 'lucide-react'
 import { FacebookIcon, MessengerIcon, TiktokIcon, YoutubeIcon, ZaloIcon } from './SocialIcons'
+import { getSiteConfig } from '@/lib/site-config'
 
-export default function Footer() {
+export default async function Footer() {
+  const siteConfig = await getSiteConfig()
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Image
-              src="/brand/symbol-10.png"
-              alt="SMART POWER FROM SUN"
-              width={215}
-              height={125}
-              className="mb-6 h-28 w-auto object-contain"
-            />
+            {siteConfig.footerLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={siteConfig.footerLogo}
+                alt="SOLIQ ENERGY"
+                className="mb-6 h-28 w-auto object-contain"
+              />
+            ) : (
+              <Image
+                src="/brand/symbol-10.png"
+                alt="SMART POWER FROM SUN"
+                width={215}
+                height={125}
+                className="mb-6 h-28 w-auto object-contain"
+              />
+            )}
             <div className="mb-4 flex gap-3">
               <a
                 href="https://www.facebook.com/soliqvn"
@@ -28,7 +40,7 @@ export default function Footer() {
                 <FacebookIcon className="h-5 w-5" />
               </a>
               <a
-                href="https://zalo.me/0902211893"
+                href={`https://zalo.me/${siteConfig.phone}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
@@ -64,7 +76,7 @@ export default function Footer() {
                 <YoutubeIcon className="h-5 w-5" />
               </a>
             </div>
-            <p className="text-sm text-gray-900 leading-relaxed">
+            <p className="text-sm text-gray-400 leading-relaxed">
               SMART POWER FROM SUN — Đơn vị lắp đặt điện mặt trời uy tín,
               chuyên nghiệp tại Hà Nội và toàn quốc.
             </p>
@@ -127,14 +139,9 @@ export default function Footer() {
               </li>
               <li className="flex gap-2.5">
                 <Phone className="w-4 h-4 text-green-400 shrink-0 mt-0.5" />
-                <div>
-                  <a href="tel:0902211893" className="hover:text-green-400 transition-colors block">
-                    090.22.11.893
-                  </a>
-                  <a href="tel:0902262101" className="hover:text-green-400 transition-colors block">
-                    0902.262.101
-                  </a>
-                </div>
+                <a href={`tel:${siteConfig.phone}`} className="hover:text-green-400 transition-colors">
+                  {siteConfig.phoneFormatted}
+                </a>
               </li>
               <li className="flex gap-2.5">
                 <Mail className="w-4 h-4 text-green-400 shrink-0 mt-0.5" />

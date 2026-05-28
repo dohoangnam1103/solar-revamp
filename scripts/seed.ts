@@ -3,6 +3,7 @@ import { Pool } from 'pg'
 import { eq } from 'drizzle-orm'
 import { randomBytes, scryptSync } from 'crypto'
 import * as schema from '../src/lib/db/schema'
+import { formatVnd } from '../src/lib/quote/calculator'
 import { loadEnvFile } from './lib/load-env'
 
 loadEnvFile()
@@ -66,14 +67,14 @@ async function seed() {
       slug: 'chi-phi-lap-dien-mat-troi-2026',
       title: 'Chi phí lắp điện mặt trời năm 2026: Bảng giá chi tiết',
       description: 'Tổng hợp chi phí lắp đặt điện mặt trời mới nhất năm 2026, từ hệ thống gia đình đến doanh nghiệp.',
-      content: 'Chi phí lắp điện mặt trời năm 2026 dao động từ 47 triệu đến hơn 200 triệu tùy công suất và loại hệ thống. Hệ thống hòa lưới (grid-tied) có giá thấp hơn, trong khi hệ thống hybrid với pin lưu trữ có chi phí cao hơn nhưng mang lại nhiều lợi ích hơn.\n\nCác yếu tố ảnh hưởng đến chi phí bao gồm: công suất hệ thống (kWp), loại tấm pin, thương hiệu biến tần, có hay không có pin lưu trữ, và chi phí thi công tùy địa điểm.',
+      content: `Chi phí lắp điện mặt trời năm 2026 dao động từ ${formatVnd(47_000_000)} đến hơn ${formatVnd(200_000_000)} tùy công suất và loại hệ thống. Hệ thống hòa lưới (grid-tied) có giá thấp hơn, trong khi hệ thống hybrid với pin lưu trữ có chi phí cao hơn nhưng mang lại nhiều lợi ích hơn.\n\nCác yếu tố ảnh hưởng đến chi phí bao gồm: công suất hệ thống (kWp), loại tấm pin, thương hiệu biến tần, có hay không có pin lưu trữ, và chi phí thi công tùy địa điểm.`,
       category: 'Kiến thức', published: true, publishedAt: new Date('2026-05-15'),
     },
     {
       slug: 'thoi-gian-hoan-von-dien-mat-troi',
       title: 'Thời gian hoàn vốn điện mặt trời: Tính như thế nào?',
       description: 'Hướng dẫn cách tính thời gian hoàn vốn khi lắp điện mặt trời, các yếu tố ảnh hưởng và cách tối ưu.',
-      content: 'Thời gian hoàn vốn = Tổng đầu tư / Tiết kiệm hàng năm. Với hệ thống 10kWp, đầu tư khoảng 78 triệu, tiết kiệm khoảng 12-15 triệu/năm, thời gian hoàn vốn khoảng 5-6 năm.\n\nCác yếu tố tối ưu thời gian hoàn vốn: tỷ lệ dùng điện ban ngày cao (>60%), hóa đơn điện lớn, vị trí nhiều nắng (miền Nam nhanh hơn miền Bắc).',
+      content: `Thời gian hoàn vốn = Tổng đầu tư / Tiết kiệm hàng năm. Với hệ thống 10kWp, đầu tư khoảng ${formatVnd(78_000_000)}, tiết kiệm khoảng ${formatVnd(12_000_000)} - ${formatVnd(15_000_000)}/năm, thời gian hoàn vốn khoảng 5-6 năm.\n\nCác yếu tố tối ưu thời gian hoàn vốn: tỷ lệ dùng điện ban ngày cao (>60%), hóa đơn điện lớn, vị trí nhiều nắng (miền Nam nhanh hơn miền Bắc).`,
       category: 'Tài chính', published: true, publishedAt: new Date('2026-05-10'),
     },
   ]

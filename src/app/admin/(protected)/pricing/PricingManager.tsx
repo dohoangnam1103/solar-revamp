@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Pencil, Trash2, X, GripVertical } from 'lucide-react'
 import { createPricingPackage, updatePricingPackage, deletePricingPackage, reorderPricingPackages } from '@/app/actions/admin-crud'
 import type { PricingPackage } from '@/lib/db/schema'
+import { formatNumberWithDots, formatVnd } from '@/lib/quote/calculator'
 import type { QuoteAssumptions } from '@/lib/quote/calculator'
 import AdminQuoteSettingsForm from '../settings/AdminQuoteSettingsForm'
 
@@ -26,7 +27,7 @@ const VAT_TU_CATEGORIES: { id: string; label: string }[] = [
 
 function formatPrice(price: number | null) {
   if (!price) return '—'
-  return price.toLocaleString('vi-VN') + 'đ'
+  return formatVnd(price)
 }
 
 function moveItem(items: PricingPackage[], fromId: number, toId: number) {
@@ -127,13 +128,13 @@ function PackageForm({ tab, pkg, onClose }: { tab: Tab; pkg?: PricingPackage; on
             ) : (
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Phù hợp</label>
-                <input name="fit" defaultValue={pkg?.fit ?? ''} placeholder="VD: Hóa đơn 500k-1.5tr" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                <input name="fit" defaultValue={pkg?.fit ?? ''} placeholder={`VD: Hóa đơn ${formatVnd(500_000)} - ${formatVnd(1_500_000)}`} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
               </div>
             )}
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Giá tham khảo (VNĐ)</label>
-            <input name="price" required type="number" defaultValue={pkg?.price ?? ''} placeholder="VD: 47300000" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            <input name="price" required type="text" inputMode="numeric" defaultValue={pkg?.price ? formatNumberWithDots(pkg.price) : ''} placeholder={`VD: ${formatNumberWithDots(47_300_000)}`} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
           </div>
         </>
       )}

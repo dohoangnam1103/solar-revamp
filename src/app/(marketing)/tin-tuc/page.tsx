@@ -56,7 +56,7 @@ export default async function TinTucPage() {
 
       <section className="py-16 bg-solar-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayArticles.map((article) => (
               <Link key={article.slug} href={`/tin-tuc/${article.slug}`} className="group glass rounded-2xl overflow-hidden border border-white/50 hover:shadow-lg transition-all hover:-translate-y-1">
                 {article.coverImage ? (

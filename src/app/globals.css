@@ -337,6 +337,50 @@ body {
   }
 }
 
+.word-reveal-token {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.word-reveal-token[data-visible='true'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+[data-stagger] > * {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-motion-ready [data-reveal][data-visible='true'] [data-stagger] > *,
+[data-stagger][data-visible='true'] > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+[data-stagger][data-visible='true'] > *:nth-child(1) { transition-delay: 0ms; }
+[data-stagger][data-visible='true'] > *:nth-child(2) { transition-delay: 150ms; }
+[data-stagger][data-visible='true'] > *:nth-child(3) { transition-delay: 300ms; }
+[data-stagger][data-visible='true'] > *:nth-child(4) { transition-delay: 450ms; }
+[data-stagger][data-visible='true'] > *:nth-child(5) { transition-delay: 600ms; }
+[data-stagger][data-visible='true'] > *:nth-child(6) { transition-delay: 750ms; }
+[data-stagger][data-visible='true'] > *:nth-child(7) { transition-delay: 900ms; }
+[data-stagger][data-visible='true'] > *:nth-child(8) { transition-delay: 1050ms; }
+[data-stagger][data-visible='true'] > *:nth-child(9) { transition-delay: 1200ms; }
+[data-stagger][data-visible='true'] > *:nth-child(10) { transition-delay: 1350ms; }
+[data-stagger][data-visible='true'] > *:nth-child(11) { transition-delay: 1500ms; }
+[data-stagger][data-visible='true'] > *:nth-child(12) { transition-delay: 1650ms; }
+[data-stagger][data-visible='true'] > *:nth-child(13) { transition-delay: 1800ms; }
+[data-stagger][data-visible='true'] > *:nth-child(14) { transition-delay: 1950ms; }
+[data-stagger][data-visible='true'] > *:nth-child(15) { transition-delay: 2100ms; }
+[data-stagger][data-visible='true'] > *:nth-child(n + 16) { transition-delay: 2250ms; }
+
 .motion-surface,
 .motion-card,
 .motion-glass-button {
@@ -415,6 +459,13 @@ body {
     opacity: 1;
     transform: none;
     filter: none;
+    transition: none;
+  }
+
+  .word-reveal-token,
+  [data-stagger] > * {
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 

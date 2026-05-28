@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import './globals.css'
 import { defaultMetadata, localBusinessSchema, organizationSchema, websiteSchema } from '@/lib/seo/metadata'
+import { getSiteConfig } from '@/lib/site-config'
 
 const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['vietnamese', 'latin'],
@@ -15,24 +16,27 @@ export const metadata: Metadata = defaultMetadata
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const siteConfig = await getSiteConfig()
+  const phoneIntl = `+84${siteConfig.phone.replace(/^0/, '')}`
+
   return (
     <html lang="vi" className={beVietnamPro.variable}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(localBusinessSchema()).replace(/</g, '\\u003c'),
+            __html: JSON.stringify(localBusinessSchema(phoneIntl)).replace(/</g, '\\u003c'),
           }}
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationSchema()).replace(/</g, '\\u003c'),
+            __html: JSON.stringify(organizationSchema(phoneIntl)).replace(/</g, '\\u003c'),
           }}
         />
         <script

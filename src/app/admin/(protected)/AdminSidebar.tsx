@@ -13,9 +13,11 @@ import {
   FileText,
   HelpCircle,
   Images,
+  Info,
   LayoutDashboard,
   LogOut,
   Newspaper,
+  Settings,
   ShieldCheck,
   Tag,
   UserRoundSearch,
@@ -50,6 +52,8 @@ export default function AdminSidebar({ email, isSuper }: AdminSidebarProps) {
       { href: '/admin/partners', label: 'Đối tác', icon: Briefcase },
       { href: '/admin/faqs', label: 'FAQ', icon: HelpCircle },
       { href: '/admin/pricing', label: 'Giá cả', icon: Tag },
+      { href: '/admin/site-config', label: 'Cấu hình', icon: Settings },
+      { href: '/admin/ve-soliq-config', label: 'Trang Về SOLIQ', icon: Info },
       ...(isSuper ? [{ href: '/admin/admins', label: 'Quản trị viên', icon: ShieldCheck }] : []),
     ]
 

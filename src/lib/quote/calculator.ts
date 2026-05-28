@@ -82,6 +82,66 @@ export type QuoteAssumptions = typeof DEFAULT_ASSUMPTIONS
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+export function formatNumberWithDots(value: number): string {
+  return Math.round(value).toLocaleString('vi-VN')
+}
+
+export function parseFormattedNumber(value: unknown, fallback = 0): number {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : fallback
+  if (typeof value !== 'string') return fallback
+
+  const trimmed = value.trim()
+  if (!trimmed) return fallback
+  const normalized = /^-?\d{1,3}(?:\.\d{3})+$/.test(trimmed)
+    ? trimmed.replace(/\./g, '')
+    : trimmed.replace(',', '.')
+  const parsed = Number(normalized)
+
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+function moneyUnitMultiplier(unit: string): number {
+  const normalized = unit.toLowerCase()
+  return normalized === 'tỷ' || normalized === 'ty' ? 1_000_000_000 : 1_000_000
+}
+
+export function formatVietnameseCurrencyText(text: string): string {
+  return text
+    .replace(
+      /\b(\d+(?:[,.]\d+)?)\s*-\s*(\d+(?:[,.]\d+)?)\s*(tỷ|ty|triệu|tr)(?:\s*đồng)?\b/gi,
+      (_match, start: string, end: string, unit: string) => {
+        const multiplier = moneyUnitMultiplier(unit)
+        return `${formatVnd(parseFormattedNumber(start) * multiplier)} - ${formatVnd(parseFormattedNumber(end) * multiplier)}`
+      }
+    )
+    .replace(
+      /\b(\d+(?:[,.]\d+)?)\s*(tỷ|ty|triệu|tr)(?:\s*đồng)?\b/gi,
+      (_match, value: string, unit: string) => formatVnd(parseFormattedNumber(value) * moneyUnitMultiplier(unit))
+    )
+    .replace(/\b(\d+(?:[,.]\d+)?)\s*k\b(?!\s*(?:w|wp|wh)\b)/gi, (_match, value: string) =>
+      formatVnd(parseFormattedNumber(value) * 1_000)
+    )
+    .replace(/\b(\d{1,3}(?:\.\d{3})+|\d+)\s*đ(?=\s|[.,;:!?)]|$)/gi, (_match, value: string) =>
+      formatVnd(parseFormattedNumber(value))
+    )
+}
+
+export function formatSalaryRange(value: string | null | undefined, fallback = 'Thỏa thuận'): string {
+  const text = value?.trim()
+  if (!text) return fallback
+
+  const numericRangeMatch = text.match(/^(\d[\d.]*)\s*-\s*(\d[\d.]*)\s*(?:đ)?$/i)
+  if (numericRangeMatch) {
+    return `${formatVnd(parseFormattedNumber(numericRangeMatch[1]))} - ${formatVnd(parseFormattedNumber(numericRangeMatch[2]))}`
+  }
+
+  if (/^\d[\d.]*\s*(?:đ)?$/i.test(text)) {
+    return formatVnd(parseFormattedNumber(text.replace(/\s*đ$/i, '')))
+  }
+
+  return formatVietnameseCurrencyText(text)
+}
+
 function estimateMonthlyKwh(monthlyBillVnd: number, assumptions: QuoteAssumptions): number {
   // Ước tính kWh từ hóa đơn dựa trên giá bậc thang EVN
   // Đơn giản hóa: dùng giá bình quân
@@ -235,15 +295,9 @@ export function calculateQuote(
 // ─── Format helpers ───────────────────────────────────────────────────────────
 
 export function formatVnd(amount: number): string {
-  if (amount >= 1_000_000_000) {
-    return `${(amount / 1_000_000_000).toFixed(1)} tỷ`
-  }
-  if (amount >= 1_000_000) {
-    return `${(amount / 1_000_000).toFixed(0)} triệu`
-  }
-  return amount.toLocaleString('vi-VN') + ' đ'
+  return `${formatNumberWithDots(amount)} đ`
 }
 
 export function formatKwh(kwh: number): string {
-  return `${kwh.toLocaleString('vi-VN')} kWh`
+  return `${formatNumberWithDots(kwh)} kWh`
 }

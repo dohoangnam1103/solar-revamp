@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { buildPageMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
 import { getCachedPublishedRecruitmentPosts } from '@/lib/db/public-queries'
+import { formatSalaryRange } from '@/lib/quote/calculator'
 import { ArrowRight, BriefcaseBusiness, CalendarDays, MapPin } from 'lucide-react'
 
 export const revalidate = 300
@@ -44,7 +45,7 @@ export default async function RecruitmentPage() {
               <p className="mt-3 text-gray-500">SOLIQ sẽ cập nhật cơ hội mới tại đây khi có nhu cầu tuyển dụng.</p>
             </div>
           ) : (
-            <div className="grid gap-5">
+            <div data-stagger className="grid gap-5">
               {posts.map((post) => (
                 <Link
                   key={post.id}
@@ -66,7 +67,7 @@ export default async function RecruitmentPage() {
                       <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
                         <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-green-700" />{post.location || 'Hà Nội'}</span>
                         <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-green-700" />Hạn: {formatDate(post.deadline)}</span>
-                        {post.salaryRange && <span className="flex items-center gap-1.5"><BriefcaseBusiness className="h-4 w-4 text-green-700" />{post.salaryRange}</span>}
+                        {post.salaryRange && <span className="flex items-center gap-1.5"><BriefcaseBusiness className="h-4 w-4 text-green-700" />{formatSalaryRange(post.salaryRange)}</span>}
                       </div>
                       </div>
                     </div>

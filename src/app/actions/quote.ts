@@ -2,11 +2,12 @@
 
 import { db } from '@/lib/db'
 import { leads, quoteRequests, quoteResults } from '@/lib/db/schema'
-import { calculateQuote, type QuoteInput } from '@/lib/quote/calculator'
+import { calculateQuote, formatVnd, type QuoteInput } from '@/lib/quote/calculator'
 import { revalidatePath } from 'next/cache'
 import { randomBytes } from 'crypto'
 import { checkRateLimit } from '@/lib/security/rate-limit'
 import { getSolarAssumptions } from '@/lib/quote/settings'
+import { notifyNewQuote } from '@/lib/email/notifications'
 
 export interface SubmitQuoteInput extends QuoteInput {
   // Lead info
@@ -60,7 +61,7 @@ export async function submitQuote(
       return { success: false, error: 'Thông tin gửi lên quá dài. Vui lòng kiểm tra lại.' }
     }
     if (!monthlyBillVnd || monthlyBillVnd < 50_000) {
-      return { success: false, error: 'Hóa đơn điện không hợp lệ (tối thiểu 50.000đ).' }
+      return { success: false, error: `Hóa đơn điện không hợp lệ (tối thiểu ${formatVnd(50_000)}).` }
     }
     if (daytimeUsageRate < 0 || daytimeUsageRate > 1) {
       return { success: false, error: 'Tỷ lệ dùng điện ban ngày không hợp lệ.' }
@@ -132,6 +133,23 @@ export async function submitQuote(
 
     revalidatePath('/admin/leads')
     revalidatePath('/admin/quotes')
+
+    // Fire-and-forget email notification
+    notifyNewQuote({
+      name,
+      phone,
+      email,
+      address,
+      province,
+      monthlyBillVnd: quoteInput.monthlyBillVnd,
+      customerType: quoteInput.customerType,
+      paymentMode: quoteInput.paymentMode,
+      batteryOption: Boolean(quoteInput.batteryOption),
+      recommendedCapacityKwp: result.recommendedCapacityKwp,
+      estimatedInvestmentVnd: result.estimatedInvestmentAfterVatVnd,
+      paybackYears: result.paybackYears,
+      quoteToken: publicToken,
+    }).catch((err) => console.error('[notifyNewQuote] failed:', err))
 
     return {
       success: true,

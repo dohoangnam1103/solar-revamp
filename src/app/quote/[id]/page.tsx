@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { buildPageMetadata } from '@/lib/seo/metadata'
+import { getSiteConfig } from '@/lib/site-config'
 import { db } from '@/lib/db'
 import { quoteRequests, quoteResults, leads } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
@@ -21,6 +22,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function QuoteDetailPage({ params }: Props) {
   const { id: quoteToken } = await params
+  const siteConfig = await getSiteConfig()
   if (!/^[A-Za-z0-9_-]{20,80}$/.test(quoteToken)) notFound()
 
   const quoteRows = await db
@@ -126,7 +128,7 @@ export default async function QuoteDetailPage({ params }: Props) {
               </div>
             )}
 
-            <a href="tel:0902211893" className="flex items-center justify-center gap-2 w-full py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
+            <a href={`tel:${siteConfig.phone}`} className="flex items-center justify-center gap-2 w-full py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl transition-colors">
               Gọi ngay để tư vấn chi tiết
             </a>
           </div>

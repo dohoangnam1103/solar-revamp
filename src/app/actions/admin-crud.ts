@@ -378,7 +378,7 @@ export async function getRecruitmentApplications() {
 }
 
 export async function createRecruitmentPost(formData: FormData) {
-  await requireSuperAdmin()
+  await requireAdmin()
   const title = formData.get('title') as string
   const slug = await buildUniqueRecruitmentSlug(title)
   const description = (formData.get('description') as string) || null
@@ -409,7 +409,7 @@ export async function createRecruitmentPost(formData: FormData) {
 }
 
 export async function updateRecruitmentPost(id: number, formData: FormData) {
-  await requireSuperAdmin()
+  await requireAdmin()
   const title = formData.get('title') as string
   const slug = await buildUniqueRecruitmentSlug(title, id)
   const description = (formData.get('description') as string) || null
@@ -441,13 +441,13 @@ export async function updateRecruitmentPost(id: number, formData: FormData) {
 }
 
 export async function deleteRecruitmentPost(id: number) {
-  await requireSuperAdmin()
+  await requireAdmin()
   await db.delete(recruitmentPosts).where(eq(recruitmentPosts.id, id))
   revalidateRecruitmentPosts()
 }
 
 export async function updateRecruitmentApplicationStatus(id: number, status: string) {
-  await requireSuperAdmin()
+  await requireAdmin()
   const allowed = new Set(['new', 'reviewing', 'contacted', 'rejected'])
   if (!allowed.has(status)) return
 
@@ -591,6 +591,131 @@ export async function updateSettings(formData: FormData) {
       .onConflictDoUpdate({ target: [settings.key], set: { valueJson: value, updatedAt: new Date() } })
   }
   revalidatePath('/admin/settings')
+}
+
+export async function updateSiteConfig(formData: FormData) {
+  await requireSuperAdmin()
+  const phone = (formData.get('phone') as string)?.trim() || '0902211893'
+  const phoneFormatted = (formData.get('phoneFormatted') as string)?.trim() || '090.22.11.893'
+
+  const emailsRaw = (formData.get('notificationEmails') as string) || ''
+  const notificationEmails = emailsRaw
+    .split(/[\n,]+/)
+    .map((email) => email.trim())
+    .filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    .slice(0, 20)
+
+  // Read existing config to preserve logos when no new upload
+  const existingRows = await db.select().from(settings).where(eq(settings.key, 'site_config')).limit(1)
+  const existingConfig = existingRows[0]?.valueJson as Record<string, unknown> | undefined
+  const existingHeaderLogo = typeof existingConfig?.headerLogo === 'string' ? existingConfig.headerLogo : null
+  const existingFooterLogo = typeof existingConfig?.footerLogo === 'string' ? existingConfig.footerLogo : null
+
+  // Handle logo uploads or removal
+  const removeHeaderLogo = formData.get('removeHeaderLogo') === 'on'
+  const removeFooterLogo = formData.get('removeFooterLogo') === 'on'
+
+  const newHeaderLogo = await getOptionalUploadedImageUrl(formData, 'headerLogoUpload', 'site-logo')
+  const newFooterLogo = await getOptionalUploadedImageUrl(formData, 'footerLogoUpload', 'site-logo')
+
+  let headerLogo: string | null
+  if (newHeaderLogo) {
+    if (existingHeaderLogo) await deleteMediaAssetByUrl(existingHeaderLogo)
+    headerLogo = newHeaderLogo
+  } else if (removeHeaderLogo) {
+    if (existingHeaderLogo) await deleteMediaAssetByUrl(existingHeaderLogo)
+    headerLogo = null
+  } else {
+    headerLogo = existingHeaderLogo
+  }
+
+  let footerLogo: string | null
+  if (newFooterLogo) {
+    if (existingFooterLogo) await deleteMediaAssetByUrl(existingFooterLogo)
+    footerLogo = newFooterLogo
+  } else if (removeFooterLogo) {
+    if (existingFooterLogo) await deleteMediaAssetByUrl(existingFooterLogo)
+    footerLogo = null
+  } else {
+    footerLogo = existingFooterLogo
+  }
+
+  const config = { phone, phoneFormatted, notificationEmails, headerLogo, footerLogo }
+
+  await db.insert(settings).values({ key: 'site_config', valueJson: config })
+    .onConflictDoUpdate({
+      target: [settings.key],
+      set: { valueJson: config, updatedAt: new Date() },
+    })
+
+  revalidateTag('site-config', 'max')
+  revalidatePath('/')
+  revalidatePath('/admin/site-config')
+}
+
+export async function updateVeSoliqConfig(formData: FormData) {
+  await requireSuperAdmin()
+
+  function getString(key: string): string {
+    const value = formData.get(key)
+    return typeof value === 'string' ? value.trim() : ''
+  }
+
+  function getStringArray(key: string): string[] {
+    const value = formData.get(key)
+    if (typeof value !== 'string') return []
+    return value
+      .split(/\r?\n\r?\n+/)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0)
+  }
+
+  function getStats(): { value: string; label: string }[] {
+    const items: { value: string; label: string }[] = []
+    for (let i = 0; i < 8; i++) {
+      const value = getString(`stat_${i}_value`)
+      const label = getString(`stat_${i}_label`)
+      if (value && label) items.push({ value, label })
+    }
+    return items
+  }
+
+  function getCoreValues(): { title: string; desc: string }[] {
+    const items: { title: string; desc: string }[] = []
+    for (let i = 0; i < 8; i++) {
+      const title = getString(`coreValue_${i}_title`)
+      const desc = getString(`coreValue_${i}_desc`)
+      if (title && desc) items.push({ title, desc })
+    }
+    return items
+  }
+
+  const config = {
+    heroEyebrow: getString('heroEyebrow'),
+    heroTitle: getString('heroTitle'),
+    heroDescription: getString('heroDescription'),
+    stats: getStats(),
+    storyTitle: getString('storyTitle'),
+    storyParagraphs: getStringArray('storyParagraphs'),
+    coreValuesTitle: getString('coreValuesTitle'),
+    coreValues: getCoreValues(),
+    galleryEyebrow: getString('galleryEyebrow'),
+    galleryTitle: getString('galleryTitle'),
+    galleryDescription: getString('galleryDescription'),
+    contactTitle: getString('contactTitle'),
+    contactAddress: getString('contactAddress'),
+    contactEmail: getString('contactEmail'),
+  }
+
+  await db.insert(settings).values({ key: 've_soliq_config', valueJson: config })
+    .onConflictDoUpdate({
+      target: [settings.key],
+      set: { valueJson: config, updatedAt: new Date() },
+    })
+
+  revalidateTag('ve-soliq-config', 'max')
+  revalidatePath('/ve-soliq')
+  revalidatePath('/admin/ve-soliq-config')
 }
 
 export async function updateSolarAssumptions(formData: FormData) {

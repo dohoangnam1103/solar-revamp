@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { buildPageMetadata, serviceSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { Battery, Zap, Shield, CheckCircle, ArrowRight, Phone } from 'lucide-react'
 import { getPricingPackages } from '@/lib/db/pricing'
+import { getSiteConfig } from '@/lib/site-config'
+import { formatVnd } from '@/lib/quote/calculator'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Hệ Thống Điện Mặt Trời Hybrid Lưu Trữ - Dùng Điện Khi Mất Điện',
@@ -11,7 +13,7 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 export default async function HybridPage() {
-  const packages = await getPricingPackages('hybrid')
+  const [packages, siteConfig] = await Promise.all([getPricingPackages('hybrid'), getSiteConfig()])
   const jsonLd = serviceSchema('Hệ thống điện mặt trời Hybrid lưu trữ', 'Hệ thống hybrid kết hợp pin lưu trữ, dùng điện cả khi mất điện lưới', '/he-thong-hybrid-luu-tru')
   const breadcrumb = breadcrumbSchema([
     { name: 'Trang chủ', url: '/' },
@@ -36,7 +38,7 @@ export default async function HybridPage() {
               <Link href="/bao-gia-dien-mat-troi" className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors">
                 Tính báo giá Hybrid <ArrowRight className="w-4 h-4" />
               </Link>
-              <a href="tel:0902211893" className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-colors">
+              <a href={`tel:${siteConfig.phone}`} className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 transition-colors">
                 <Phone className="w-4 h-4" />Tư vấn ngay
               </a>
             </div>
@@ -47,7 +49,7 @@ export default async function HybridPage() {
       <section className="py-16 bg-solar-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Ưu điểm hệ thống Hybrid</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: Zap, title: 'Dùng điện khi mất điện lưới', desc: 'Pin lưu trữ cung cấp điện liên tục khi lưới điện bị cúp, đảm bảo sinh hoạt và sản xuất không gián đoạn.' },
               { icon: Battery, title: 'Tối ưu giờ cao điểm', desc: 'Sạc pin ban ngày khi điện mặt trời dư, dùng pin vào giờ cao điểm (18-22h) để tiết kiệm tối đa.' },
@@ -89,7 +91,7 @@ export default async function HybridPage() {
                     <td className="px-4 py-3 text-gray-600">{row.panels}</td>
                     <td className="px-4 py-3 text-gray-600">{row.inv}</td>
                     <td className="px-4 py-3 text-gray-500">{row.bat}</td>
-                    <td className="px-4 py-3 text-right font-semibold">{row.price ? row.price.toLocaleString('vi-VN') : '—'}đ</td>
+                    <td className="px-4 py-3 text-right font-semibold">{row.price ? formatVnd(row.price) : '—'}</td>
                   </tr>
                 ))}
               </tbody>
