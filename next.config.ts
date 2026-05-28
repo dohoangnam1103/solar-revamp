@@ -62,7 +62,7 @@ const nextConfig: NextConfig = {
       },
       {
         key: 'Permissions-Policy',
-        value: 'camera=(), microphone=(), geolocation=(self "https://solarcheck.best"), accelerometer=(self "https://solarcheck.best"), gyroscope=(self "https://solarcheck.best"), magnetometer=(self "https://solarcheck.best")',
+        value: 'camera=(), microphone=(), geolocation=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn"), accelerometer=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn"), gyroscope=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn"), magnetometer=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn")',
       },
     ]
 
