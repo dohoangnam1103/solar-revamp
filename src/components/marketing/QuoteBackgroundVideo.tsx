@@ -24,7 +24,7 @@ function getServerSnapshot() {
  * users who never scroll past the hero.
  */
 export default function QuoteBackgroundVideo() {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [shouldMount, setShouldMount] = useState(false)
 
@@ -37,7 +37,7 @@ export default function QuoteBackgroundVideo() {
   // Lazy-mount the <video> only when the section is close to the viewport
   useEffect(() => {
     if (!isDesktop || shouldMount) return
-    const node = containerRef.current
+    const node = sentinelRef.current
     if (!node) {
       setShouldMount(true)
       return
@@ -68,22 +68,21 @@ export default function QuoteBackgroundVideo() {
     })
   }, [shouldMount])
 
+  if (!shouldMount) {
+    return <div ref={sentinelRef} className="pointer-events-none absolute inset-0 z-0" />
+  }
+
   return (
-    <div ref={containerRef} className="pointer-events-none absolute inset-0 z-0">
-      {shouldMount && (
-        <video
-          ref={videoRef}
-          className="h-full w-full object-cover"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          poster="/illustrations/solar-ev-charging.webp"
-        >
-          <source src="/videos/quote-background.mp4" type="video/mp4" />
-        </video>
-      )}
-    </div>
+    <video
+      ref={videoRef}
+      className="pointer-events-none absolute inset-0 z-0 object-cover"
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="metadata"
+    >
+      <source src="/videos/quote-background.mp4" type="video/mp4" />
+    </video>
   )
 }
