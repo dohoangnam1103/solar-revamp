@@ -62,7 +62,7 @@ const nextConfig: NextConfig = {
       },
       {
         key: 'Permissions-Policy',
-        value: 'camera=(), microphone=(), geolocation=()',
+        value: 'camera=(), microphone=(), geolocation=(self "https://solarcheck.best"), accelerometer=(self "https://solarcheck.best"), gyroscope=(self "https://solarcheck.best"), magnetometer=(self "https://solarcheck.best")',
       },
     ]
 

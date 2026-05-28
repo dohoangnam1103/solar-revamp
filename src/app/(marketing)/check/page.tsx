@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ExternalLink } from 'lucide-react'
 import { buildPageMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
 
 export const revalidate = 300
@@ -26,14 +27,32 @@ export default function CheckPage() {
         }}
       />
 
-      <iframe
-        src={CHECK_IFRAME_URL}
-        title="Solar Check"
-        className="block h-[calc(100vh-4rem)] w-full border-0"
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-      />
+      <div className="relative h-[calc(100vh-4rem)] w-full">
+        <iframe
+          src={CHECK_IFRAME_URL}
+          title="Solar Check"
+          className="block h-full w-full border-0"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allow="geolocation; accelerometer; gyroscope; magnetometer"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+        />
+
+        {/* Fallback when iframe is blocked by the target site's CSP */}
+        <noscript>
+          <div className="absolute inset-0 flex items-center justify-center bg-white p-6">
+            <a
+              href={CHECK_IFRAME_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-green-700 px-6 py-3 text-white shadow-md transition-colors hover:bg-green-800"
+            >
+              Mở Solar Check
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+        </noscript>
+      </div>
     </>
   )
 }
