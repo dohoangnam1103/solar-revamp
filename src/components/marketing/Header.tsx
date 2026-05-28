@@ -19,13 +19,13 @@ const navLinks = [
     ],
   },
   { label: 'Dự án', href: '/du-an' },
-  { label: 'Check', href: '/check' },
   { label: 'Tin tức', href: '/tin-tuc' },
   { label: 'Tuyển dụng', href: '/tuyen-dung' },
   { label: 'Đối tác', href: '/doi-tac-thi-cong' },
   { label: 'FAQ', href: '/cau-hoi-thuong-gap' },
-  { label: 'Về SOLIQ', href: '/ve-soliq' },
+  { label: 'SOLIQ', href: '/ve-soliq' },
   { label: 'Liên hệ', href: '/lien-he' },
+  { label: 'Check Solar', href: '/check' },
 ]
 
 function normalizePath(path: string) {
