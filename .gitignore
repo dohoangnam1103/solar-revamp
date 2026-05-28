@@ -6,6 +6,7 @@ node_modules/
 .env.local
 .env.production
 .env.minipc
+.env.vps
 
 # next.js
 .next/

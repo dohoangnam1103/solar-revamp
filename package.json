@@ -16,7 +16,9 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare deploy",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:fast": "./scripts/deploy.sh --fast"
   },
   "dependencies": {
     "@splinetool/react-spline": "^4.1.0",
