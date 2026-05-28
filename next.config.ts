@@ -68,7 +68,9 @@ const nextConfig: NextConfig = {
 
     const longCdnCache = [
       { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-      { key: 'CDN-Cache-Control', value: 'public, s-maxage=86400, stale-while-revalidate=604800' },
+      // Edge cache for 5 minutes; if origin changes data, admin actions
+      // call Cloudflare Purge API to invalidate immediately.
+      { key: 'CDN-Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=86400' },
       // Strip Next's rsc Vary so Cloudflare will edge-cache the HTML response.
       // RSC requests (header rsc: 1) are excluded by the Cloudflare Cache Rule,
       // so they always bypass cache and hit origin — RSC navigation stays correct.

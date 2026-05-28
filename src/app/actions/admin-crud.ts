@@ -9,24 +9,28 @@ import { requireAdmin, requireSuperAdmin } from '@/lib/auth/admin'
 import { buildSolarAssumptionsFromForm } from '@/lib/quote/settings'
 import { deleteStoredUpload, saveUploadedImage } from '@/lib/media/storage'
 import { slugifyVietnamese } from '@/lib/slug'
+import { firePurgePaths } from '@/lib/cdn/cloudflare'
 
 function revalidateArticles() {
   revalidateTag('articles', 'max')
   revalidatePath('/admin/articles')
   revalidatePath('/tin-tuc')
   revalidatePath('/sitemap.xml')
+  firePurgePaths(['/tin-tuc', '/sitemap.xml'])
 }
 
 function revalidatePartners() {
   revalidateTag('partners', 'max')
   revalidatePath('/admin/partners')
   revalidatePath('/doi-tac-thi-cong')
+  firePurgePaths(['/', '/doi-tac-thi-cong'])
 }
 
 function revalidateProjects() {
   revalidateTag('projects', 'max')
   revalidatePath('/admin/projects')
   revalidatePath('/du-an')
+  firePurgePaths(['/', '/du-an'])
 }
 
 function revalidateRecruitmentPosts() {
@@ -34,6 +38,7 @@ function revalidateRecruitmentPosts() {
   revalidatePath('/admin/recruitment')
   revalidatePath('/tuyen-dung')
   revalidatePath('/sitemap.xml')
+  firePurgePaths(['/tuyen-dung', '/sitemap.xml'])
 }
 
 function revalidateFaqs() {
@@ -41,12 +46,14 @@ function revalidateFaqs() {
   revalidatePath('/admin/faqs')
   revalidatePath('/')
   revalidatePath('/cau-hoi-thuong-gap')
+  firePurgePaths(['/', '/cau-hoi-thuong-gap'])
 }
 
 function revalidateCarouselImages() {
   revalidateTag('carousel-images', 'max')
   revalidatePath('/')
   revalidatePath('/admin/carousel')
+  firePurgePaths(['/'])
 }
 
 const DEFAULT_CAROUSEL_ALT = 'Công trình điện mặt trời SOLIQ đã lắp đặt'
@@ -651,6 +658,22 @@ export async function updateSiteConfig(formData: FormData) {
   revalidateTag('site-config', 'max')
   revalidatePath('/')
   revalidatePath('/admin/site-config')
+  // Site config affects every marketing page (header/footer phone, logo)
+  firePurgePaths([
+    '/',
+    '/bao-gia-dien-mat-troi',
+    '/cau-hoi-thuong-gap',
+    '/check',
+    '/dien-mat-troi-doanh-nghiep',
+    '/doi-tac-thi-cong',
+    '/he-thong-hybrid-luu-tru',
+    '/lap-dat-dien-mat-troi-gia-dinh',
+    '/lien-he',
+    '/thue-he-thong-dien-mat-troi',
+    '/tuyen-dung',
+    '/vat-tu-dien-mat-troi',
+    '/ve-soliq',
+  ])
 }
 
 export async function updateVeSoliqConfig(formData: FormData) {
@@ -716,6 +739,7 @@ export async function updateVeSoliqConfig(formData: FormData) {
   revalidateTag('ve-soliq-config', 'max')
   revalidatePath('/ve-soliq')
   revalidatePath('/admin/ve-soliq-config')
+  firePurgePaths(['/ve-soliq'])
 }
 
 export async function updateSolarAssumptions(formData: FormData) {
@@ -733,6 +757,7 @@ export async function updateSolarAssumptions(formData: FormData) {
   revalidatePath('/bao-gia-dien-mat-troi')
   revalidatePath('/admin/settings')
   revalidatePath('/admin/pricing')
+  firePurgePaths(['/', '/bao-gia-dien-mat-troi'])
 }
 
 // ─── FAQS ─────────────────────────────────────────────────────────────────────
@@ -803,6 +828,12 @@ function revalidatePricing() {
   revalidatePath('/dien-mat-troi-doanh-nghiep')
   revalidatePath('/he-thong-hybrid-luu-tru')
   revalidatePath('/vat-tu-dien-mat-troi')
+  firePurgePaths([
+    '/lap-dat-dien-mat-troi-gia-dinh',
+    '/dien-mat-troi-doanh-nghiep',
+    '/he-thong-hybrid-luu-tru',
+    '/vat-tu-dien-mat-troi',
+  ])
 }
 
 export async function createPricingPackage(formData: FormData) {
