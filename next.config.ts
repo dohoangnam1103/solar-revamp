@@ -6,6 +6,9 @@ const isDev = process.env.NODE_ENV === 'development'
 const nextConfig: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -25,7 +28,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://connect.facebook.net https://prod.spline.design https://*.spline.design",
+      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://connect.facebook.net",
       "frame-src https://www.googletagmanager.com",
       "worker-src 'self' blob:",
       "form-action 'self'",
@@ -78,6 +81,7 @@ const nextConfig: NextConfig = {
     ]
 
     const longCacheRoutes = [
+      '/',
       '/bao-gia-dien-mat-troi',
       '/cau-hoi-thuong-gap',
       '/dien-mat-troi-doanh-nghiep',
@@ -96,7 +100,6 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       ...longCacheRoutes.map((source) => ({ source, headers: longCdnCache })),
-      { source: '/', headers: noCdnCache },
       { source: '/du-an', headers: noCdnCache },
       { source: '/du-an/:slug*', headers: noCdnCache },
       { source: '/tin-tuc', headers: noCdnCache },
