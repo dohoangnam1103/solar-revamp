@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { submitQuote, type SubmitQuoteResult } from '@/app/actions/quote'
 import Link from 'next/link'
 import { calculateQuote, formatKwh, formatVnd, type QuoteAssumptions } from '@/lib/quote/calculator'
@@ -28,7 +28,7 @@ const PROVINCES = [
   'Vĩnh Long', 'Vĩnh Phúc', 'Yên Bái',
 ]
 
-const BILL_OPTIONS = [
+const FALLBACK_BILL_OPTIONS = [
   { label: `${formatVnd(1_000_000)} - ${formatVnd(2_000_000)}`, value: 1_500_000 },
   { label: `${formatVnd(2_000_000)} - ${formatVnd(3_000_000)}`, value: 2_500_000 },
   { label: `${formatVnd(3_000_000)} - ${formatVnd(5_000_000)}`, value: 4_000_000 },
@@ -40,13 +40,34 @@ export default function QuoteCalculator({ assumptions, phone = '0902211893' }: {
   const [step, setStep] = useState(1) // 1: inputs, 2: lead capture, 3: result
   const [state, formAction, pending] = useActionState(submitQuote, INITIAL_STATE)
 
+  const billOptions = assumptions.pricingTiers && assumptions.pricingTiers.length > 0
+    ? assumptions.pricingTiers.map((tier) => {
+        const sample = tier.billMax === null
+          ? Math.round(tier.billMin * 1.2)
+          : Math.round((tier.billMin + tier.billMax) / 2)
+        return { label: tier.label, value: sample }
+      })
+    : FALLBACK_BILL_OPTIONS
+
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
   // Form state
   const [province, setProvince] = useState('Hà Nội')
-  const [monthlyBill, setMonthlyBill] = useState(2_500_000)
+  const [monthlyBill, setMonthlyBill] = useState(billOptions[Math.min(1, billOptions.length - 1)]?.value ?? 2_500_000)
   const [daytimeRate, setDaytimeRate] = useState(0.6)
   const [customerType, setCustomerType] = useState<'residential' | 'business' | 'factory'>('residential')
   const [paymentMode, setPaymentMode] = useState<'cash' | 'installment' | 'lease'>('cash')
   const [batteryOption, setBatteryOption] = useState(false)
+
+  useEffect(() => {
+    if (step === 2 && containerRef.current) {
+      const element = containerRef.current
+      // Account for sticky header (~64px) + breathing room
+      const offset = 80
+      const top = element.getBoundingClientRect().top + window.scrollY - offset
+      window.scrollTo({ top, behavior: 'smooth' })
+    }
+  }, [step])
 
   // Live preview
   const preview = calculateQuote(
@@ -66,7 +87,7 @@ export default function QuoteCalculator({ assumptions, phone = '0902211893' }: {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl">
+    <div ref={containerRef} className="overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-700 to-green-600 px-6 py-4">
         <h2 className="text-white font-bold text-lg">Tính báo giá điện mặt trời</h2>
@@ -97,7 +118,7 @@ export default function QuoteCalculator({ assumptions, phone = '0902211893' }: {
               Hóa đơn điện trung bình/tháng
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {BILL_OPTIONS.map((opt) => (
+              {billOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
@@ -219,23 +240,23 @@ export default function QuoteCalculator({ assumptions, phone = '0902211893' }: {
           <div className="bg-gradient-to-br from-green-50 to-cyan-50 rounded-xl p-4 border border-green-100">
             <p className="text-xs font-semibold text-green-700 mb-3 flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5" />
-              Ước tính sơ bộ
+              Ước tính
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               <div>
-                <p className="text-xs text-gray-500">Công suất đề xuất</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Công suất</p>
                 <p className="text-lg font-bold text-green-700">{preview.recommendedCapacityKwp} kWp</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Chi phí ước tính</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Chi phí</p>
                 <p className="text-lg font-bold text-orange-600">{formatVnd(preview.estimatedInvestmentAfterVatVnd)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Tiết kiệm/năm</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Tiết kiệm/năm</p>
                 <p className="text-base font-semibold text-gray-800">{formatVnd(preview.annualSavingsVnd)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Hoàn vốn</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Hoàn vốn</p>
                 <p className="text-base font-semibold text-gray-800">{preview.paybackYears} năm</p>
               </div>
             </div>

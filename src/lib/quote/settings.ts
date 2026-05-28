@@ -2,7 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { settings } from '@/lib/db/schema'
-import { DEFAULT_ASSUMPTIONS, parseFormattedNumber, type QuoteAssumptions } from '@/lib/quote/calculator'
+import { DEFAULT_ASSUMPTIONS, parseFormattedNumber, type PricingTier, type QuoteAssumptions } from '@/lib/quote/calculator'
 
 const SETTINGS_KEY = 'solar_assumptions'
 
@@ -21,6 +21,32 @@ function positiveNumberValue(value: unknown, fallback: number) {
   return parsed > 0 ? parsed : fallback
 }
 
+function nullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const parsed = parseFormattedNumber(value, NaN)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null
+}
+
+function normalizePricingTiers(value: unknown): PricingTier[] {
+  if (!Array.isArray(value)) return DEFAULT_ASSUMPTIONS.pricingTiers
+  const tiers = value
+    .map((item) => asRecord(item))
+    .map((item, index) => {
+      const fallback = DEFAULT_ASSUMPTIONS.pricingTiers[index] ?? DEFAULT_ASSUMPTIONS.pricingTiers[0]
+      const billMin = positiveNumberValue(item.billMin, fallback.billMin)
+      const billMax = nullableNumber(item.billMax)
+      const label = typeof item.label === 'string' && item.label.trim() ? item.label.trim() : fallback.label
+      const capacityKwp = positiveNumberValue(item.capacityKwp, fallback.capacityKwp)
+      const gridTiedPriceVnd = positiveNumberValue(item.gridTiedPriceVnd, fallback.gridTiedPriceVnd)
+      const hybridPriceVnd = positiveNumberValue(item.hybridPriceVnd, fallback.hybridPriceVnd)
+      return { billMin, billMax, label, capacityKwp, gridTiedPriceVnd, hybridPriceVnd }
+    })
+    .filter((tier) => tier.capacityKwp > 0 && tier.gridTiedPriceVnd > 0 && tier.hybridPriceVnd > 0)
+    .sort((a, b) => a.billMin - b.billMin)
+
+  return tiers.length > 0 ? tiers : DEFAULT_ASSUMPTIONS.pricingTiers
+}
+
 export function normalizeSolarAssumptions(value: unknown): QuoteAssumptions {
   const source = asRecord(value)
   const production = asRecord(source.annualProductionPerKwp)
@@ -31,6 +57,7 @@ export function normalizeSolarAssumptions(value: unknown): QuoteAssumptions {
 
   return {
     evnPricePerKwh: positiveNumberValue(source.evnPricePerKwh, DEFAULT_ASSUMPTIONS.evnPricePerKwh),
+    pricingTiers: normalizePricingTiers(source.pricingTiers),
     annualProductionPerKwp: {
       north: positiveNumberValue(production.north, DEFAULT_ASSUMPTIONS.annualProductionPerKwp.north),
       central: positiveNumberValue(production.central, DEFAULT_ASSUMPTIONS.annualProductionPerKwp.central),
@@ -73,11 +100,43 @@ export const getSolarAssumptions = unstable_cache(
   { tags: ['quote-assumptions'], revalidate: 300 }
 )
 
+function buildPricingTiersFromForm(formData: FormData): PricingTier[] {
+  const tiers: PricingTier[] = []
+  for (let i = 0; i < 16; i++) {
+    const label = formData.get(`tier_${i}_label`)
+    const billMin = formData.get(`tier_${i}_billMin`)
+    const billMax = formData.get(`tier_${i}_billMax`)
+    const capacity = formData.get(`tier_${i}_capacity`)
+    const gridPrice = formData.get(`tier_${i}_gridPrice`)
+    const hybridPrice = formData.get(`tier_${i}_hybridPrice`)
+
+    if (!label && !capacity && !gridPrice && !hybridPrice) continue
+
+    const labelStr = typeof label === 'string' ? label.trim() : ''
+    const capacityNum = parseFormattedNumber(capacity, 0)
+    const gridNum = parseFormattedNumber(gridPrice, 0)
+    const hybridNum = parseFormattedNumber(hybridPrice, 0)
+
+    if (!labelStr || capacityNum <= 0 || gridNum <= 0 || hybridNum <= 0) continue
+
+    tiers.push({
+      label: labelStr,
+      billMin: parseFormattedNumber(billMin, 0),
+      billMax: nullableNumber(billMax),
+      capacityKwp: capacityNum,
+      gridTiedPriceVnd: gridNum,
+      hybridPriceVnd: hybridNum,
+    })
+  }
+  return tiers.length > 0 ? tiers : DEFAULT_ASSUMPTIONS.pricingTiers
+}
+
 export function buildSolarAssumptionsFromForm(formData: FormData): QuoteAssumptions {
   const termMonths = [12, 24, 36, 60]
 
   return normalizeSolarAssumptions({
     evnPricePerKwh: formData.get('evnPricePerKwh'),
+    pricingTiers: buildPricingTiersFromForm(formData),
     annualProductionPerKwp: {
       north: formData.get('productionNorth'),
       central: formData.get('productionCentral'),

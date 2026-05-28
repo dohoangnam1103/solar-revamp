@@ -6,17 +6,15 @@ import {
   calculateQuote,
   formatNumberWithDots,
   formatVnd,
-  parseFormattedNumber,
   type CustomerType,
   type PaymentMode,
+  type PricingTier,
   type QuoteAssumptions,
 } from '@/lib/quote/calculator'
-import { Battery, Banknote, Building2, CreditCard, Factory, Home, Zap } from 'lucide-react'
+import { Battery, Banknote, Building2, ChevronDown, ChevronUp, CreditCard, Factory, Home, Plus, Trash2, Zap } from 'lucide-react'
 
 type AssumptionFormState = {
   evnPricePerKwh: number
-  gridTiedPricePerKwp: number
-  hybridPricePerKwp: number
   vatPercent: number
   annualElectricityPriceIncreasePercent: number
   annualDegradationPercent: number
@@ -32,18 +30,14 @@ type AssumptionFormState = {
   installmentInterest60: number
 }
 
-const BILL_OPTIONS = [
-  { label: `Dưới ${formatVnd(500_000)}`, value: 400_000 },
-  { label: `${formatVnd(500_000)} - ${formatVnd(1_000_000)}`, value: 750_000 },
-  { label: `${formatVnd(1_000_000)} - ${formatVnd(2_000_000)}`, value: 1_500_000 },
-  { label: `${formatVnd(2_000_000)} - ${formatVnd(3_000_000)}`, value: 2_500_000 },
-  { label: `${formatVnd(3_000_000)} - ${formatVnd(5_000_000)}`, value: 4_000_000 },
-  { label: `${formatVnd(5_000_000)} - ${formatVnd(10_000_000)}`, value: 7_500_000 },
-  { label: `Trên ${formatVnd(10_000_000)}`, value: 12_000_000 },
-]
+type TierRow = PricingTier & { _key: string }
 
 function percent(value: number) {
   return Number((value * 100).toFixed(3))
+}
+
+function tierKey(prefix: string, index: number) {
+  return `${prefix}-${index}`
 }
 
 function initialState(assumptions: QuoteAssumptions): AssumptionFormState {
@@ -53,8 +47,6 @@ function initialState(assumptions: QuoteAssumptions): AssumptionFormState {
 
   return {
     evnPricePerKwh: Math.round(assumptions.evnPricePerKwh),
-    gridTiedPricePerKwp: Math.round(assumptions.systemPricePerKwp.gridTied),
-    hybridPricePerKwp: Math.round(assumptions.systemPricePerKwp.hybrid),
     vatPercent: percent(assumptions.vatRate),
     annualElectricityPriceIncreasePercent: percent(assumptions.annualElectricityPriceIncrease),
     annualDegradationPercent: percent(assumptions.annualDegradation),
@@ -71,9 +63,10 @@ function initialState(assumptions: QuoteAssumptions): AssumptionFormState {
   }
 }
 
-function toAssumptions(values: AssumptionFormState): QuoteAssumptions {
+function buildAssumptions(values: AssumptionFormState, tiers: TierRow[]): QuoteAssumptions {
   return {
     evnPricePerKwh: values.evnPricePerKwh,
+    pricingTiers: tiers.map(({ _key, ...tier }) => tier),
     annualProductionPerKwp: {
       north: values.productionNorth,
       central: values.productionCentral,
@@ -81,8 +74,12 @@ function toAssumptions(values: AssumptionFormState): QuoteAssumptions {
       default: values.productionDefault,
     },
     systemPricePerKwp: {
-      gridTied: values.gridTiedPricePerKwp,
-      hybrid: values.hybridPricePerKwp,
+      gridTied: tiers[0]?.gridTiedPriceVnd && tiers[0]?.capacityKwp
+        ? Math.round(tiers[0].gridTiedPriceVnd / tiers[0].capacityKwp)
+        : 8_000_000,
+      hybrid: tiers[0]?.hybridPriceVnd && tiers[0]?.capacityKwp
+        ? Math.round(tiers[0].hybridPriceVnd / tiers[0].capacityKwp)
+        : 9_800_000,
     },
     vatRate: values.vatPercent / 100,
     annualDegradation: values.annualDegradationPercent / 100,
@@ -98,48 +95,233 @@ function toAssumptions(values: AssumptionFormState): QuoteAssumptions {
   }
 }
 
-function NumberField({
-  currency,
-  label,
+function CurrencyInput({
   name,
-  onChange,
-  step,
-  suffix,
   value,
+  onChange,
+  placeholder,
+  ariaLabel,
 }: {
-  currency?: boolean
-  label: string
-  name: keyof AssumptionFormState
-  onChange: (name: keyof AssumptionFormState, value: number) => void
-  step?: string
-  suffix?: string
-  value: number
+  name: string
+  value: number | null
+  onChange: (value: number | null) => void
+  placeholder?: string
+  ariaLabel: string
 }) {
   return (
-    <label className="block">
-      <span className="mb-1 block text-xs font-medium text-gray-500">{label}</span>
-      <div className="flex overflow-hidden rounded-lg border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-green-600">
-        <input
-          name={name === 'gridTiedPricePerKwp' ? 'gridTiedPricePerKwp' : name === 'hybridPricePerKwp' ? 'hybridPricePerKwp' : name}
-          type={currency ? 'text' : 'number'}
-          inputMode={currency ? 'numeric' : undefined}
-          step={step}
-          value={currency ? formatNumberWithDots(value) : value}
-          onChange={(event) => onChange(name, currency ? parseFormattedNumber(event.target.value) : Number(event.target.value))}
-          className="min-w-0 flex-1 px-3 py-2 text-sm text-gray-900 outline-none"
-        />
-        {suffix && (
-          <span className="flex items-center whitespace-nowrap border-l border-gray-200 bg-gray-50 px-3 text-xs font-medium text-gray-500">
-            {suffix}
-          </span>
-        )}
-      </div>
-    </label>
+    <input
+      name={name}
+      type="text"
+      inputMode="numeric"
+      aria-label={ariaLabel}
+      placeholder={placeholder}
+      value={value === null ? '' : formatNumberWithDots(value)}
+      onChange={(event) => {
+        const raw = event.target.value.replace(/\D/g, '')
+        if (raw === '') {
+          onChange(null)
+        } else {
+          const parsed = Number(raw)
+          onChange(Number.isFinite(parsed) ? parsed : null)
+        }
+      }}
+      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+    />
   )
 }
 
-function AdminQuotePreview({ assumptions }: { assumptions: QuoteAssumptions }) {
-  const [monthlyBillVnd, setMonthlyBillVnd] = useState(2_500_000)
+function NumberInput({
+  name,
+  value,
+  onChange,
+  step,
+  ariaLabel,
+}: {
+  name: string
+  value: number
+  onChange: (value: number) => void
+  step?: string
+  ariaLabel: string
+}) {
+  return (
+    <input
+      name={name}
+      type="number"
+      step={step}
+      aria-label={ariaLabel}
+      value={value}
+      onChange={(event) => onChange(Number(event.target.value))}
+      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+    />
+  )
+}
+
+function PricingTiersTable({
+  tiers,
+  setTiers,
+}: {
+  tiers: TierRow[]
+  setTiers: (next: TierRow[]) => void
+}) {
+  const updateTier = (index: number, patch: Partial<TierRow>) => {
+    const next = tiers.slice()
+    next[index] = { ...next[index], ...patch }
+    setTiers(next)
+  }
+
+  const removeTier = (index: number) => {
+    setTiers(tiers.filter((_, i) => i !== index))
+  }
+
+  const addTier = () => {
+    const last = tiers[tiers.length - 1]
+    const nextMin = last?.billMax ?? 0
+    setTiers([
+      ...tiers,
+      {
+        _key: tierKey('new', Date.now()),
+        label: 'Mới',
+        billMin: nextMin,
+        billMax: null,
+        capacityKwp: 5,
+        gridTiedPriceVnd: 50_000_000,
+        hybridPriceVnd: 70_000_000,
+      },
+    ])
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="hidden grid-cols-[1.4fr_0.9fr_0.9fr_0.7fr_1fr_1fr_36px] gap-2 px-2 text-xs font-medium uppercase tracking-wide text-gray-500 lg:grid">
+        <div>Nhãn hiển thị</div>
+        <div>Hoá đơn từ (đ)</div>
+        <div>Hoá đơn đến (đ)</div>
+        <div>Công suất (kWp)</div>
+        <div>Giá hoà lưới (đ)</div>
+        <div>Giá Hybrid (đ)</div>
+        <div></div>
+      </div>
+
+      {tiers.map((tier, index) => (
+        <div
+          key={tier._key}
+          className="grid grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3 lg:grid-cols-[1.4fr_0.9fr_0.9fr_0.7fr_1fr_1fr_36px] lg:bg-transparent lg:p-2"
+        >
+          <input type="hidden" name={`tier_${index}_label`} value={tier.label} />
+          <input type="hidden" name={`tier_${index}_billMin`} value={String(tier.billMin)} />
+          <input type="hidden" name={`tier_${index}_billMax`} value={tier.billMax === null ? '' : String(tier.billMax)} />
+          <input type="hidden" name={`tier_${index}_capacity`} value={String(tier.capacityKwp)} />
+          <input type="hidden" name={`tier_${index}_gridPrice`} value={String(tier.gridTiedPriceVnd)} />
+          <input type="hidden" name={`tier_${index}_hybridPrice`} value={String(tier.hybridPriceVnd)} />
+
+          <div className="col-span-2 lg:col-span-1">
+            <span className="mb-1 block text-xs font-medium text-gray-600 lg:hidden">Nhãn</span>
+            <input
+              type="text"
+              value={tier.label}
+              onChange={(event) => updateTier(index, { label: event.target.value })}
+              placeholder="2 - 3 triệu"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+            />
+          </div>
+
+          <div>
+            <span className="mb-1 block text-xs font-medium text-gray-600 lg:hidden">Hoá đơn từ</span>
+            <CurrencyInput
+              name=""
+              value={tier.billMin}
+              onChange={(value) => updateTier(index, { billMin: value ?? 0 })}
+              ariaLabel="Hoá đơn từ"
+            />
+          </div>
+
+          <div>
+            <span className="mb-1 block text-xs font-medium text-gray-600 lg:hidden">Hoá đơn đến</span>
+            <CurrencyInput
+              name=""
+              value={tier.billMax}
+              onChange={(value) => updateTier(index, { billMax: value })}
+              placeholder="Không giới hạn"
+              ariaLabel="Hoá đơn đến"
+            />
+          </div>
+
+          <div>
+            <span className="mb-1 block text-xs font-medium text-gray-600 lg:hidden">Công suất (kWp)</span>
+            <input
+              type="number"
+              step="0.5"
+              min="0"
+              value={tier.capacityKwp}
+              onChange={(event) => updateTier(index, { capacityKwp: Number(event.target.value) })}
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+            />
+          </div>
+
+          <div className="col-span-2 lg:col-span-1">
+            <span className="mb-1 block text-xs font-medium text-gray-600 lg:hidden">Giá hoà lưới</span>
+            <CurrencyInput
+              name=""
+              value={tier.gridTiedPriceVnd}
+              onChange={(value) => updateTier(index, { gridTiedPriceVnd: value ?? 0 })}
+              ariaLabel="Giá hoà lưới"
+            />
+          </div>
+
+          <div className="col-span-2 lg:col-span-1">
+            <span className="mb-1 block text-xs font-medium text-gray-600 lg:hidden">Giá Hybrid (có pin)</span>
+            <CurrencyInput
+              name=""
+              value={tier.hybridPriceVnd}
+              onChange={(value) => updateTier(index, { hybridPriceVnd: value ?? 0 })}
+              ariaLabel="Giá Hybrid"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => removeTier(index)}
+            className="col-span-2 inline-flex items-center justify-center rounded-lg border border-red-200 bg-white px-2 py-2 text-red-600 transition-colors hover:bg-red-50 lg:col-span-1"
+            title="Xoá dòng"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={addTier}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-green-400 bg-white px-4 py-2 text-sm font-medium text-green-700 transition-colors hover:bg-green-50"
+      >
+        <Plus className="h-4 w-4" />
+        Thêm mức giá
+      </button>
+    </div>
+  )
+}
+
+function PreviewPanel({ assumptions }: { assumptions: QuoteAssumptions }) {
+  const billOptions = useMemo(() => {
+    const options = assumptions.pricingTiers
+      .map((tier) => {
+        const sample = tier.billMax === null
+          ? Math.round(tier.billMin * 1.2)
+          : Math.round((tier.billMin + tier.billMax) / 2)
+        return { value: sample, label: tier.label }
+      })
+      .filter((item) => item.value > 0)
+
+    if (options.length > 0) return options
+    return [
+      { value: 1_500_000, label: '1 - 2 triệu' },
+      { value: 2_500_000, label: '2 - 3 triệu' },
+      { value: 4_000_000, label: '3 - 5 triệu' },
+      { value: 7_500_000, label: '5 - 10 triệu' },
+    ]
+  }, [assumptions.pricingTiers])
+
+  const [monthlyBillVnd, setMonthlyBillVnd] = useState(billOptions[0]?.value ?? 2_500_000)
   const [daytimeUsageRate, setDaytimeUsageRate] = useState(0.6)
   const [customerType, setCustomerType] = useState<CustomerType>('residential')
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('cash')
@@ -162,33 +344,26 @@ function AdminQuotePreview({ assumptions }: { assumptions: QuoteAssumptions }) {
   )
 
   return (
-    <aside className="sticky top-6">
+    <aside className="sticky top-6 space-y-4">
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="bg-gradient-to-r from-green-700 to-green-600 px-6 py-5">
-          <p className="text-lg font-bold text-white">Tính báo giá điện mặt trời</p>
-          <p className="mt-1 text-sm text-green-100">Preview trước khi lưu</p>
+        <div className="bg-gradient-to-r from-green-700 to-green-600 px-5 py-4 text-white">
+          <p className="text-sm font-medium opacity-90">Preview báo giá</p>
+          <p className="text-base font-semibold">Cập nhật ngay khi bạn chỉnh form</p>
         </div>
 
-        <div className="space-y-5 bg-[linear-gradient(rgba(37,93,43,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.035)_1px,transparent_1px)] bg-[size:36px_36px] p-5">
+        <div className="space-y-4 p-5">
           <div>
-            <p className="mb-1.5 text-sm font-medium text-gray-700">Tỉnh / Thành phố</p>
-            <div className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-900">
-              Hà Nội
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Hóa đơn điện trung bình/tháng</p>
-            <div className="grid grid-cols-2 gap-2 text-xs font-medium">
-              {BILL_OPTIONS.map((option) => (
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Hoá đơn điện/tháng</p>
+            <div className="grid grid-cols-2 gap-2">
+              {billOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => setMonthlyBillVnd(option.value)}
-                  className={`rounded-lg border px-3 py-2 text-center leading-snug ${
+                  className={`rounded-lg border px-2 py-1.5 text-xs font-medium leading-snug ${
                     monthlyBillVnd === option.value
                       ? 'border-green-700 bg-green-700 text-white'
-                      : 'border-gray-200 bg-white text-gray-700 transition-colors hover:border-green-500'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-green-400'
                   }`}
                 >
                   {option.label}
@@ -198,9 +373,8 @@ function AdminQuotePreview({ assumptions }: { assumptions: QuoteAssumptions }) {
           </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-700">
-              Tỷ lệ dùng điện ban ngày:{' '}
-              <span className="font-bold text-green-700">{Math.round(daytimeUsageRate * 100)}%</span>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Tỷ lệ dùng ban ngày: <span className="text-green-700">{Math.round(daytimeUsageRate * 100)}%</span>
             </p>
             <input
               type="range"
@@ -209,133 +383,99 @@ function AdminQuotePreview({ assumptions }: { assumptions: QuoteAssumptions }) {
               step="0.1"
               value={daytimeUsageRate}
               onChange={(event) => setDaytimeUsageRate(Number(event.target.value))}
-              className="mt-2 w-full cursor-pointer accent-green-700"
+              className="mt-2 w-full accent-green-700"
             />
-            <div className="mt-2 flex justify-between text-xs text-gray-700">
-              <span>Chủ yếu tối</span>
-              <span>Cả ngày</span>
-            </div>
           </div>
 
-          <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Loại khách hàng</p>
-            <div className="grid grid-cols-3 gap-2 text-xs font-medium">
-              {[
-                { value: 'residential', label: 'Gia đình', icon: Home },
-                { value: 'business', label: 'Doanh nghiệp', icon: Building2 },
-                { value: 'factory', label: 'Nhà máy', icon: Factory },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => setCustomerType(item.value as CustomerType)}
-                  className={`flex flex-col items-center gap-1 rounded-lg border p-3 ${
-                    customerType === item.value
-                      ? 'border-green-700 bg-green-700 text-white'
-                      : 'border-gray-200 bg-white text-gray-700 transition-colors hover:border-green-500'
-                  }`}
-                >
-                  <item.icon className="h-5 w-5" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              { value: 'residential', label: 'Gia đình', icon: Home },
+              { value: 'business', label: 'Doanh nghiệp', icon: Building2 },
+              { value: 'factory', label: 'Nhà máy', icon: Factory },
+            ].map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setCustomerType(item.value as CustomerType)}
+                className={`flex flex-col items-center gap-1 rounded-lg border py-2 text-xs ${
+                  customerType === item.value
+                    ? 'border-green-700 bg-green-700 text-white'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-green-400'
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </button>
+            ))}
           </div>
 
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setBatteryOption((current) => !current)}
-              className={`relative h-6 w-11 rounded-full transition-colors ${
+              className={`relative h-5 w-9 rounded-full transition-colors ${
                 batteryOption ? 'bg-green-600' : 'bg-gray-300'
               }`}
-              aria-label="Bật tắt pin lưu trữ trong preview"
+              aria-label="Toggle pin lưu trữ"
             >
               <span
-                className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  batteryOption ? 'translate-x-5' : 'translate-x-0'
+                className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                  batteryOption ? 'translate-x-4' : 'translate-x-0'
                 }`}
               />
             </button>
-            <div>
-              <p className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                <Battery className="h-4 w-4 text-cyan-500" />
-                Thêm pin lưu trữ (Hybrid)
-              </p>
-              <p className="text-xs text-gray-900">
-                {batteryOption ? 'Đang dùng giá Hybrid từ form bên trái' : 'Đang dùng giá hòa lưới từ form bên trái'}
-              </p>
+            <div className="flex items-center gap-1.5 text-xs text-gray-700">
+              <Battery className="h-3.5 w-3.5 text-cyan-500" />
+              Có pin lưu trữ (Hybrid)
             </div>
           </div>
 
-          <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Hình thức thanh toán</p>
-            <div className="grid grid-cols-2 gap-2 text-sm font-medium">
-              <button
-                type="button"
-                onClick={() => setPaymentMode('cash')}
-                className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 ${
-                  paymentMode === 'cash'
-                    ? 'border-green-700 bg-green-700 text-white'
-                    : 'border-gray-200 bg-white text-gray-700 transition-colors hover:border-green-500'
-                }`}
-              >
-                <Banknote className="h-4 w-4" />
-                Trả thẳng
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMode('installment')}
-                className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 ${
-                  paymentMode === 'installment'
-                    ? 'border-green-700 bg-green-700 text-white'
-                    : 'border-gray-200 bg-white text-gray-700 transition-colors hover:border-green-500'
-                }`}
-              >
-                <CreditCard className="h-4 w-4" />
-                Trả góp
-              </button>
-            </div>
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              onClick={() => setPaymentMode('cash')}
+              className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs ${
+                paymentMode === 'cash' ? 'border-green-700 bg-green-700 text-white' : 'border-gray-200 bg-white text-gray-700'
+              }`}
+            >
+              <Banknote className="h-3.5 w-3.5" />
+              Trả thẳng
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMode('installment')}
+              className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs ${
+                paymentMode === 'installment' ? 'border-green-700 bg-green-700 text-white' : 'border-gray-200 bg-white text-gray-700'
+              }`}
+            >
+              <CreditCard className="h-3.5 w-3.5" />
+              Trả góp
+            </button>
           </div>
 
-          <div className="rounded-xl border border-green-100 bg-gradient-to-br from-green-50 to-cyan-50 p-4">
-            <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-green-700">
-              <Zap className="h-3.5 w-3.5" />
-              Ước tính sơ bộ
+          <div className="rounded-xl border border-green-100 bg-gradient-to-br from-green-50 to-cyan-50 p-3.5">
+            <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-green-700">
+              <Zap className="h-3.5 w-3.5" /> Ước tính
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <p className="text-xs text-gray-500">Công suất</p>
-                <p className="text-lg font-bold text-green-700">{preview.recommendedCapacityKwp} kWp</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Công suất</p>
+                <p className="text-base font-bold text-green-700">{preview.recommendedCapacityKwp} kWp</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Chi phí</p>
-                <p className="text-lg font-bold text-orange-600">{formatVnd(preview.estimatedInvestmentAfterVatVnd)}</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Chi phí</p>
+                <p className="text-base font-bold text-orange-600">{formatVnd(preview.estimatedInvestmentAfterVatVnd)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Tiết kiệm/năm</p>
-                <p className="text-base font-semibold text-gray-800">{formatVnd(preview.annualSavingsVnd)}</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Tiết kiệm/năm</p>
+                <p className="text-sm font-semibold text-gray-800">{formatVnd(preview.annualSavingsVnd)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Hoàn vốn</p>
-                <p className="text-base font-semibold text-gray-800">{preview.paybackYears} năm</p>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">Hoàn vốn</p>
+                <p className="text-sm font-semibold text-gray-800">{preview.paybackYears} năm</p>
               </div>
             </div>
           </div>
-          {paymentMode === 'installment' && preview.installmentPlans.length > 0 && (
-            <div className="rounded-xl border border-gray-100 bg-white/80 p-4">
-              <p className="mb-2 text-xs font-semibold text-gray-700">Gói trả góp tham khảo</p>
-              <div className="space-y-2">
-                {preview.installmentPlans.slice(0, 2).map((plan) => (
-                  <div key={plan.termMonths} className="flex justify-between text-xs text-gray-700">
-                    <span>{plan.termMonths} tháng</span>
-                    <span className="font-semibold text-green-700">{formatVnd(plan.monthlyPaymentVnd)}/tháng</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
         </div>
       </div>
     </aside>
@@ -344,64 +484,113 @@ function AdminQuotePreview({ assumptions }: { assumptions: QuoteAssumptions }) {
 
 export default function AdminQuoteSettingsForm({ assumptions }: { assumptions: QuoteAssumptions }) {
   const [values, setValues] = useState(() => initialState(assumptions))
-  const previewAssumptions = useMemo(() => toAssumptions(values), [values])
+  const [tiers, setTiers] = useState<TierRow[]>(() =>
+    assumptions.pricingTiers.map((tier, index) => ({ ...tier, _key: tierKey('init', index) }))
+  )
+  const [showAdvanced, setShowAdvanced] = useState(false)
+
+  const previewAssumptions = useMemo(() => buildAssumptions(values, tiers), [values, tiers])
 
   const updateValue = (name: keyof AssumptionFormState, value: number) => {
     setValues((current) => ({ ...current, [name]: Number.isFinite(value) ? value : 0 }))
   }
 
   return (
-    <div className="grid w-full min-w-[1180px] max-w-none grid-cols-[minmax(0,1fr)_390px] gap-6 2xl:grid-cols-[minmax(0,1fr)_430px]">
-        <form action={updateSolarAssumptions} className="space-y-6">
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-700">Giá hệ thống</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <NumberField currency label="Hòa lưới" name="gridTiedPricePerKwp" suffix="VNĐ/kWp" value={values.gridTiedPricePerKwp} onChange={updateValue} />
-              <NumberField currency label="Hybrid / có lưu trữ" name="hybridPricePerKwp" suffix="VNĐ/kWp" value={values.hybridPricePerKwp} onChange={updateValue} />
-            </div>
-          </section>
-
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-700">Giá điện và hiệu suất</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <NumberField currency label="Giá điện bình quân" name="evnPricePerKwh" suffix="VNĐ/kWh" value={values.evnPricePerKwh} onChange={updateValue} />
-              <NumberField label="VAT" name="vatPercent" step="0.1" suffix="%" value={values.vatPercent} onChange={updateValue} />
-              <NumberField label="Tăng giá điện mỗi năm" name="annualElectricityPriceIncreasePercent" step="0.1" suffix="%" value={values.annualElectricityPriceIncreasePercent} onChange={updateValue} />
-              <NumberField label="Suy giảm hiệu suất mỗi năm" name="annualDegradationPercent" step="0.1" suffix="%" value={values.annualDegradationPercent} onChange={updateValue} />
-              <NumberField label="O&M mỗi năm" name="annualOmPercent" step="0.1" suffix="% đầu tư" value={values.annualOmPercent} onChange={updateValue} />
-            </div>
-          </section>
-
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-700">Sản lượng theo vùng</h2>
-            <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
-              <NumberField label="Miền Bắc" name="productionNorth" suffix="kWh/kWp/năm" value={values.productionNorth} onChange={updateValue} />
-              <NumberField label="Miền Trung" name="productionCentral" suffix="kWh/kWp/năm" value={values.productionCentral} onChange={updateValue} />
-              <NumberField label="Miền Nam" name="productionSouth" suffix="kWh/kWp/năm" value={values.productionSouth} onChange={updateValue} />
-              <NumberField label="Mặc định" name="productionDefault" suffix="kWh/kWp/năm" value={values.productionDefault} onChange={updateValue} />
-            </div>
-          </section>
-
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-700">Trả góp</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              <NumberField label="Phí dịch vụ" name="installmentSetupFeePercent" step="0.1" suffix="%" value={values.installmentSetupFeePercent} onChange={updateValue} />
-              <NumberField label="12 tháng" name="installmentInterest12" step="0.1" suffix="%/năm" value={values.installmentInterest12} onChange={updateValue} />
-              <NumberField label="24 tháng" name="installmentInterest24" step="0.1" suffix="%/năm" value={values.installmentInterest24} onChange={updateValue} />
-              <NumberField label="36 tháng" name="installmentInterest36" step="0.1" suffix="%/năm" value={values.installmentInterest36} onChange={updateValue} />
-              <NumberField label="60 tháng" name="installmentInterest60" step="0.1" suffix="%/năm" value={values.installmentInterest60} onChange={updateValue} />
-            </div>
-          </section>
-
-          <div className="flex items-center gap-3">
-            <button type="submit" className="rounded-lg bg-green-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-600">
-              Lưu cấu hình báo giá
-            </button>
-            <p className="text-xs text-gray-500">Preview bên phải cập nhật ngay, website đổi sau khi lưu.</p>
+    <div className="grid w-full max-w-none grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <form action={updateSolarAssumptions} className="space-y-6">
+        {/* Bảng giá theo hoá đơn */}
+        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="mb-1 flex items-center gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">Bảng giá theo hoá đơn điện</h2>
           </div>
-        </form>
+          <p className="mb-4 text-sm text-gray-500">
+            Thiết lập từng mức giá theo hoá đơn điện hàng tháng của khách. Hệ thống chọn dòng phù hợp khi khách nhập hoá đơn.
+          </p>
+          <PricingTiersTable tiers={tiers} setTiers={setTiers} />
+        </section>
 
-        <AdminQuotePreview assumptions={previewAssumptions} />
-      </div>
+        {/* Cài đặt nâng cao */}
+        <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((current) => !current)}
+            className="flex w-full items-center justify-between px-5 py-4 text-left"
+          >
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">Cài đặt nâng cao</h2>
+              <p className="mt-1 text-xs text-gray-500">
+                Tham số dùng để ước tính hoàn vốn, IRR, sản lượng theo vùng. Ít khi cần thay đổi.
+              </p>
+            </div>
+            {showAdvanced ? (
+              <ChevronUp className="h-4 w-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-400" />
+            )}
+          </button>
+
+          {showAdvanced && (
+            <div className="space-y-6 border-t border-gray-100 px-5 py-5">
+              <div>
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Giá điện và hiệu suất</h3>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Giá điện EVN bình quân (VNĐ/kWh)</span>
+                    <CurrencyInput name="evnPricePerKwh" value={values.evnPricePerKwh} onChange={(value) => updateValue('evnPricePerKwh', value ?? 0)} ariaLabel="Giá điện EVN" />
+                  </div>
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">VAT (%)</span>
+                    <NumberInput name="vatPercent" value={values.vatPercent} onChange={(value) => updateValue('vatPercent', value)} step="0.1" ariaLabel="VAT" />
+                  </div>
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Tăng giá điện mỗi năm (%)</span>
+                    <NumberInput name="annualElectricityPriceIncreasePercent" value={values.annualElectricityPriceIncreasePercent} onChange={(value) => updateValue('annualElectricityPriceIncreasePercent', value)} step="0.1" ariaLabel="Tăng giá điện" />
+                  </div>
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Suy giảm hiệu suất/năm (%)</span>
+                    <NumberInput name="annualDegradationPercent" value={values.annualDegradationPercent} onChange={(value) => updateValue('annualDegradationPercent', value)} step="0.1" ariaLabel="Suy giảm hiệu suất" />
+                  </div>
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Bảo trì O&M/năm (% đầu tư)</span>
+                    <NumberInput name="annualOmPercent" value={values.annualOmPercent} onChange={(value) => updateValue('annualOmPercent', value)} step="0.1" ariaLabel="Chi phí bảo trì" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Sản lượng điện theo vùng (kWh/kWp/năm)</h3>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Miền Bắc</span>
+                    <NumberInput name="productionNorth" value={values.productionNorth} onChange={(value) => updateValue('productionNorth', value)} ariaLabel="Sản lượng miền Bắc" />
+                  </div>
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Miền Trung</span>
+                    <NumberInput name="productionCentral" value={values.productionCentral} onChange={(value) => updateValue('productionCentral', value)} ariaLabel="Sản lượng miền Trung" />
+                  </div>
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Miền Nam</span>
+                    <NumberInput name="productionSouth" value={values.productionSouth} onChange={(value) => updateValue('productionSouth', value)} ariaLabel="Sản lượng miền Nam" />
+                  </div>
+                  <div className="block">
+                    <span className="mb-1 block text-xs font-medium text-gray-600">Mặc định</span>
+                    <NumberInput name="productionDefault" value={values.productionDefault} onChange={(value) => updateValue('productionDefault', value)} ariaLabel="Sản lượng mặc định" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
+        <div className="flex items-center gap-3 sticky bottom-0 -mx-2 bg-gradient-to-t from-white via-white py-3 px-2">
+          <button type="submit" className="rounded-lg bg-green-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-800">
+            Lưu cấu hình báo giá
+          </button>
+          <p className="text-xs text-gray-500">Preview bên phải cập nhật ngay, website đổi sau khi lưu.</p>
+        </div>
+      </form>
+
+      <PreviewPanel assumptions={previewAssumptions} />
+    </div>
   )
 }

@@ -337,6 +337,20 @@ body {
   }
 }
 
+@keyframes celestial-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.celestial-orb {
+  animation: celestial-pulse 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
 .word-reveal-token {
   display: inline-block;
   opacity: 0;
@@ -467,6 +481,10 @@ body {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .celestial-orb {
+    animation: none;
   }
 
   .motion-title {

@@ -6,6 +6,18 @@
 export type CustomerType = 'residential' | 'business' | 'factory'
 export type PaymentMode = 'cash' | 'installment' | 'lease'
 
+export interface PricingTier {
+  /** VNĐ. Bill ≥ billMin */
+  billMin: number
+  /** VNĐ. null = không giới hạn trên. Bill < billMax */
+  billMax: number | null
+  /** Nhãn hiển thị, ví dụ "1 - 2 triệu" */
+  label: string
+  capacityKwp: number
+  gridTiedPriceVnd: number
+  hybridPriceVnd: number
+}
+
 export interface QuoteInput {
   monthlyBillVnd: number       // Hóa đơn điện trung bình/tháng (VNĐ)
   daytimeUsageRate: number     // Tỷ lệ dùng điện ban ngày (0.0 - 1.0)
@@ -42,6 +54,17 @@ export const DEFAULT_ASSUMPTIONS = {
   // Giá điện EVN bình quân (VNĐ/kWh) - bậc thang trung bình
   evnPricePerKwh: 2800,
 
+  // Bảng giá theo hoá đơn điện hàng tháng — admin có thể chỉnh trực tiếp
+  // Hệ thống sẽ chọn tier phù hợp với bill của khách
+  pricingTiers: [
+    { billMin: 0, billMax: 1_000_000, label: 'Dưới 1 triệu', capacityKwp: 3, gridTiedPriceVnd: 28_500_000, hybridPriceVnd: 35_000_000 },
+    { billMin: 1_000_000, billMax: 2_000_000, label: '1 - 2 triệu', capacityKwp: 5, gridTiedPriceVnd: 47_300_000, hybridPriceVnd: 51_000_000 },
+    { billMin: 2_000_000, billMax: 3_000_000, label: '2 - 3 triệu', capacityKwp: 8, gridTiedPriceVnd: 56_000_000, hybridPriceVnd: 85_000_000 },
+    { billMin: 3_000_000, billMax: 5_000_000, label: '3 - 5 triệu', capacityKwp: 10, gridTiedPriceVnd: 78_000_000, hybridPriceVnd: 132_000_000 },
+    { billMin: 5_000_000, billMax: 10_000_000, label: '5 - 10 triệu', capacityKwp: 15, gridTiedPriceVnd: 106_500_000, hybridPriceVnd: 156_000_000 },
+    { billMin: 10_000_000, billMax: null, label: 'Trên 10 triệu', capacityKwp: 20, gridTiedPriceVnd: 130_800_000, hybridPriceVnd: 197_000_000 },
+  ] as PricingTier[],
+
   // Sản lượng điện trung bình theo vùng (kWh/kWp/năm)
   annualProductionPerKwp: {
     north: 1100,   // Hà Nội, miền Bắc
@@ -50,7 +73,7 @@ export const DEFAULT_ASSUMPTIONS = {
     default: 1300,
   },
 
-  // Giá hệ thống (VNĐ/kWp) - từ bảng giá thực tế SOLIQ
+  // Giá hệ thống fallback (VNĐ/kWp) - dùng khi bill nằm ngoài tất cả tiers
   systemPricePerKwp: {
     gridTied: 8_000_000,   // Hòa lưới: ~7-9.4tr/kWp, avg 8tr
     hybrid: 9_800_000,     // Hybrid: ~9.5-10.2tr/kWp, avg 9.8tr
@@ -180,6 +203,17 @@ function calculateIRR(cashFlows: number[]): number {
   return rate
 }
 
+function findPricingTier(monthlyBillVnd: number, tiers: PricingTier[]): PricingTier | null {
+  const sorted = [...tiers].sort((a, b) => a.billMin - b.billMin)
+  for (const tier of sorted) {
+    const min = tier.billMin
+    const max = tier.billMax === null || !Number.isFinite(tier.billMax) ? Infinity : tier.billMax
+    if (monthlyBillVnd >= min && monthlyBillVnd < max) return tier
+  }
+  // Fallback: return the highest tier if bill exceeds all upper bounds
+  return sorted[sorted.length - 1] ?? null
+}
+
 // ─── Main calculator ─────────────────────────────────────────────────────────
 
 export function calculateQuote(
@@ -199,40 +233,49 @@ export function calculateQuote(
   const monthlyKwh = estimateMonthlyKwh(monthlyBillVnd, assumptions)
   const annualKwh = monthlyKwh * 12
 
-  // 2. Điện tiêu thụ ban ngày (phần có thể tự dùng từ solar)
-  const daytimeAnnualKwh = annualKwh * daytimeUsageRate
-
-  // 3. Sản lượng điện theo vùng
+  // 2. Sản lượng điện theo vùng
   const productionPerKwp = getProductionPerKwp(province, assumptions)
 
-  // 4. Công suất đề xuất (kWp)
-  // Thiết kế để đáp ứng ~90% nhu cầu ban ngày
-  const rawCapacity = (daytimeAnnualKwh * 0.9) / productionPerKwp
-  // Làm tròn lên gói gần nhất (0.5 kWp)
-  const recommendedCapacityKwp = Math.ceil(rawCapacity * 2) / 2
+  // 3. Công suất & chi phí — ưu tiên tra theo bảng giá tier
+  const tier = findPricingTier(monthlyBillVnd, assumptions.pricingTiers || [])
 
-  // 5. Sản lượng thực tế hàng năm
+  let recommendedCapacityKwp: number
+  let estimatedInvestmentVnd: number
+  let estimatedInvestmentAfterVatVnd: number
+
+  if (tier) {
+    // Lấy thẳng từ bảng giá tier — giá tier coi là giá cuối (đã bao gồm VAT)
+    recommendedCapacityKwp = tier.capacityKwp
+    estimatedInvestmentAfterVatVnd = batteryOption ? tier.hybridPriceVnd : tier.gridTiedPriceVnd
+    estimatedInvestmentVnd = Math.round(estimatedInvestmentAfterVatVnd / (1 + assumptions.vatRate))
+  } else {
+    // Fallback: tính theo formula nếu không có tier nào khớp
+    const rawCapacity = (annualKwh * 0.9) / productionPerKwp
+    recommendedCapacityKwp = Math.ceil(rawCapacity * 2) / 2
+    const pricePerKwp = batteryOption
+      ? assumptions.systemPricePerKwp.hybrid
+      : assumptions.systemPricePerKwp.gridTied
+    estimatedInvestmentVnd = Math.round(recommendedCapacityKwp * pricePerKwp)
+    estimatedInvestmentAfterVatVnd = Math.round(estimatedInvestmentVnd * (1 + assumptions.vatRate))
+  }
+
+  // 4. Sản lượng thực tế hàng năm (dựa vào công suất đã chọn)
   const annualProductionKwh = recommendedCapacityKwp * productionPerKwp
 
+  // 5. Điện tiêu thụ ban ngày — phần có thể tự dùng từ solar
+  const daytimeAnnualKwh = annualKwh * daytimeUsageRate
+
   // 6. Điện tự dùng (không vượt quá nhu cầu ban ngày)
+  // Đây là phần thực sự được tiết kiệm. Tăng tỷ lệ ngày → tiết kiệm tăng,
+  // không ảnh hưởng tới công suất hệ thống.
   const selfConsumedKwh = Math.min(annualProductionKwh, daytimeAnnualKwh)
 
-  // 7. Chi phí đầu tư
-  const pricePerKwp = batteryOption
-    ? assumptions.systemPricePerKwp.hybrid
-    : assumptions.systemPricePerKwp.gridTied
-
-  const estimatedInvestmentVnd = Math.round(recommendedCapacityKwp * pricePerKwp)
-  const estimatedInvestmentAfterVatVnd = Math.round(
-    estimatedInvestmentVnd * (1 + assumptions.vatRate)
-  )
-
-  // 8. Tiết kiệm hàng năm
+  // 7. Tiết kiệm hàng năm
   const annualSavingsVnd = Math.round(
     selfConsumedKwh * assumptions.evnPricePerKwh
   )
 
-  // 9. Thời gian hoàn vốn (năm)
+  // 8. Thời gian hoàn vốn (năm)
   // Tính đơn giản: đầu tư / tiết kiệm năm đầu
   const paybackYears = parseFloat(
     (estimatedInvestmentAfterVatVnd / annualSavingsVnd).toFixed(1)

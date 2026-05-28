@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Moon, ShieldCheck, Sun, Zap } from 'lucide-react'
+import { Moon, ShieldCheck, SunMedium, Zap } from 'lucide-react'
 import { useState } from 'react'
 
 type Mode = 'solar' | 'storage' | 'backup'
@@ -13,7 +13,7 @@ const MODES: Record<
     label: string
     title: string
     description: string
-    icon: typeof Sun
+    icon: typeof SunMedium
     accent: string
   }
 > = {
@@ -21,7 +21,7 @@ const MODES: Record<
     label: 'Ban ngày',
     title: 'Điện mặt trời ưu tiên cấp tải tức thời',
     description: 'Dòng năng lượng chạy từ mái pin vào hệ thống, cấp điện cho nhà và sạc phần dư vào pin lưu trữ.',
-    icon: Sun,
+    icon: SunMedium,
     accent: 'from-orange-400 to-emerald-300',
   },
   storage: {
@@ -95,9 +95,9 @@ const SYSTEM_NODES = [
 
 export default function SolarSystemExperience() {
   const [mode, setMode] = useState<Mode>('solar')
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const active = MODES[mode]
   const ActiveIcon = active.icon
-  const SceneOrbIcon = mode === 'storage' ? Moon : Sun
   const modeControls = (
     <div className="mx-auto grid max-w-2xl grid-cols-3 gap-2 sm:gap-3">
       {(Object.keys(MODES) as Mode[]).map((item) => {
@@ -130,7 +130,7 @@ export default function SolarSystemExperience() {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(37,93,43,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(37,93,43,0.055)_1px,transparent_1px)] bg-[size:56px_56px] opacity-70" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-white to-transparent" />
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 py-6 sm:gap-12 sm:px-6 sm:py-8 lg:px-8 lg:py-10 xl:grid-cols-[0.42fr_0.58fr] xl:gap-10 xl:py-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pt-14 pb-6 sm:gap-12 sm:px-6 sm:pt-16 sm:pb-8 lg:px-8 lg:pt-20 lg:pb-10 xl:grid-cols-[0.42fr_0.58fr] xl:gap-10 xl:pt-16 xl:pb-8">
         <div className="contents xl:relative xl:z-20 xl:block xl:w-full xl:max-w-xl">
           <div className="relative z-20 order-1 mx-auto w-full max-w-3xl text-center xl:mx-0 xl:max-w-xl xl:text-left">
             <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-emerald-600/18 bg-white/70 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-emerald-800 shadow-[0_16px_45px_rgba(37,93,43,0.08)] backdrop-blur">
@@ -163,14 +163,17 @@ export default function SolarSystemExperience() {
           <div className="relative z-20 mx-auto aspect-[1000/640] w-full max-w-[900px] origin-center xl:w-[112%]">
             <div className="absolute inset-0 rounded-[2rem] border border-emerald-900/10 bg-white/48 shadow-[0_35px_110px_rgba(37,93,43,0.14)] backdrop-blur-[2px]" />
             <div
-              className={`energy-spark absolute left-[13%] top-[8%] z-40 flex h-7 w-7 items-center justify-center rounded-full border backdrop-blur-sm transition-colors duration-500 sm:h-16 sm:w-16 ${
-                mode === 'storage'
-                  ? 'border-cyan-200/80 bg-slate-50/90 text-cyan-700 shadow-[0_0_70px_rgba(103,232,249,0.38)]'
-                  : 'border-orange-300/70 bg-orange-100/80 text-orange-500 shadow-[0_0_70px_rgba(251,191,36,0.45)]'
-              }`}
+              className="celestial-orb absolute left-[15%] -top-2 z-40 h-12 w-12 transition-transform duration-500 sm:left-[17%] sm:-top-6 sm:h-20 sm:w-20"
               aria-hidden="true"
             >
-              <SceneOrbIcon className="h-4 w-4 sm:h-10 sm:w-10" />
+              <Image
+                src={mode === 'storage' ? '/hero/moon-3d.webp' : '/hero/sun-3d.webp'}
+                alt=""
+                width={240}
+                height={240}
+                unoptimized
+                className="h-full w-full object-contain drop-shadow-[0_18px_40px_rgba(251,146,60,0.45)]"
+              />
             </div>
 
             <svg className="pointer-events-none absolute inset-0 z-20 h-full w-full" viewBox="0 0 1000 640" aria-hidden="true">
@@ -219,7 +222,7 @@ export default function SolarSystemExperience() {
                   sizes="(min-width: 1024px) 340px, 42vw"
                   className="object-contain drop-shadow-[0_28px_70px_rgba(0,0,0,0.48)]"
                 />
-                <div className="pointer-events-none absolute left-1/2 top-0 z-50 -translate-x-1/2 -translate-y-[70%] whitespace-nowrap rounded-full border border-white/18 bg-slate-950/86 px-3 py-1.5 text-xs font-bold text-white opacity-0 shadow-2xl backdrop-blur-md transition-all duration-200 group-hover:-translate-y-[86%] group-hover:opacity-100 group-focus:-translate-y-[86%] group-focus:opacity-100">
+                <div className="pointer-events-none absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/18 bg-slate-950/86 px-3 py-1.5 text-xs font-bold text-white opacity-0 shadow-2xl backdrop-blur-md transition-opacity duration-200 group-hover:opacity-100 group-focus:opacity-100">
                   {node.tooltip}
                 </div>
               </div>
