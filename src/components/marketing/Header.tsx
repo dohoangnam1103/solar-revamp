@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Menu, X, Phone, ChevronDown } from 'lucide-react'
 import type { SiteConfig } from '@/lib/site-config'
 
@@ -48,6 +48,23 @@ export default function Header({ siteConfig }: { siteConfig: SiteConfig }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  // Hide "Check Solar" by default on SSR + first client paint to avoid hydration
+  // mismatch. Reveal it only after we confirm the device exposes GPS + orientation
+  // sensor APIs (typical on mobile / tablet).
+  const [hasSensors, setHasSensors] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hasGeo = typeof navigator !== 'undefined' && 'geolocation' in navigator
+    const hasOrientation = 'DeviceOrientationEvent' in window
+    // Touch-primary device with no fine pointer (mouse) → mobile / tablet
+    const isMobileLike =
+      window.matchMedia('(pointer: coarse)').matches &&
+      (navigator.maxTouchPoints || 0) > 0
+    setHasSensors(hasGeo && hasOrientation && isMobileLike)
+  }, [])
+
+  const visibleNavLinks = navLinks.filter((link) => link.href !== '/check' || hasSensors)
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/50 [--glass-bg:rgba(255,255,255,0.9)] transition-colors">
@@ -76,7 +93,7 @@ export default function Header({ siteConfig }: { siteConfig: SiteConfig }) {
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {visibleNavLinks.map((link) => {
               const isActive = link.children
                 ? link.children.some((child) => isRouteActive(pathname, child.href))
                 : isRouteActive(pathname, link.href)
@@ -166,7 +183,7 @@ export default function Header({ siteConfig }: { siteConfig: SiteConfig }) {
       {mobileOpen && (
         <div className="lg:hidden glass border-t border-white/30">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
-            {navLinks.map((link) => {
+            {visibleNavLinks.map((link) => {
               const isActive = link.children
                 ? link.children.some((child) => isRouteActive(pathname, child.href))
                 : isRouteActive(pathname, link.href)
