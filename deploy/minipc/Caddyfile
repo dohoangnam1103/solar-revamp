@@ -2,19 +2,13 @@
   email admin@soliq.com.vn
 }
 
-# Production domain (apex + www) — Caddy auto-provisions Let's Encrypt SSL
+# Production domain (apex + www) — Caddy auto-provisions Let's Encrypt SSL.
+# www → redirect to apex.
 soliq.com.vn, www.soliq.com.vn {
   encode zstd gzip
   reverse_proxy web:3000
-  # Redirect www → apex
   @www host www.soliq.com.vn
   redir @www https://soliq.com.vn{uri} permanent
-}
-
-# Staging domain via Cloudflare Tunnel — keep working in parallel
-soliq2.solarcheck.best {
-  encode zstd gzip
-  reverse_proxy web:3000
 }
 
 # Plain HTTP catch-all → 308 redirect to HTTPS

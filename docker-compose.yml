@@ -59,7 +59,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     ports:
-      # Bind to loopback only — public access is via Cloudflare Tunnel.
+      # Bind to loopback only — public access is via Caddy reverse proxy on the same network.
       - '127.0.0.1:13000:3000'
     healthcheck:
       test:
@@ -88,19 +88,6 @@ services:
       - ./deploy/minipc/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    networks:
-      - app_net
-
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    profiles:
-      - tunnel
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:-}
-    restart: unless-stopped
-    depends_on:
-      web:
-        condition: service_healthy
-    mem_limit: 80m
     networks:
       - app_net
 
