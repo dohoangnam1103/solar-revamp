@@ -28,6 +28,19 @@ export type GeoState = {
   watching: boolean
 }
 
+function formatGeoError(err: GeolocationPositionError) {
+  if (err.code === err.PERMISSION_DENIED) {
+    return 'Quyền GPS đang bị chặn trong trình duyệt. Mở cài đặt trang và cho phép Location/Vị trí rồi bấm lại.'
+  }
+  if (err.code === err.POSITION_UNAVAILABLE) {
+    return 'Trình duyệt chưa lấy được vị trí hiện tại. Kiểm tra GPS/Wi-Fi rồi thử lại.'
+  }
+  if (err.code === err.TIMEOUT) {
+    return 'GPS phản hồi quá lâu. Thử đứng nơi thoáng hơn hoặc bấm lại.'
+  }
+  return err.message
+}
+
 export function useGeolocation() {
   const supported = useSyncExternalStore(
     subscribeNoop,
@@ -63,7 +76,7 @@ export function useGeolocation() {
         }))
       },
       (err) => {
-        setState((s) => ({ ...s, error: err.message, watching: false }))
+        setState((s) => ({ ...s, error: formatGeoError(err), watching: false }))
         watchId.current = null
       },
       { enableHighAccuracy: true, maximumAge: 5_000, timeout: 30_000 },

@@ -56,6 +56,10 @@ body {
   box-shadow: var(--glass-shadow);
 }
 
+.partner-card-glass {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .rich-text-editor-content p {
   margin: 0 0 0.75rem;
 }

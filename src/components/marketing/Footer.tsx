@@ -113,7 +113,7 @@ export default async function Footer() {
               {[
                 { label: 'Về SOLIQ ENERGY', href: '/ve-soliq' },
                 { label: 'Dự án tiêu biểu', href: '/du-an' },
-                { label: 'Tin tức & Blog', href: '/tin-tuc' },
+                { label: 'Tin tức', href: '/tin-tuc' },
                 { label: 'Câu hỏi thường gặp', href: '/cau-hoi-thuong-gap' },
                 { label: 'Liên hệ', href: '/lien-he' },
               ].map((item) => (

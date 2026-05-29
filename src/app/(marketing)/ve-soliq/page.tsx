@@ -113,11 +113,11 @@ export default async function VeSoliqPage() {
             </p>
             <WordRevealHeading
               as="h2"
-              text="Đội ngũ SOLIQ tại hiện trường."
+              text="Đội ngũ SOLIQ ENERGY tại hiện trường."
               className="mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl"
             />
             <p data-text-motion className="mx-auto mt-4 max-w-2xl text-gray-600 leading-relaxed">
-              Một số hình ảnh thi công, nghiệm thu và vận hành từ nguồn tư liệu mới nhất của SOLIQ.
+              Một số hình ảnh thi công, nghiệm thu và vận hành từ nguồn tư liệu mới nhất của SOLIQ ENERGY.
             </p>
           </div>
 

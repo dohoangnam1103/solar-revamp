@@ -107,7 +107,7 @@ export default async function BaoGiaPage() {
 
               {/* Why SOLIQ */}
               <div className="glass rounded-2xl p-6 border border-white/50">
-                <h3 className="font-bold text-gray-900 mb-4">Tại sao chọn SOLIQ?</h3>
+                <h3 className="font-bold text-gray-900 mb-4">Tại sao chọn SOLIQ ENERGY?</h3>
                 <ul data-stagger className="space-y-3">
                   {[
                     'Lắp đặt trọn gói',

@@ -49,7 +49,7 @@ export default async function TinTucPage() {
     <>
       <section className="bg-solar-hero py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">Tin tức & Blog</h1>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">Tin tức</h1>
           <p className="text-green-100 text-lg max-w-2xl mx-auto">Kiến thức, tin tức và cập nhật mới nhất về điện mặt trời</p>
         </div>
       </section>

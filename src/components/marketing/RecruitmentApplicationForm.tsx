@@ -18,7 +18,7 @@ export default function RecruitmentApplicationForm({ position }: Props) {
       <div className="rounded-2xl border border-green-100 bg-green-50 p-6 text-center">
         <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-green-600" />
         <h2 className="font-bold text-gray-900">Đã nhận thông tin ứng tuyển</h2>
-        <p className="mt-2 text-sm text-gray-600">SOLIQ sẽ liên hệ lại với bạn trong thời gian sớm nhất.</p>
+        <p className="mt-2 text-sm text-gray-600">SOLIQ ENERGY sẽ liên hệ lại với bạn trong thời gian sớm nhất.</p>
       </div>
     )
   }

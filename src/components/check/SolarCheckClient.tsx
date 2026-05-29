@@ -106,10 +106,7 @@ export function SolarCheckClient() {
   }, [nowMs, resolvedGeo, liveOrientation])
 
   /* ----------------------------- Quyền cảm biến --------------------------- */
-  const triggeredRef = useRef(false)
-
   const requestAll = async () => {
-    triggeredRef.current = true
     try {
       if (!geo.watching) {
         geo.start()
@@ -120,14 +117,6 @@ export function SolarCheckClient() {
       console.error('Sensor permission request failed', err)
     }
   }
-  // Geo trên desktop / Android không cần user-gesture, có thể start luôn.
-  // triggeredRef đảm bảo không gọi lại sau khi user đã trigger qua nút.
-  useEffect(() => {
-    if (!triggeredRef.current && geo.supported && !geo.watching) {
-      geo.start()
-    }
-  }, [geo.supported, geo.watching, geo.start])
-
   const geoReady = geo.lat != null
   const oriReady =
     ori.beta != null &&

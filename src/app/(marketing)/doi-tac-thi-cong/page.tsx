@@ -42,14 +42,14 @@ export default async function DoiTacPage() {
                   <p className="text-sm text-gray-500">Đối tác cung cấp tấm pin, biến tần và phụ kiện</p>
                 </div>
               </div>
-              <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div data-stagger className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
                 {(suppliers.length > 0 ? suppliers : [{ id: 1, name: 'Thương hiệu A', logo: null, url: null }, { id: 2, name: 'Thương hiệu B', logo: null, url: null }]).map((p) => (
                   <a key={p.id} href={p.url || '#'} target={p.url ? '_blank' : undefined} rel="noopener noreferrer"
-                    className="glass rounded-2xl p-6 border border-white/50 hover:shadow-lg transition-all text-center group">
-                    <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      {p.logo ? <Image src={p.logo} alt={p.name} width={96} height={96} unoptimized className="w-24 h-24 object-contain" /> : <Award className="w-10 h-10 text-green-400" />}
+                    className="glass partner-card-glass rounded-2xl border border-white/50 p-4 text-center transition-all hover:shadow-lg sm:p-6 group">
+                    <div className="mx-auto mb-3 flex aspect-square w-full max-w-28 items-center justify-center rounded-2xl bg-gradient-to-br from-green-100 to-cyan-50 sm:mb-4 sm:max-w-32">
+                      {p.logo ? <Image src={p.logo} alt={p.name} width={96} height={96} unoptimized className="h-20 w-20 object-contain sm:h-24 sm:w-24" /> : <Award className="h-9 w-9 text-green-400 sm:h-10 sm:w-10" />}
                     </div>
-                    <h3 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors">{p.name}</h3>
+                    <h3 className="text-sm font-bold text-gray-900 transition-colors group-hover:text-green-700 sm:text-base">{p.name}</h3>
                   </a>
                 ))}
               </div>
@@ -68,16 +68,16 @@ export default async function DoiTacPage() {
                   <p className="text-sm text-gray-500">Đơn vị thi công uy tín trên toàn quốc</p>
                 </div>
               </div>
-              <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div data-stagger className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
                 {(installers.length > 0 ? installers : [{ id: 1, name: 'Đối tác thi công 1', logo: null, url: null }]).map((p) => (
                   <a key={p.id} href={p.url || '#'} target={p.url ? '_blank' : undefined} rel="noopener noreferrer"
-                    className="glass rounded-2xl p-5 border border-white/50 hover:shadow-lg transition-all flex items-center gap-4 group">
-                    <div className="w-14 h-14 bg-gradient-to-br from-cyan-100 to-blue-50 rounded-xl flex items-center justify-center shrink-0">
-                      <Wrench className="w-6 h-6 text-cyan-600" />
+                    className="glass partner-card-glass flex flex-col items-center gap-3 rounded-2xl border border-white/50 p-4 text-center transition-all hover:shadow-lg sm:flex-row sm:gap-4 sm:p-5 sm:text-left group">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-100 to-blue-50">
+                      {p.logo ? <Image src={p.logo} alt={p.name} width={56} height={56} unoptimized className="h-11 w-11 object-contain" /> : <Wrench className="h-6 w-6 text-cyan-600" />}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 group-hover:text-cyan-700 transition-colors">{p.name}</h3>
-                      <p className="text-sm text-gray-500">Đối tác thi công</p>
+                      <h3 className="text-sm font-semibold text-gray-900 transition-colors group-hover:text-cyan-700 sm:text-base">{p.name}</h3>
+                      <p className="text-xs text-gray-500 sm:text-sm">Đối tác thi công</p>
                     </div>
                   </a>
                 ))}
@@ -97,15 +97,15 @@ export default async function DoiTacPage() {
                   <p className="text-sm text-gray-500">Hỗ trợ vay vốn và trả góp</p>
                 </div>
               </div>
-              <div data-stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div data-stagger className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
                 {financials.map((p) => (
                   <a key={p.id} href={p.url || '#'} target="_blank" rel="noopener noreferrer"
-                    className="glass rounded-2xl p-5 border border-white/50 hover:shadow-lg transition-all flex items-center gap-4 group">
-                    <div className="w-14 h-14 bg-gradient-to-br from-orange-100 to-yellow-50 rounded-xl flex items-center justify-center shrink-0">
-                      <Handshake className="w-6 h-6 text-orange-600" />
+                    className="glass partner-card-glass flex flex-col items-center gap-3 rounded-2xl border border-white/50 p-4 text-center transition-all hover:shadow-lg sm:flex-row sm:gap-4 sm:p-5 sm:text-left group">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-100 to-yellow-50">
+                      {p.logo ? <Image src={p.logo} alt={p.name} width={56} height={56} unoptimized className="h-11 w-11 object-contain" /> : <Handshake className="h-6 w-6 text-orange-600" />}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 group-hover:text-orange-700 transition-colors">{p.name}</h3>
+                      <h3 className="text-sm font-semibold text-gray-900 transition-colors group-hover:text-orange-700 sm:text-base">{p.name}</h3>
                     </div>
                   </a>
                 ))}

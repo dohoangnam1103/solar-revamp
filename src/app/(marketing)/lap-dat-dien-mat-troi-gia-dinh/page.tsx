@@ -87,7 +87,7 @@ export default async function GiaDinhPage() {
             {[
               { icon: TrendingUp, title: 'Tiết kiệm 50-100% điện', desc: 'Tùy công suất và mức tiêu thụ, nhiều gia đình giảm hóa đơn điện về 0 hoặc thậm chí bán điện dư lại lưới.' },
               { icon: Shield, title: 'Hoàn vốn 5-7 năm', desc: `Với hóa đơn điện ${formatVnd(2_000_000)} - ${formatVnd(4_000_000)}/tháng, thời gian hoàn vốn thường 5-7 năm. Hệ thống dùng được 25-30 năm.` },
-              { icon: Sun, title: 'Bảo hành 25 năm', desc: 'Tấm pin bảo hành hiệu suất 25 năm, biến tần 5-10 năm. SOLIQ bảo hành thi công 2 năm.' },
+              { icon: Sun, title: 'Bảo hành 25 năm', desc: 'Tấm pin bảo hành hiệu suất 25 năm, biến tần 5-10 năm. SOLIQ ENERGY bảo hành thi công 2 năm.' },
               { icon: Home, title: 'Tăng giá trị bất động sản', desc: 'Nhà có hệ thống điện mặt trời được định giá cao hơn và hấp dẫn hơn khi bán hoặc cho thuê.' },
               { icon: CheckCircle, title: 'Không cần bảo trì nhiều', desc: 'Hệ thống hoạt động tự động, chỉ cần vệ sinh tấm pin định kỳ 1-2 lần/năm.' },
               { icon: ArrowRight, title: 'Hỗ trợ trả góp', desc: 'Không cần đầu tư toàn bộ ngay. Trả góp 12-60 tháng với lãi suất cạnh tranh.' },

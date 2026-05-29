@@ -55,7 +55,7 @@ export default async function RecruitmentPage() {
           {posts.length === 0 ? (
             <div className="glass rounded-2xl border border-white/60 p-10 text-center">
               <h2 className="text-2xl font-bold text-gray-900">Chưa có vị trí đang tuyển</h2>
-              <p className="mt-3 text-gray-500">SOLIQ sẽ cập nhật cơ hội mới tại đây khi có nhu cầu tuyển dụng.</p>
+              <p className="mt-3 text-gray-500">SOLIQ ENERGY sẽ cập nhật cơ hội mới tại đây khi có nhu cầu tuyển dụng.</p>
             </div>
           ) : (
             <div data-stagger className="grid gap-5">

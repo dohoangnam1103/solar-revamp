@@ -66,8 +66,8 @@ export default async function HomePage() {
 
       {/* ── QUICK QUOTE ──────────────────────────────────────────────────── */}
       <section data-reveal className="relative mt-8 pb-20 sm:mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-[2rem] border border-emerald-100/80 bg-emerald-50 p-5 shadow-2xl backdrop-blur sm:gap-y-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
+        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <div className="motion-surface relative isolate grid gap-y-8 overflow-hidden rounded-2xl border border-emerald-100/80 bg-emerald-50 p-4 shadow-2xl backdrop-blur sm:gap-y-10 sm:rounded-[2rem] sm:p-5 lg:grid-cols-[1.05fr_0.95fr] lg:gap-x-8 lg:gap-y-0 lg:p-8">
             <QuoteBackgroundVideo />
             <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[60px] bg-[linear-gradient(180deg,#ecfdf5_0%,#ecfdf5_28%,rgba(236,253,245,0.78)_58%,transparent_100%)]" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[60px] bg-[linear-gradient(0deg,#ecfdf5_0%,#ecfdf5_28%,rgba(236,253,245,0.78)_58%,transparent_100%)]" />
@@ -115,7 +115,7 @@ export default async function HomePage() {
               Công trình thực tế
             </p>
             <h2 data-text-motion className="motion-title motion-title-soft mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
-              Những hệ thống điện mặt trời đã được SOLIQ lắp đặt.
+              Những hệ thống điện mặt trời đã được SOLIQ ENERGY lắp đặt.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-gray-600 leading-relaxed">
               Hình ảnh thi công thực tế từ các công trình dân dụng và thương mại,
@@ -137,7 +137,7 @@ export default async function HomePage() {
               Giải pháp điện mặt trời toàn diện
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
-              Từ hộ gia đình đến nhà máy, SOLIQ cung cấp giải pháp phù hợp với từng nhu cầu
+              Từ hộ gia đình đến nhà máy, SOLIQ ENERGY cung cấp giải pháp phù hợp với từng nhu cầu
             </p>
           </div>
 
@@ -203,7 +203,7 @@ export default async function HomePage() {
             <div data-reveal>
               <h2 data-text-motion className="motion-title motion-title-soft text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
                 Tại sao chọn{' '}
-                <span className="text-green-700">SOLIQ ENERGY?</span>
+                <span className="whitespace-nowrap text-green-700">SOLIQ ENERGY?</span>
               </h2>
               <div className="space-y-5" data-stagger>
                 {[
@@ -338,7 +338,7 @@ export default async function HomePage() {
               Hệ sinh thái đối tác
             </p>
             <h2 data-text-motion className="motion-title motion-title-soft mt-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
-              Đối tác đồng hành cùng SOLIQ.
+              Đối tác đồng hành cùng SOLIQ ENERGY.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-gray-600 leading-relaxed">
               Nhà cung cấp thiết bị, đội thi công và đối tác tài chính cùng tham gia

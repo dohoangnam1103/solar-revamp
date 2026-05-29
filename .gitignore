@@ -24,5 +24,8 @@ uploads/
 # Temp folder for porting solar-panel logic into /check page (delete after porting)
 solar-panel/
 
+# DB backups (contain user data — never commit)
+backups/
+
 # wrangler
 .wrangler/
