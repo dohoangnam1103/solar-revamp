@@ -11,8 +11,9 @@ async function getByPage(page: string) {
 
 export default async function AdminPricingPage() {
   await requireSuperAdminPage()
-  const [assumptions, giaDinh, doanhNghiep, hybrid, vatTu] = await Promise.all([
+  const [assumptions, hoaLuoi, giaDinh, doanhNghiep, hybrid, vatTu] = await Promise.all([
     getSolarAssumptions(),
+    getByPage('hoa-luoi'),
     getByPage('gia-dinh'),
     getByPage('doanh-nghiep'),
     getByPage('hybrid'),
@@ -29,6 +30,7 @@ export default async function AdminPricingPage() {
       </div>
       <PricingManager
         assumptions={assumptions}
+        hoaLuoi={hoaLuoi}
         giaDinh={giaDinh}
         doanhNghiep={doanhNghiep}
         hybrid={hybrid}

@@ -89,7 +89,7 @@ const SYSTEM_NODES = [
     name: 'Lưới điện',
     tooltip: 'Điện lưới',
     src: '/hero/solar-node-grid.webp',
-    className: 'left-[72%] top-[16%] w-[20%] sm:left-[74%] sm:top-[17%] sm:w-[18%]',
+    className: 'left-[70%] top-[12%] w-[26%] sm:left-[72%] sm:top-[13%] sm:w-[23%]',
   },
 ]
 
@@ -161,9 +161,9 @@ export default function SolarSystemExperience() {
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/28 blur-3xl" />
 
           <div className="relative z-20 mx-auto aspect-[1000/640] w-full max-w-[900px] origin-center xl:w-[112%]">
-            <div className="absolute inset-0 rounded-[2rem] border border-emerald-900/10 bg-white/48 shadow-[0_35px_110px_rgba(37,93,43,0.14)] backdrop-blur-[2px]" />
+            <div className="absolute inset-x-0 bottom-0 -top-8 rounded-[2rem] border border-emerald-900/10 bg-white/48 shadow-[0_35px_110px_rgba(37,93,43,0.14)] sm:-top-14" />
             <div
-              className="celestial-orb absolute left-[15%] -top-2 z-40 h-12 w-12 transition-transform duration-500 sm:left-[17%] sm:-top-6 sm:h-20 sm:w-20"
+              className="celestial-orb absolute left-1/2 -top-4 z-40 h-12 w-12 -translate-x-1/2 transition-transform duration-500 sm:-top-9 sm:h-20 sm:w-20"
               aria-hidden="true"
             >
               <Image
@@ -172,7 +172,7 @@ export default function SolarSystemExperience() {
                 width={240}
                 height={240}
                 unoptimized
-                className="h-full w-full object-contain drop-shadow-[0_18px_40px_rgba(251,146,60,0.45)]"
+                className="h-full w-full object-contain"
               />
             </div>
 
@@ -209,10 +209,17 @@ export default function SolarSystemExperience() {
             {SYSTEM_NODES.map((node, index) => (
               <div
                 key={node.name}
-                className={`group absolute z-30 aspect-square outline-none ${node.className}`}
+                className={`group absolute z-30 aspect-square outline-none [-webkit-tap-highlight-color:transparent] ${node.className}`}
                 style={{ animationDelay: `${index * -0.18}s` }}
                 tabIndex={0}
               >
+                {/* Soft elliptical shadow under each node — uses background-image
+                    instead of drop-shadow filter to avoid the iOS Safari
+                    bounding-box rendering bug on .webp images with alpha matte. */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-[12%] bottom-[6%] h-[18%] rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.32),transparent_70%)] blur-[2px]"
+                />
                 <Image
                   src={node.src}
                   alt={node.name}
@@ -220,7 +227,7 @@ export default function SolarSystemExperience() {
                   fetchPriority={index < 2 ? 'high' : 'auto'}
                   loading={index < 2 ? 'eager' : 'lazy'}
                   sizes="(min-width: 1024px) 340px, 42vw"
-                  className="object-contain drop-shadow-[0_28px_70px_rgba(0,0,0,0.48)]"
+                  className="object-contain"
                 />
                 <div className="pointer-events-none absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/18 bg-slate-950/86 px-3 py-1.5 text-xs font-bold text-white opacity-0 shadow-2xl backdrop-blur-md transition-opacity duration-200 group-hover:opacity-100 group-focus:opacity-100">
                   {node.tooltip}

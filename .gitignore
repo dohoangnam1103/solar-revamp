@@ -21,5 +21,8 @@ uploads/
 .DS_Store
 *.tsbuildinfo
 
+# Temp folder for porting solar-panel logic into /check page (delete after porting)
+solar-panel/
+
 # wrangler
 .wrangler/

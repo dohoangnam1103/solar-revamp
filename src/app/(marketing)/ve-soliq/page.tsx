@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { buildPageMetadata, localBusinessSchema } from '@/lib/seo/metadata'
 import { getSiteConfig } from '@/lib/site-config'
 import { getVeSoliqConfig } from '@/lib/ve-soliq-config'
+import { getVeSoliqGalleryImages } from '@/app/actions/admin-crud'
 import ProjectCarousel from '@/components/marketing/ProjectCarousel'
 import AnimatedNumber from '@/components/marketing/AnimatedNumber'
 import WordRevealHeading from '@/components/marketing/WordRevealHeading'
@@ -13,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
   alternates: { canonical: '/ve-soliq' },
 })
 
-const MASTER_PHI_PROJECT_IMAGES = Array.from({ length: 29 }, (_, index) => ({
+const DEFAULT_GALLERY_IMAGES = Array.from({ length: 29 }, (_, index) => ({
   src: `/projects/master-phi/master-phi-${String(index + 1).padStart(2, '0')}.webp`,
   alt: `Hình ảnh công trình điện mặt trời SOLIQ ${index + 1}`,
 }))
@@ -21,7 +22,15 @@ const MASTER_PHI_PROJECT_IMAGES = Array.from({ length: 29 }, (_, index) => ({
 const STAT_ICONS = [Zap, Award, Shield, Users, Star, Star, Star, Star]
 
 export default async function VeSoliqPage() {
-  const [siteConfig, veSoliqConfig] = await Promise.all([getSiteConfig(), getVeSoliqConfig()])
+  const [siteConfig, veSoliqConfig, galleryRows] = await Promise.all([
+    getSiteConfig(),
+    getVeSoliqConfig(),
+    getVeSoliqGalleryImages(),
+  ])
+  const galleryImages =
+    galleryRows.length > 0
+      ? galleryRows.map((row) => ({ src: row.url, alt: row.alt }))
+      : DEFAULT_GALLERY_IMAGES
   const phoneIntl = `+84${siteConfig.phone.replace(/^0/, '')}`
   const jsonLd = localBusinessSchema(phoneIntl)
 
@@ -111,7 +120,7 @@ export default async function VeSoliqPage() {
             </p>
           </div>
 
-          <ProjectCarousel images={MASTER_PHI_PROJECT_IMAGES} />
+          <ProjectCarousel images={galleryImages} />
         </div>
       </section>
 

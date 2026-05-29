@@ -5,6 +5,9 @@ import { getSolarAssumptions } from '@/lib/quote/settings'
 import { getSiteConfig } from '@/lib/site-config'
 import { formatVnd } from '@/lib/quote/calculator'
 import { CheckCircle, Phone, Zap } from 'lucide-react'
+import { db } from '@/lib/db'
+import { pricingPackages } from '@/lib/db/schema'
+import { eq, asc } from 'drizzle-orm'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Báo Giá Điện Mặt Trời - Tính Chi Phí Lắp Đặt Miễn Phí',
@@ -14,7 +17,12 @@ export const metadata: Metadata = buildPageMetadata({
 })
 
 export default async function BaoGiaPage() {
-  const [quoteAssumptions, siteConfig] = await Promise.all([getSolarAssumptions(), getSiteConfig()])
+  const [quoteAssumptions, siteConfig, hoaLuoi, hybrid] = await Promise.all([
+    getSolarAssumptions(),
+    getSiteConfig(),
+    db.select().from(pricingPackages).where(eq(pricingPackages.page, 'hoa-luoi')).orderBy(asc(pricingPackages.sortOrder)),
+    db.select().from(pricingPackages).where(eq(pricingPackages.page, 'hybrid')).orderBy(asc(pricingPackages.sortOrder)),
+  ])
 
   const jsonLd = serviceSchema(
     'Báo giá điện mặt trời',
@@ -69,40 +77,26 @@ export default async function BaoGiaPage() {
                 </h2>
                 <div data-stagger className="space-y-3">
                   <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">Hệ thống hòa lưới</h3>
-                  {[
-                    { cap: '5 kWp', panels: '10 tấm', inv: '5kW', price: 47_300_000 },
-                    { cap: '8 kWp', panels: '14 tấm', inv: '6kW', price: 56_000_000 },
-                    { cap: '10 kWp', panels: '18 tấm', inv: '10kW', price: 78_000_000 },
-                    { cap: '12 kWp', panels: '20 tấm', inv: '10kW', price: 84_300_000 },
-                    { cap: '15 kWp', panels: '26 tấm', inv: '15kW', price: 106_500_000 },
-                    { cap: '20 kWp', panels: '34 tấm', inv: '20kW', price: 130_800_000 },
-                    { cap: '25 kWp', panels: '38 tấm', inv: '20kW', price: 143_000_000 },
-                  ].map((row) => (
-                    <div key={row.cap} className="flex items-center justify-between p-3 glass rounded-xl border border-white/50 text-sm">
+                  {hoaLuoi.map((row) => (
+                    <div key={row.id} className="flex items-center justify-between p-3 glass rounded-xl border border-white/50 text-sm">
                       <div className="flex items-center gap-2 sm:gap-4">
                         <span className="font-bold text-green-700 w-16 shrink-0">{row.cap}</span>
-                        <span className="text-gray-500 text-xs sm:text-sm">{row.panels} · {row.inv}</span>
+                        <span className="text-gray-500 text-xs sm:text-sm">{row.panels}{row.inv ? ` · ${row.inv}` : ''}</span>
                       </div>
-                      <span className="font-semibold text-gray-800 shrink-0">{formatVnd(row.price)}</span>
+                      <span className="font-semibold text-gray-800 shrink-0">{row.price ? formatVnd(row.price) : '—'}</span>
                     </div>
                   ))}
                 </div>
 
                 <div data-stagger className="mt-6 space-y-3">
                   <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">Hệ thống Hybrid (có pin lưu trữ)</h3>
-                  {[
-                    { cap: '5 kWp', panels: '9 tấm', inv: '5kW', bat: '51.2V/100AH', price: 51_000_000 },
-                    { cap: '8 kWp', panels: '14 tấm', inv: '8kW', bat: '51.2V/100AH', price: 85_000_000 },
-                    { cap: '10 kWp 3P', panels: '18 tấm', inv: '10kW 3P', bat: '51.2V/100AH', price: 132_000_000 },
-                    { cap: '15 kWp 3P', panels: '28 tấm', inv: '15kW 3P', bat: '51.2V/100AH', price: 156_000_000 },
-                    { cap: '20 kWp 3P', panels: '36 tấm', inv: '20kW 3P', bat: '51.2V/100AH', price: 197_000_000 },
-                  ].map((row) => (
-                    <div key={row.cap} className="flex items-center justify-between p-3 glass rounded-xl border border-white/50 text-sm">
+                  {hybrid.map((row) => (
+                    <div key={row.id} className="flex items-center justify-between p-3 glass rounded-xl border border-white/50 text-sm">
                       <div className="flex items-center gap-2 sm:gap-4">
                         <span className="font-bold text-cyan-700 w-20 shrink-0">{row.cap}</span>
                         <span className="text-gray-500 text-xs sm:text-sm">{row.panels}</span>
                       </div>
-                      <span className="font-semibold text-gray-800 shrink-0">{formatVnd(row.price)}</span>
+                      <span className="font-semibold text-gray-800 shrink-0">{row.price ? formatVnd(row.price) : '—'}</span>
                     </div>
                   ))}
                 </div>

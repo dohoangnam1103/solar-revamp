@@ -270,16 +270,13 @@ export function calculateQuote(
   // không ảnh hưởng tới công suất hệ thống.
   const selfConsumedKwh = Math.min(annualProductionKwh, daytimeAnnualKwh)
 
-  // 7. Tiết kiệm hàng năm
+  // 7. Tiết kiệm hàng năm = công suất × 4h nắng × 2500đ/kWh × 30 ngày × 12 tháng
   const annualSavingsVnd = Math.round(
-    selfConsumedKwh * assumptions.evnPricePerKwh
+    recommendedCapacityKwp * 4 * 2500 * 30 * 12
   )
 
   // 8. Thời gian hoàn vốn (năm)
-  // Tính đơn giản: đầu tư / tiết kiệm năm đầu
-  const paybackYears = parseFloat(
-    (estimatedInvestmentAfterVatVnd / annualSavingsVnd).toFixed(1)
-  )
+  const paybackYears = daytimeUsageRate > 0.5 ? 3.5 : 4.5
 
   // 10. IRR (25 năm vòng đời)
   const cashFlows: number[] = [-estimatedInvestmentAfterVatVnd]
@@ -338,7 +335,7 @@ export function calculateQuote(
 // ─── Format helpers ───────────────────────────────────────────────────────────
 
 export function formatVnd(amount: number): string {
-  return `${formatNumberWithDots(amount)} đ`
+  return `${formatNumberWithDots(amount)}\u00A0đ`
 }
 
 export function formatKwh(kwh: number): string {

@@ -148,7 +148,8 @@ export default function QuoteCalculator({ assumptions, phone = '0902211893' }: {
               step="0.1"
               value={daytimeRate}
               onChange={(e) => setDaytimeRate(parseFloat(e.target.value))}
-              className="w-full cursor-pointer accent-green-700"
+              className="w-full cursor-pointer accent-green-700 h-8 touch-none [&::-webkit-slider-thumb]:h-7 [&::-webkit-slider-thumb]:w-7"
+              style={{ touchAction: 'none' }}
             />
             <div className="flex justify-between text-xs text-gray-900 mt-1">
               <span>Chủ yếu tối</span>

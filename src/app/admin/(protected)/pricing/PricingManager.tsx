@@ -9,12 +9,13 @@ import { formatNumberWithDots, formatVnd } from '@/lib/quote/calculator'
 import type { QuoteAssumptions } from '@/lib/quote/calculator'
 import AdminQuoteSettingsForm from '../settings/AdminQuoteSettingsForm'
 
-type Tab = 'bao-gia-uoc-tinh' | 'gia-dinh' | 'doanh-nghiep' | 'hybrid' | 'vat-tu'
+type Tab = 'bao-gia-uoc-tinh' | 'hoa-luoi' | 'gia-dinh' | 'doanh-nghiep' | 'hybrid' | 'vat-tu'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'bao-gia-uoc-tinh', label: 'Báo giá ước tính' },
   { id: 'gia-dinh', label: 'Điện gia đình' },
   { id: 'doanh-nghiep', label: 'Điện doanh nghiệp' },
+  { id: 'hoa-luoi', label: 'Hòa lưới' },
   { id: 'hybrid', label: 'Hybrid lưu trữ' },
   { id: 'vat-tu', label: 'Vật tư' },
 ]
@@ -320,12 +321,14 @@ function PackageTable({ tab, initialRows }: { tab: Tab; initialRows: PricingPack
 
 export default function PricingManager({
   assumptions,
+  hoaLuoi,
   giaDinh,
   doanhNghiep,
   hybrid,
   vatTu,
 }: {
   assumptions: QuoteAssumptions
+  hoaLuoi: PricingPackage[]
   giaDinh: PricingPackage[]
   doanhNghiep: PricingPackage[]
   hybrid: PricingPackage[]
@@ -333,8 +336,9 @@ export default function PricingManager({
 }) {
   const [activeTab, setActiveTab] = useState<Tab>('bao-gia-uoc-tinh')
 
-  const packageTabs: Exclude<Tab, 'bao-gia-uoc-tinh'>[] = ['gia-dinh', 'doanh-nghiep', 'hybrid', 'vat-tu']
+  const packageTabs: Exclude<Tab, 'bao-gia-uoc-tinh'>[] = ['hoa-luoi', 'gia-dinh', 'doanh-nghiep', 'hybrid', 'vat-tu']
   const dataMap: Record<Exclude<Tab, 'bao-gia-uoc-tinh'>, PricingPackage[]> = {
+    'hoa-luoi': hoaLuoi,
     'gia-dinh': giaDinh,
     'doanh-nghiep': doanhNghiep,
     hybrid,

@@ -11,3 +11,6 @@ node_modules
 *.log
 CleanShot*
 .codex-*.png
+
+# Temp folder for porting solar-panel logic into /check page (deleted after porting)
+solar-panel

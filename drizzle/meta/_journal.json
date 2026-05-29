@@ -71,6 +71,13 @@
       "when": 1779703735276,
       "tag": "0009_many_lester",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1780000000000,
+      "tag": "0010_ve_soliq_gallery",
+      "breakpoints": true
     }
   ]
 }

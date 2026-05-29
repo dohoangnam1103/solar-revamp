@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { buildPageMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
 import { getCachedPublishedRecruitmentPosts } from '@/lib/db/public-queries'
@@ -28,12 +29,23 @@ export default async function RecruitmentPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
-      <section className="bg-solar-hero py-20">
+      <section className="overflow-hidden bg-solar-hero pt-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <h1 className="mb-4 text-4xl font-extrabold text-white sm:text-5xl">Tuyển dụng</h1>
           <p className="mx-auto max-w-2xl text-lg text-green-100">
             Gia nhập SOLIQ ENERGY để cùng xây dựng các hệ thống điện mặt trời hiệu quả, bền vững và dễ tiếp cận hơn.
           </p>
+        </div>
+        <div className="mx-auto mt-6 max-w-6xl px-4 sm:mt-8 sm:px-6 lg:px-8">
+          <Image
+            src="/recruitment/soliq-team-transparent-completed-cropped.webp"
+            alt="Đội ngũ SOLIQ ENERGY"
+            width={2400}
+            height={1435}
+            priority
+            sizes="(min-width: 1024px) 1152px, 92vw"
+            className="mx-auto h-auto w-full object-contain"
+          />
         </div>
       </section>
 

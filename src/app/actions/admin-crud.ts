@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { articles, carouselImages, faqs, mediaAssets, partners, pricingPackages, projects, recruitmentApplications, recruitmentPosts, settings } from '@/lib/db/schema'
+import { articles, carouselImages, faqs, mediaAssets, partners, pricingPackages, projects, recruitmentApplications, recruitmentPosts, settings, veSoliqGalleryImages } from '@/lib/db/schema'
 import { eq, desc, asc, max } from 'drizzle-orm'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -56,8 +56,15 @@ function revalidateCarouselImages() {
   firePurgePaths(['/'])
 }
 
+function revalidateVeSoliqGalleryImages() {
+  revalidateTag('ve-soliq-gallery', 'max')
+  revalidatePath('/ve-soliq')
+  revalidatePath('/admin/ve-soliq-config')
+  firePurgePaths(['/ve-soliq'])
+}
+
 const DEFAULT_CAROUSEL_ALT = 'Công trình điện mặt trời SOLIQ đã lắp đặt'
-const CONTENT_ADMIN_UPLOAD_USAGES = new Set(['article-cover', 'project-cover', 'carousel'])
+const CONTENT_ADMIN_UPLOAD_USAGES = new Set(['article-cover', 'project-cover', 'carousel', 've-soliq-gallery'])
 
 export type PartnerFormState = {
   error?: string
@@ -563,6 +570,88 @@ export async function reorderCarouselImages(ids: number[]) {
   }
 
   revalidateCarouselImages()
+}
+
+// ─── VE-SOLIQ GALLERY ────────────────────────────────────────────────────────
+
+const DEFAULT_VE_SOLIQ_GALLERY_ALT = 'Hình ảnh thực tế đội ngũ SOLIQ tại hiện trường'
+
+export async function getVeSoliqGalleryImages() {
+  return db
+    .select({
+      id: veSoliqGalleryImages.id,
+      alt: veSoliqGalleryImages.alt,
+      sortOrder: veSoliqGalleryImages.sortOrder,
+      createdAt: veSoliqGalleryImages.createdAt,
+      mediaAssetId: mediaAssets.id,
+      url: mediaAssets.url,
+      originalName: mediaAssets.originalName,
+      mimeType: mediaAssets.mimeType,
+      sizeBytes: mediaAssets.sizeBytes,
+      storagePath: mediaAssets.storagePath,
+    })
+    .from(veSoliqGalleryImages)
+    .innerJoin(mediaAssets, eq(veSoliqGalleryImages.mediaAssetId, mediaAssets.id))
+    .orderBy(asc(veSoliqGalleryImages.sortOrder), asc(veSoliqGalleryImages.id))
+}
+
+export async function createVeSoliqGalleryImage(formData: FormData) {
+  await requireAdmin()
+  const file = formData.get('image')
+  if (!(file instanceof File)) {
+    throw new Error('Chưa chọn ảnh để upload.')
+  }
+
+  const [lastImage] = await db
+    .select({ sortOrder: veSoliqGalleryImages.sortOrder })
+    .from(veSoliqGalleryImages)
+    .orderBy(desc(veSoliqGalleryImages.sortOrder))
+    .limit(1)
+  const asset = await uploadImageAsset(file, 've-soliq-gallery', DEFAULT_VE_SOLIQ_GALLERY_ALT)
+
+  await db.insert(veSoliqGalleryImages).values({
+    mediaAssetId: asset.id,
+    alt: DEFAULT_VE_SOLIQ_GALLERY_ALT,
+    sortOrder: (lastImage?.sortOrder ?? 0) + 1,
+  })
+
+  revalidateVeSoliqGalleryImages()
+}
+
+export async function deleteVeSoliqGalleryImage(id: number) {
+  await requireAdmin()
+  const rows = await db
+    .select({
+      mediaAssetId: veSoliqGalleryImages.mediaAssetId,
+      storagePath: mediaAssets.storagePath,
+    })
+    .from(veSoliqGalleryImages)
+    .innerJoin(mediaAssets, eq(veSoliqGalleryImages.mediaAssetId, mediaAssets.id))
+    .where(eq(veSoliqGalleryImages.id, id))
+
+  const row = rows[0]
+  if (!row) return
+
+  await db.delete(veSoliqGalleryImages).where(eq(veSoliqGalleryImages.id, id))
+  await db.delete(mediaAssets).where(eq(mediaAssets.id, row.mediaAssetId))
+  await deleteStoredUpload(row.storagePath)
+
+  revalidateVeSoliqGalleryImages()
+}
+
+export async function reorderVeSoliqGalleryImages(ids: number[]) {
+  await requireAdmin()
+  const orderedIds = Array.from(new Set(ids))
+    .filter((id) => Number.isInteger(id) && id > 0)
+
+  for (const [index, id] of orderedIds.entries()) {
+    await db.update(veSoliqGalleryImages).set({
+      sortOrder: index + 1,
+      updatedAt: new Date(),
+    }).where(eq(veSoliqGalleryImages.id, id))
+  }
+
+  revalidateVeSoliqGalleryImages()
 }
 
 // ─── SETTINGS ──────────────────────────────────────────────────────────────────

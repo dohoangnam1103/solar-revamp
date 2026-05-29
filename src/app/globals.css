@@ -513,3 +513,10 @@ body {
     display: none;
   }
 }
+
+
+/* ===== /check page ===== */
+/* Số dạng tabular để các giá trị không "nhảy" khi cập nhật real-time */
+.check-tabular {
+  font-variant-numeric: tabular-nums;
+}

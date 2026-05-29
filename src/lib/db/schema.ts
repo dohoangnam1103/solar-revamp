@@ -105,6 +105,16 @@ export const carouselImages = pgTable('carousel_images', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+export const veSoliqGalleryImages = pgTable('ve_soliq_gallery_images', {
+  id: serial('id').primaryKey(),
+  mediaAssetId: integer('media_asset_id').references(() => mediaAssets.id, { onDelete: 'cascade' }).notNull(),
+  alt: text('alt').notNull(),
+  sortOrder: integer('sort_order').default(0).notNull(),
+  active: boolean('active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 export const recruitmentPosts = pgTable('recruitment_posts', {
   id: serial('id').primaryKey(),
   slug: text('slug').notNull().unique(),
@@ -183,6 +193,7 @@ export type Project = typeof projects.$inferSelect
 export type MediaAsset = typeof mediaAssets.$inferSelect
 export type NewMediaAsset = typeof mediaAssets.$inferInsert
 export type CarouselImage = typeof carouselImages.$inferSelect
+export type VeSoliqGalleryImage = typeof veSoliqGalleryImages.$inferSelect
 export type RecruitmentPost = typeof recruitmentPosts.$inferSelect
 export type RecruitmentApplication = typeof recruitmentApplications.$inferSelect
 export type Setting = typeof settings.$inferSelect

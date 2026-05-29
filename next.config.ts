@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://connect.facebook.net",
-      "frame-src https://www.googletagmanager.com https://solarcheck.best https://*.solarcheck.best",
+      "frame-src https://www.googletagmanager.com",
       "worker-src 'self' blob:",
       "form-action 'self'",
       ...(enableStrictHttpsHeaders ? ["upgrade-insecure-requests"] : []),
@@ -62,7 +62,7 @@ const nextConfig: NextConfig = {
       },
       {
         key: 'Permissions-Policy',
-        value: 'camera=(), microphone=(), geolocation=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn"), accelerometer=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn"), gyroscope=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn"), magnetometer=(self "https://solarcheck.best" "https://soliq.com.vn" "https://www.soliq.com.vn")',
+        value: 'camera=(), microphone=(), geolocation=(self "https://soliq.com.vn" "https://www.soliq.com.vn"), accelerometer=(self "https://soliq.com.vn" "https://www.soliq.com.vn"), gyroscope=(self "https://soliq.com.vn" "https://www.soliq.com.vn"), magnetometer=(self "https://soliq.com.vn" "https://www.soliq.com.vn")',
       },
     ]
 
