@@ -105,6 +105,13 @@ function renderTiptapNode(node: TiptapNode, key: string): ReactNode {
   const children = renderTiptapChildren(node.content, key)
 
   if (node.type === 'paragraph') {
+    // Empty paragraphs (created by pressing Enter on a blank line in the editor)
+    // have no children, so a normal <p> collapses to ~0 height and the spacing
+    // looks much smaller than in the editor. Render a real blank line instead.
+    const isEmpty = !node.content || node.content.length === 0
+    if (isEmpty) {
+      return <p key={key} className="leading-relaxed" aria-hidden="true">&nbsp;</p>
+    }
     return (
       <p key={key} className="mb-4 leading-relaxed text-gray-700">
         {children}

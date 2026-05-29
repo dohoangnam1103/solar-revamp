@@ -22,7 +22,7 @@ export default function EditArticleForm({ article }: { article: any }) {
   }, [router, state.success])
 
   return (
-    <div className="p-6 max-w-2xl">
+    <div className="p-6 max-w-5xl">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Sửa bài viết</h1>
       <form action={formAction} encType="multipart/form-data" className="space-y-4 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <SlugTitleFields defaultTitle={article.title} fallbackSlug="bai-viet" />

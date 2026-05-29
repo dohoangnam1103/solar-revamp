@@ -107,7 +107,7 @@ export default async function ArticlePage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <Link href="/tin-tuc" className="inline-flex items-center gap-2 text-sm text-green-700 hover:text-green-800 mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" />Quay lại tin tức
         </Link>
@@ -123,7 +123,7 @@ export default async function ArticlePage({ params }: Props) {
                 src={article.image}
                 alt={article.title}
                 fill
-                sizes="(min-width: 768px) 768px, 100vw"
+                sizes="(min-width: 1024px) 1024px, 100vw"
                 className="object-cover"
                 priority
               />

@@ -18,7 +18,7 @@ export default async function EditRecruitmentPage({ params }: Props) {
   if (!post) notFound()
 
   return (
-    <div className="max-w-3xl p-6">
+    <div className="max-w-5xl p-6">
       <h1 className="mb-6 text-2xl font-bold text-gray-900">Sửa tin tuyển dụng</h1>
       <form action={updateRecruitmentPost.bind(null, post.id)} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <SlugTitleFields defaultTitle={post.title} fallbackSlug="tin-tuyen-dung" />
