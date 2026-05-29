@@ -42,21 +42,21 @@ const MODES: Record<
 
 const FLOW_PATHS = {
   solar: [
-    'M248 150 C340 136 442 168 534 296',
-    'M534 315 C438 326 324 304 230 224',
-    'M550 315 C650 312 734 354 790 430',
-    'M528 326 C462 384 382 438 250 504',
+    'M220 155 C330 142 430 180 500 320',
+    'M500 320 C402 306 316 278 220 230',
+    'M500 320 C612 322 694 364 735 445',
+    'M500 320 C420 402 328 448 250 445',
   ],
   storage: [
-    'M820 226 C746 206 636 218 558 288',
-    'M250 504 C374 448 464 378 534 316',
-    'M550 324 C650 330 736 374 790 430',
-    'M528 312 C438 326 324 304 230 224',
+    'M780 190 C680 174 580 194 500 320',
+    'M250 445 C335 448 424 392 500 320',
+    'M500 320 C612 322 694 364 735 445',
+    'M500 320 C402 306 316 278 220 230',
   ],
   backup: [
-    'M250 504 C374 448 464 378 534 316',
-    'M532 312 C438 326 324 304 230 224',
-    'M550 324 C650 330 736 374 790 430',
+    'M250 445 C335 448 424 392 500 320',
+    'M500 320 C402 306 316 278 220 230',
+    'M500 320 C612 322 694 364 735 445',
   ],
 }
 
@@ -65,31 +65,31 @@ const SYSTEM_NODES = [
     name: 'Nhà dùng điện mặt trời',
     tooltip: 'Nhà đang sử dụng điện từ hệ hybrid',
     src: '/hero/solar-node-house.webp',
-    className: 'left-[3%] top-[4%] w-[36%] sm:left-[5%] sm:top-[5%] sm:w-[34%]',
+    className: 'left-[4%] top-[2%] w-[34%] sm:left-[4%] sm:top-[1%] sm:w-[34%]',
   },
   {
     name: 'Inverter hybrid',
     tooltip: 'Inverter',
     src: '/hero/solar-node-inverter.webp',
-    className: 'left-[41.5%] top-[33%] w-[24%] sm:left-[42.5%] sm:top-[34%] sm:w-[22%]',
+    className: 'left-[38%] top-[30%] w-[24%] sm:left-[39%] sm:top-[33%] sm:w-[22%]',
   },
   {
     name: 'Pin lưu trữ',
     tooltip: 'Pin lưu trữ',
     src: '/hero/solar-node-battery.webp',
-    className: 'left-[7%] top-[61%] w-[29%] sm:left-[10%] sm:top-[62%] sm:w-[25%]',
+    className: 'left-[4%] top-[54%] w-[28%] sm:left-[4%] sm:top-[54%] sm:w-[27%]',
   },
   {
     name: 'Sạc xe điện',
     tooltip: 'Sạc ô tô điện',
     src: '/hero/solar-node-ev.webp',
-    className: 'left-[61%] top-[50%] w-[34%] sm:left-[62%] sm:top-[50%] sm:w-[32%]',
+    className: 'left-[65%] top-[54%] w-[28%] sm:left-[66%] sm:top-[54%] sm:w-[27%]',
   },
   {
     name: 'Lưới điện',
     tooltip: 'Điện lưới',
     src: '/hero/solar-node-grid.webp',
-    className: 'left-[70%] top-[12%] w-[26%] sm:left-[72%] sm:top-[13%] sm:w-[23%]',
+    className: 'left-[72%] top-[9%] w-[24%] sm:left-[72%] sm:top-[9%] sm:w-[24%]',
   },
 ]
 
