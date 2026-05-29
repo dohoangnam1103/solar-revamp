@@ -42,12 +42,19 @@ export async function submitContact(
     })
     revalidatePath('/admin/leads')
 
-    notifyNewContact({
-      name: name.trim(),
-      phone: phone.trim(),
-      email: email?.trim(),
-      message: message?.trim(),
-    }).catch((err) => console.error('[notifyNewContact] failed:', err))
+    // Await the notification so the SMTP send completes before the server
+    // action returns. In standalone runtime, fire-and-forget promises can be
+    // cut off when the request context ends, silently dropping the email.
+    try {
+      await notifyNewContact({
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email?.trim(),
+        message: message?.trim(),
+      })
+    } catch (err) {
+      console.error('[notifyNewContact] failed:', err)
+    }
 
     return { success: true }
   } catch {
@@ -94,13 +101,17 @@ export async function submitRecruitmentApplication(
     })
     revalidatePath('/admin/recruitment')
 
-    notifyNewRecruitmentApplication({
-      name: name.trim(),
-      phone: phone.trim(),
-      email: email?.trim(),
-      position: position.trim() || 'Tin tuyển dụng',
-      message: message?.trim(),
-    }).catch((err) => console.error('[notifyNewRecruitmentApplication] failed:', err))
+    try {
+      await notifyNewRecruitmentApplication({
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email?.trim(),
+        position: position.trim() || 'Tin tuyển dụng',
+        message: message?.trim(),
+      })
+    } catch (err) {
+      console.error('[notifyNewRecruitmentApplication] failed:', err)
+    }
 
     return { success: true }
   } catch {

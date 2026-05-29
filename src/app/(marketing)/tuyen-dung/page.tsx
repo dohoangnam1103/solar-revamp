@@ -28,6 +28,7 @@ export default async function RecruitmentPage() {
 
   return (
     <>
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
       <section className="overflow-hidden bg-solar-hero pt-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">

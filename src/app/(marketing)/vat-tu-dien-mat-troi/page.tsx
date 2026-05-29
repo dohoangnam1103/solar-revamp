@@ -28,6 +28,7 @@ export default async function VatTuPage() {
   const jsonLd = serviceSchema('Vật tư điện mặt trời', 'Cung cấp tấm pin, biến tần, pin lưu trữ điện mặt trời chính hãng', '/vat-tu-dien-mat-troi')
   return (
     <>
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <section className="bg-solar-hero py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

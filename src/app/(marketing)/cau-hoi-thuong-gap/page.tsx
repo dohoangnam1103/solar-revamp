@@ -19,6 +19,7 @@ export default async function FAQPage() {
   const jsonLd = faqSchema(faqs.map((f) => ({ question: f.question, answer: f.answer })))
   return (
     <>
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <section className="bg-solar-hero py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

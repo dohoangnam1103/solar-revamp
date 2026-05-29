@@ -103,7 +103,9 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="bg-solar-light min-h-screen">
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <Link href="/tin-tuc" className="inline-flex items-center gap-2 text-sm text-green-700 hover:text-green-800 mb-8 transition-colors">

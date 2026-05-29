@@ -134,22 +134,27 @@ export async function submitQuote(
     revalidatePath('/admin/leads')
     revalidatePath('/admin/quotes')
 
-    // Fire-and-forget email notification
-    notifyNewQuote({
-      name,
-      phone,
-      email,
-      address,
-      province,
-      monthlyBillVnd: quoteInput.monthlyBillVnd,
-      customerType: quoteInput.customerType,
-      paymentMode: quoteInput.paymentMode,
-      batteryOption: Boolean(quoteInput.batteryOption),
-      recommendedCapacityKwp: result.recommendedCapacityKwp,
-      estimatedInvestmentVnd: result.estimatedInvestmentAfterVatVnd,
-      paybackYears: result.paybackYears,
-      quoteToken: publicToken,
-    }).catch((err) => console.error('[notifyNewQuote] failed:', err))
+    // Await the notification so the SMTP send completes before the server
+    // action returns (fire-and-forget gets cut off in standalone runtime).
+    try {
+      await notifyNewQuote({
+        name,
+        phone,
+        email,
+        address,
+        province,
+        monthlyBillVnd: quoteInput.monthlyBillVnd,
+        customerType: quoteInput.customerType,
+        paymentMode: quoteInput.paymentMode,
+        batteryOption: Boolean(quoteInput.batteryOption),
+        recommendedCapacityKwp: result.recommendedCapacityKwp,
+        estimatedInvestmentVnd: result.estimatedInvestmentAfterVatVnd,
+        paybackYears: result.paybackYears,
+        quoteToken: publicToken,
+      })
+    } catch (err) {
+      console.error('[notifyNewQuote] failed:', err)
+    }
 
     return {
       success: true,

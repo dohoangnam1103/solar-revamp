@@ -55,13 +55,10 @@ export default async function HomePage() {
   return (
     <>
       {/* JSON-LD */}
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            faqSchema(featuredFaqs.map((f) => ({ question: f.question, answer: f.answer })))
-          ).replace(/</g, '\\u003c'),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema(featuredFaqs.map((f) => ({ question: f.question, answer: f.answer })))).replace(/</g, '\\u003c') }}
       />
 
       {/* ── INTERACTIVE SYSTEM PREVIEW ───────────────────────────────────── */}

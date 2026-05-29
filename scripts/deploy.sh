@@ -13,13 +13,15 @@
 set -euo pipefail
 
 # ─── Config ──────────────────────────────────────────────────────────────────
-VPS_HOST="${VPS_HOST:-root@103.179.189.210}"
-VPS_PASSWORD="${VPS_PASSWORD:-j9Jt72fe411gZ95O}"
+VPS_HOST="${VPS_HOST:-root@103.56.161.186}"
+VPS_PORT="${VPS_PORT:-24700}"
+VPS_SSH_KEY="${VPS_SSH_KEY:-$HOME/.ssh/id_ed25519_soliq_vps}"
+VPS_PASSWORD="${VPS_PASSWORD:-}"
 REMOTE_DIR="${REMOTE_DIR:-/root/soliq}"
 IMAGE_NAME="${IMAGE_NAME:-soliq-web}"
 IMAGE_TAG="${IMAGE_TAG:-amd64}"
 ENV_FILE="${ENV_FILE:-.env.vps}"
-NEXT_PUBLIC_SITE_URL_DEFAULT="${NEXT_PUBLIC_SITE_URL_DEFAULT:-https://soliq2.solarcheck.best}"
+NEXT_PUBLIC_SITE_URL_DEFAULT="${NEXT_PUBLIC_SITE_URL_DEFAULT:-https://soliq.com.vn}"
 
 # ─── Args ────────────────────────────────────────────────────────────────────
 FAST=0
@@ -37,12 +39,22 @@ say() { printf '\033[1;32m→ %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33m! %s\033[0m\n' "$*"; }
 die() { printf '\033[1;31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 
-# Use sshpass if available + password set, otherwise rely on SSH agent / key.
-SSH_CMD=(ssh -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR)
-SCP_CMD=(scp -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR)
-if [[ -n "${VPS_PASSWORD:-}" ]] && command -v sshpass > /dev/null 2>&1; then
-  SSH_CMD=(sshpass -p "$VPS_PASSWORD" "${SSH_CMD[@]}")
-  SCP_CMD=(sshpass -p "$VPS_PASSWORD" "${SCP_CMD[@]}")
+# Connection: prefer SSH key (+ custom port). Fall back to sshpass if a
+# password is explicitly provided and no key file exists.
+SSH_OPTS=(-p "$VPS_PORT" -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR)
+SCP_OPTS=(-P "$VPS_PORT" -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR)
+
+if [[ -f "$VPS_SSH_KEY" ]]; then
+  SSH_OPTS+=(-i "$VPS_SSH_KEY")
+  SCP_OPTS+=(-i "$VPS_SSH_KEY")
+  SSH_CMD=(ssh "${SSH_OPTS[@]}")
+  SCP_CMD=(scp "${SCP_OPTS[@]}")
+elif [[ -n "${VPS_PASSWORD:-}" ]] && command -v sshpass > /dev/null 2>&1; then
+  SSH_CMD=(sshpass -p "$VPS_PASSWORD" ssh "${SSH_OPTS[@]}")
+  SCP_CMD=(sshpass -p "$VPS_PASSWORD" scp "${SCP_OPTS[@]}")
+else
+  SSH_CMD=(ssh "${SSH_OPTS[@]}")
+  SCP_CMD=(scp "${SCP_OPTS[@]}")
 fi
 
 # ─── Pre-flight ──────────────────────────────────────────────────────────────

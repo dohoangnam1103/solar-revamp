@@ -36,6 +36,7 @@ export default async function VeSoliqPage() {
 
   return (
     <>
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <section data-reveal className="bg-solar-hero py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

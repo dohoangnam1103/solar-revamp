@@ -47,6 +47,7 @@ export default async function RecruitmentDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-solar-light">
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }} />
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <Link href="/tuyen-dung" className="mb-8 inline-flex items-center gap-2 text-sm text-green-700 transition-colors hover:text-green-800">

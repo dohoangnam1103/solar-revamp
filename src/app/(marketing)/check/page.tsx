@@ -19,11 +19,10 @@ export default function CheckPage() {
 
   return (
     <>
+      {/* biome-ignore lint: JSON-LD structured data, escaped via \u003c */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c'),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb).replace(/</g, '\\u003c') }}
       />
 
       <SolarCheckClient />
