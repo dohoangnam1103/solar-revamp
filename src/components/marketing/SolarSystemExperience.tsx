@@ -63,7 +63,7 @@ const FLOW_PATHS = {
 const SYSTEM_NODES = [
   {
     name: 'Nhà dùng điện mặt trời',
-    tooltip: 'Nhà đang sử dụng điện từ hệ hybrid',
+    tooltip: 'Nhà sử dụng hệ hybrid',
     src: '/hero/solar-node-house.webp',
     className: 'left-[4%] top-[2%] w-[34%] sm:left-[4%] sm:top-[1%] sm:w-[34%]',
   },
@@ -156,7 +156,7 @@ export default function SolarSystemExperience() {
           </div>
         </div>
 
-        <div className="order-2 mx-auto flex w-full max-w-4xl flex-col xl:order-none xl:max-w-none">
+        <div className="order-2 mx-auto mt-6 flex w-full max-w-4xl flex-col sm:mt-14 xl:order-none xl:mt-0 xl:max-w-none">
           <div className="relative w-full">
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/28 blur-3xl" />
 
