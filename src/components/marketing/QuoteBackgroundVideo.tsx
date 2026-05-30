@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
-const DESKTOP_VIDEO_QUERY = '(min-width: 768px)'
+// The quote section only switches to a 2-column layout at Tailwind's `lg`
+// breakpoint (1024px). Below that it's a single column where the video would
+// just sit behind text, so we only load it from `lg` upward to save bandwidth
+// on phones and tablets.
+const DESKTOP_VIDEO_QUERY = '(min-width: 1024px)'
 
 function subscribeToDesktopVideo(callback: () => void) {
   const mediaQuery = window.matchMedia(DESKTOP_VIDEO_QUERY)
