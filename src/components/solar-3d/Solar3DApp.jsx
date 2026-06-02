@@ -90,6 +90,17 @@ function SceneEnvironment() {
   return null
 }
 
+function cameraMaxDistanceForGeometry(geometry) {
+  const dims = geometry?.dims || HOUSE
+  const width = Number(dims.width) || HOUSE.width
+  const depth = Number(dims.depth) || HOUSE.depth
+  const height = (Number(dims.wallHeight) || HOUSE.wallHeight) +
+    (Number(dims.roofHeight) || HOUSE.roofHeight)
+  const footprintDiagonal = Math.hypot(width, depth)
+
+  return Math.min(260, Math.max(42, Math.ceil(footprintDiagonal * 2.25 + height * 2)))
+}
+
 function Scene({
   geometry,
   panel,
@@ -109,6 +120,10 @@ function Scene({
   recalibrateKey,
 }) {
   const faces = geometry.faces
+  const cameraMaxDistance = useMemo(
+    () => cameraMaxDistanceForGeometry(geometry),
+    [geometry],
+  )
 
   return (
     <>
@@ -176,7 +191,7 @@ function Scene({
         enabled={!dragging}
         enableRotate={!compassActive}
         minDistance={10}
-        maxDistance={42}
+        maxDistance={cameraMaxDistance}
         maxPolarAngle={Math.PI / 2.1}
         target={[0, 4, 0]}
         enableDamping
@@ -596,12 +611,12 @@ export default function Demo2() {
             recalibrateKey={recalibrateKey}
           />
         </Canvas>
-        <div className="hint">
-          {strings.length > 0
-            ? 'Chạm vào chuỗi pin để kéo · chạm chỗ trống để xoay góc nhìn'
-            : 'Kéo để xoay góc nhìn · Chụm 2 ngón để zoom'}
-        </div>
-
+        <img
+          className="scene-logo"
+          src="/brand/symbol-10.png"
+          alt="SOLIQ ENERGY"
+          aria-hidden="true"
+        />
         {/* slider chỉnh hướng nhà + nút la bàn, nổi trên đầu vùng 3D */}
         <div className="house-dir-overlay">
           <div className="house-dir-row">
