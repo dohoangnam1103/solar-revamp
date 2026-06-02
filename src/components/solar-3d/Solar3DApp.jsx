@@ -98,7 +98,7 @@ function cameraMaxDistanceForGeometry(geometry) {
     (Number(dims.roofHeight) || HOUSE.roofHeight)
   const footprintDiagonal = Math.hypot(width, depth)
 
-  return Math.min(260, Math.max(42, Math.ceil(footprintDiagonal * 2.25 + height * 2)))
+  return Math.min(360, Math.max(60, Math.ceil(footprintDiagonal * 3.2 + height * 2.6)))
 }
 
 function Scene({
@@ -616,11 +616,8 @@ export default function Demo2() {
           href="https://soliq.com.vn/"
           aria-label="Về trang chủ SOLIQ ENERGY"
         >
-          <img
-            className="scene-logo"
-            src="/brand/symbol-10.png"
-            alt="SOLIQ ENERGY"
-          />
+          <span className="scene-logo-name">SOLIQ ENERGY</span>
+          <span className="scene-logo-tagline">Smart Power From Sun</span>
         </a>
         {/* slider chỉnh hướng nhà + nút la bàn, nổi trên đầu vùng 3D */}
         <div className="house-dir-overlay">

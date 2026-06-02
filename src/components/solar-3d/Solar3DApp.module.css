@@ -202,16 +202,28 @@
   left: 18px;
   z-index: 6;
   display: block;
-  width: 112px;
+  line-height: 1;
+  text-decoration: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.solar3dScope :global(.scene-logo) {
+.solar3dScope :global(.scene-logo-name) {
   display: block;
-  width: 100%;
-  height: auto;
-  user-select: none;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: normal;
+  color: #166534;
+}
+
+.solar3dScope :global(.scene-logo-tagline) {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.45rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.42em;
+  color: rgba(21, 128, 61, 0.7);
 }
 
 .solar3dScope :global(.settings-fab) {
@@ -583,7 +595,15 @@
   .solar3dScope :global(.scene-logo-link) {
     bottom: 16px;
     left: 14px;
-    width: 88px;
+  }
+
+  .solar3dScope :global(.scene-logo-name) {
+    font-size: 1.05rem;
+  }
+
+  .solar3dScope :global(.scene-logo-tagline) {
+    font-size: 0.4rem;
+    letter-spacing: 0.36em;
   }
 
   .solar3dScope :global(.panel) {
