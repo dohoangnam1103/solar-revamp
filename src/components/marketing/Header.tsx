@@ -16,6 +16,7 @@ const navLinks = [
       { label: 'Hệ thống Hybrid lưu trữ', href: '/he-thong-hybrid-luu-tru' },
       { label: 'Thuê hệ thống', href: '/thue-he-thong-dien-mat-troi' },
       { label: 'Vật tư điện mặt trời', href: '/vat-tu-dien-mat-troi' },
+      { label: 'Mô phỏng 3D', href: '/3d' },
     ],
   },
   { label: 'Dự án', href: '/du-an' },

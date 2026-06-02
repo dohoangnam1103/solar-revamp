@@ -196,14 +196,21 @@
   color: #1b2733;
 }
 
-.solar3dScope :global(.scene-logo) {
+.solar3dScope :global(.scene-logo-link) {
   position: absolute;
   bottom: 18px;
   left: 18px;
   z-index: 6;
+  display: block;
   width: 112px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.solar3dScope :global(.scene-logo) {
+  display: block;
+  width: 100%;
   height: auto;
-  pointer-events: none;
   user-select: none;
 }
 
@@ -573,7 +580,7 @@
     display: flex;
   }
 
-  .solar3dScope :global(.scene-logo) {
+  .solar3dScope :global(.scene-logo-link) {
     bottom: 16px;
     left: 14px;
     width: 88px;

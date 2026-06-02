@@ -611,12 +611,17 @@ export default function Demo2() {
             recalibrateKey={recalibrateKey}
           />
         </Canvas>
-        <img
-          className="scene-logo"
-          src="/brand/symbol-10.png"
-          alt="SOLIQ ENERGY"
-          aria-hidden="true"
-        />
+        <a
+          className="scene-logo-link"
+          href="https://soliq.com.vn/"
+          aria-label="Về trang chủ SOLIQ ENERGY"
+        >
+          <img
+            className="scene-logo"
+            src="/brand/symbol-10.png"
+            alt="SOLIQ ENERGY"
+          />
+        </a>
         {/* slider chỉnh hướng nhà + nút la bàn, nổi trên đầu vùng 3D */}
         <div className="house-dir-overlay">
           <div className="house-dir-row">
