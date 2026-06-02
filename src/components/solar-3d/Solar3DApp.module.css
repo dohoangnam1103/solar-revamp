@@ -1,0 +1,616 @@
+.solar3dScope,
+.solar3dScope :global(*) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.solar3dScope:global(.app) {
+  display: flex;
+  width: 100%;
+  height: 100dvh;
+  min-height: 620px;
+  overflow: hidden;
+  background: #e9f5ff;
+  color: #1b2733;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.solar3dScope :global(button),
+.solar3dScope :global(input) {
+  font: inherit;
+}
+
+.solar3dScope :global(.canvas-wrap) {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  background: linear-gradient(#bfe3ff, #e9f5ff 60%, #f3f7f2);
+}
+
+.solar3dScope :global(.panel) {
+  width: 320px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-left: 1px solid #e6e8eb;
+  background: #ffffff;
+  padding: 20px;
+}
+
+.solar3dScope :global(.panel h1) {
+  margin-bottom: 4px;
+  color: #1b2733;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.solar3dScope :global(.panel .sub) {
+  margin-bottom: 18px;
+  color: #6b7785;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.solar3dScope :global(.field) {
+  margin-bottom: 18px;
+}
+
+.solar3dScope :global(.field label) {
+  display: block;
+  margin-bottom: 8px;
+  color: #36424e;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.field input[type="range"]),
+.solar3dScope :global(.house-dir-overlay input[type="range"]) {
+  width: 100%;
+  height: 38px;
+  padding: 13px 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.solar3dScope :global(.field input[type="range"]::-webkit-slider-runnable-track) {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1473e6, #79b8ff);
+}
+
+.solar3dScope :global(.house-dir-overlay input[type="range"]::-webkit-slider-runnable-track) {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1473e6, #79b8ff);
+}
+
+.solar3dScope :global(.field input[type="range"]::-webkit-slider-thumb) {
+  width: 34px;
+  height: 34px;
+  margin-top: -13px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1473e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+}
+
+.solar3dScope :global(.house-dir-overlay input[type="range"]::-webkit-slider-thumb) {
+  width: 34px;
+  height: 34px;
+  margin-top: -13px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1473e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+}
+
+.solar3dScope :global(.field input[type="range"]::-moz-range-track) {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1473e6, #79b8ff);
+}
+
+.solar3dScope :global(.house-dir-overlay input[type="range"]::-moz-range-track) {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1473e6, #79b8ff);
+}
+
+.solar3dScope :global(.field input[type="range"]::-moz-range-thumb) {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #1473e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+}
+
+.solar3dScope :global(.house-dir-overlay input[type="range"]::-moz-range-thumb) {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #1473e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+}
+
+.solar3dScope :global(.kw-value) {
+  color: #1473e6;
+  font-weight: 700;
+}
+
+.solar3dScope :global(.options) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.solar3dScope :global(.options.single) {
+  grid-template-columns: 1fr;
+}
+
+.solar3dScope :global(.opt) {
+  border: 1.5px solid #d6dbe0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #36424e;
+  cursor: pointer;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.25;
+  transition: all 0.15s ease;
+}
+
+.solar3dScope :global(.opt:hover) {
+  border-color: #9db4cc;
+}
+
+.solar3dScope :global(.opt.active) {
+  border-color: #1473e6;
+  background: #eef5ff;
+  color: #0d5bbd;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.summary) {
+  margin-top: 8px;
+  border-radius: 8px;
+  background: #f5f8fb;
+  color: #36424e;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.solar3dScope :global(.summary b) {
+  color: #1b2733;
+}
+
+.solar3dScope :global(.hint) {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 5;
+  border-radius: 6px;
+  background: rgba(27, 39, 51, 0.7);
+  color: #ffffff;
+  padding: 6px 12px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.solar3dScope :global(.settings-fab) {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 20;
+  display: none;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #1473e6;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.solar3dScope :global(.settings-fab:active) {
+  transform: scale(0.94);
+}
+
+.solar3dScope :global(.panel-close) {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 5;
+  display: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e0e3e7;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #36424e;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.solar3dScope :global(.panel-backdrop) {
+  display: none;
+}
+
+.solar3dScope :global(.save-btn) {
+  width: 100%;
+  margin-top: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #1473e6;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+.solar3dScope :global(.save-btn:hover) {
+  background: #0d5bbd;
+}
+
+.solar3dScope :global(.save-btn:active) {
+  transform: translateY(1px);
+}
+
+.solar3dScope :global(.reset-btn) {
+  margin-top: 10px;
+  border: 1.5px solid #d6dbe0;
+  background: #eef1f4;
+  color: #36424e;
+}
+
+.solar3dScope :global(.reset-btn:hover) {
+  background: #e0e5ea;
+}
+
+.solar3dScope :global(.frame-actions) {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.solar3dScope :global(.frame-action) {
+  width: 100%;
+  border: 1.5px solid #d6dbe0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #36424e;
+  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.solar3dScope :global(.frame-action:hover) {
+  border-color: #1473e6;
+  color: #1473e6;
+}
+
+.solar3dScope :global(.frame-action.active) {
+  border-color: #1473e6;
+  background: #eef5ff;
+  color: #0d5bbd;
+}
+
+.solar3dScope :global(.stepper) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.solar3dScope :global(.stepper button) {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: 1.5px solid #d6dbe0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #36424e;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.stepper button:hover) {
+  border-color: #1473e6;
+  color: #1473e6;
+}
+
+.solar3dScope :global(.stepper input) {
+  min-width: 0;
+  height: 38px;
+  flex: 1;
+  border: 1.5px solid #d6dbe0;
+  border-radius: 8px;
+  color: #1b2733;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.dimension-grid) {
+  display: grid;
+  gap: 10px 8px;
+  margin-bottom: 18px;
+}
+
+.solar3dScope :global(.dimension-grid.two) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.solar3dScope :global(.dimension-field label) {
+  display: block;
+  margin-bottom: 6px;
+  color: #36424e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.dimension-field input) {
+  width: 100%;
+  height: 38px;
+  border: 1.5px solid #d6dbe0;
+  border-radius: 8px;
+  color: #1b2733;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.back-link) {
+  display: block;
+  margin-top: 14px;
+  color: #6b7785;
+  text-align: center;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.solar3dScope :global(.back-link:hover) {
+  color: #1473e6;
+}
+
+.solar3dScope :global(.string-list) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.solar3dScope :global(.string-item) {
+  border: 1.5px solid #d6dbe0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #36424e;
+  cursor: pointer;
+  padding: 9px 12px;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.solar3dScope :global(.string-item:hover) {
+  border-color: #9db4cc;
+}
+
+.solar3dScope :global(.string-item.active) {
+  border-color: #1473e6;
+  background: #eef5ff;
+  color: #0d5bbd;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.dim-grid) {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.solar3dScope :global(.dim-grid.two) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.solar3dScope :global(.dim-cell) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.solar3dScope :global(.dim-cell label) {
+  color: #6b7785;
+  font-size: 11px;
+}
+
+.solar3dScope :global(.dim-cell input) {
+  width: 100%;
+  height: 36px;
+  border: 1.5px solid #d6dbe0;
+  border-radius: 8px;
+  color: #1b2733;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.panel-header) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.solar3dScope :global(.compass-btn) {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid #d6dbe0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #36424e;
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.solar3dScope :global(.compass-btn:hover) {
+  border-color: #1473e6;
+  color: #1473e6;
+}
+
+.solar3dScope :global(.compass-btn.on) {
+  border-color: #1473e6;
+  background: #eef5ff;
+  color: #0d5bbd;
+}
+
+.solar3dScope :global(.compass-err) {
+  margin-bottom: 10px;
+  color: #c0392b;
+  font-size: 12px;
+}
+
+.solar3dScope :global(.house-dir-overlay) {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  left: 12px;
+  z-index: 15;
+  max-width: 420px;
+  margin: 0 auto;
+  border: 1px solid #e0e3e7;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+}
+
+.solar3dScope :global(.house-dir-label) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: #36424e;
+  font-size: 13px;
+}
+
+.solar3dScope :global(.house-dir-row) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.solar3dScope :global(.house-dir-row .house-dir-label) {
+  margin-bottom: 0;
+}
+
+.solar3dScope :global(.compass-err-overlay) {
+  margin-top: 6px;
+  color: #c0392b;
+  font-size: 11px;
+}
+
+.solar3dScope :global(.house-dir-label b) {
+  color: #1473e6;
+}
+
+.solar3dScope :global(.house-dir-label em) {
+  color: #1aa251;
+  font-style: normal;
+  font-size: 11px;
+}
+
+.loading {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  background: linear-gradient(#bfe3ff, #e9f5ff 60%, #f3f7f2);
+  color: #1b2733;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .solar3dScope:global(.app) {
+    display: block;
+    min-height: 100dvh;
+  }
+
+  .solar3dScope :global(.canvas-wrap) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .solar3dScope :global(.settings-fab) {
+    display: flex;
+  }
+
+  .solar3dScope :global(.panel) {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    width: 100%;
+    max-height: 82dvh;
+    overflow-y: auto;
+    border-top: 1px solid #e6e8eb;
+    border-left: none;
+    border-radius: 16px 16px 0 0;
+    opacity: 0.9;
+    padding-top: 28px;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.18);
+    transform: translateY(110%);
+    transition: transform 0.28s ease;
+  }
+
+  .solar3dScope:global(.app.panel-open) :global(.panel) {
+    transform: translateY(0);
+  }
+
+  .solar3dScope:global(.app.panel-open) :global(.panel-backdrop) {
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    display: block;
+    background: transparent;
+  }
+
+  .solar3dScope:global(.app.panel-open) :global(.settings-fab) {
+    display: none;
+  }
+
+  .solar3dScope :global(.panel-close) {
+    display: block;
+  }
+}

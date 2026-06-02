@@ -21,6 +21,8 @@
     "deploy:fast": "./scripts/deploy.sh --fast"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@tiptap/extension-link": "^3.23.6",
     "@tiptap/pm": "^3.23.6",
     "@tiptap/react": "^3.23.6",
@@ -34,7 +36,8 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sharp": "^0.34.5",
-    "suncalc": "^1.9.0"
+    "suncalc": "^1.9.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "1.19.11",
